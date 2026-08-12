@@ -1,0 +1,87 @@
+# Virtual environments
+.venv/
+venv/
+env/
+.env/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg
+*.egg-info/
+.eggs/
+dist/
+build/
+pip-wheel-metadata/
+
+# Testing / linting / typing
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+.tox/
+.hypothesis/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editors / IDEs
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+
+# Training artifacts
+checkpoints/
+logs/
+wandb/
+runs/
+lightning_logs/
+*.ckpt
+*.pt
+*.pth
+*.onnx
+
+# Data (keep directory placeholders and manifests)
+data/raw/
+data/interim/
+data/processed/
+*.xlsx
+*.xls
+*.parquet
+*.feather
+*.h5
+*.hdf5
+*.csv
+*.tsv
+*.gz
+*.zip
+*.tar
+*.pkl
+*.pickle
+*.npy
+*.npz
+!data/manifests/
+!data/manifests/**
+
+# Results caches (keep reports/)
+results/
+outputs/
+
+# TensorBoard
+events.out.tfevents.*
