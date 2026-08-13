@@ -1,0 +1,41 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pe-rankformer"
+version = "0.1.0"
+description = "Context-conditioned relational Transformer for prime-editing efficiency prediction"
+requires-python = ">=3.11"
+dependencies = [
+    "torch>=2.11",
+    "numpy>=2.4",
+    "pandas>=3.0",
+    "polars>=1.43",
+    "pyarrow>=25.0",
+    "scipy>=1.17",
+    "scikit-learn>=1.9",
+    "openpyxl>=3.1",
+    "pyyaml>=6.0",
+    "tqdm>=4.70",
+    "matplotlib>=3.11",
+    "statsmodels>=0.14",
+    "einops>=0.8",
+    "tensorboard>=2.21",
+    "requests>=2.34",
+    "biopython>=1.88",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=9.0"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"

@@ -85,3 +85,6 @@ outputs/
 
 # TensorBoard
 events.out.tfevents.*
+
+# Cloned upstream repositories (see reports/optiprime_data_loader_reverse_engineering.md)
+external/*/
