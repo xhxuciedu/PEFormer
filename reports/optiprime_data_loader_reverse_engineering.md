@@ -230,3 +230,23 @@ Not established, and therefore the open risk for exact reconstruction:
   before export (the loader would not remove them).
 
 These are quantified in `reports/dataset_reconstruction_status.md`.
+
+## 8. Update: exact per-partition counts recovered from the paper
+
+After this report was first written, the user supplied the OptiPrime main-text and
+Supplementary Information PDFs (`data/raw/hsu2026/hsu2026_main_text.pdf`,
+`data/raw/hsu2026/hsu2026_supplementary_info.pdf`). Supplementary page 11 contains a bar
+chart ("OptiPrime 5-fold cross-validation performance (all datasets)") with 42 bars, each
+labeled with lab, cell type, a PEmax/epegRNA/MLH1dn/NRCH design flag, and its exact n.
+Transcribed into `data/manifests/optiprime_context_counts.csv`, the 42 values sum to
+**exactly 297,962** with no adjustment — see `reports/dataset_reconstruction_status.md`
+for the full table and cross-checks. This supersedes §7 above as the authoritative
+per-partition target for reconstruction (rather than only the lab-level group identity
+recovered from the model weights).
+
+The Data Availability statement (main text, page ~22) confirms no processed training
+corpus was deposited: raw sequencing is on SRA (BioProject `PRJNA1314411`, plus
+reanalyzed public accessions `PRJNA735408`, `PRJNA1055086`, `PRJNA1211588`), and code is
+at `github.com/alvin-hsu/optiprime-src` (already cloned) and
+`github.com/alvin-hsu/optiprime-front` (website front end, not needed here). This confirms
+the per-partition figure is the best available ground truth for reconstruction.

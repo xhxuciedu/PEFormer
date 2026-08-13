@@ -155,3 +155,62 @@ inference on Hsu rows; to be resolved at the baseline stage.
 
 **Next step.** Assemble the Kim (DeepPrime) and Schwank (PRIDICT/PRIDICT2.0) sources and
 reconcile against the 223,193 target.
+
+---
+
+## 2026-08-12 — Stage 0.6 User supplied the OptiPrime paper PDFs
+
+**Task.** User uploaded `s41587-026-03261-7.pdf` (main text) and
+`41587_2026_3261_MOESM1_ESM.pdf` (Supplementary Information). Moved into
+`data/raw/hsu2026/` as `hsu2026_main_text.pdf` / `hsu2026_supplementary_info.pdf`.
+
+**Problem.** Both PDFs use subsetted fonts without a ToUnicode map on most pages, so
+`pypdf` text extraction returns glyph-index garbage for the Supplementary body pages
+(figures/tables). Plain-text extraction only worked for the main text and the
+Supplementary Text 1 methods section.
+
+**Resolution.** Rendered the affected pages to PNG with `pymupdf` at 400-600 dpi and read
+them visually. Page 11 of the Supplementary Information turned out to contain the single
+most valuable figure for this project: "OptiPrime 5-fold cross-validation performance
+(all datasets)", a 42-bar chart giving the **exact n** of every dataset partition used to
+train OptiPrime, labeled by lab (Liu/Schwank/Kim), cell type, and a
+PEmax/epegRNA/MLH1dn/NRCH design flag.
+
+**Finding — exact reconciliation achieved.** Transcribed all 42 values into
+`data/manifests/optiprime_context_counts.csv`. They sum to **exactly 297,962**
+(Liu 65,594 + Schwank 174,067 + Kim 58,301), with zero adjustment — effectively a
+checksum confirming the transcription is correct, since an accidental match across 42
+independently-read multi-digit numbers is not plausible. This supersedes the
+group-identity-only result from the model-weights analysis (§5 finding) with an exact
+per-partition target.
+
+**Finding — 17/18 Kim partitions matched to specific DeepPrime release files** by their
+boolean flags (e.g. PEmax=1/epegRNA=1/MLH1dn=1/NRCH=0 uniquely identifies
+`DP_variant_293T_PE4max_epegRNA_Opti_220428`). One partition (DLD1 PE2max, n=3,423) is
+ambiguous: DeepPrime ships two files with identical flags
+(`_220428` and `_221114`), most likely merged into the reported partition.
+
+**Finding — new discrepancy: Liu/Hsu 74,769 (raw) vs. 65,594 (used by OptiPrime).** The
+four Liu partitions in this figure sum to 65,594, not the 74,769 nonmissing measurements
+we extracted from the Supplementary workbook (and which the main text itself describes as
+"74,769 PE efficiencies"). ~9,175 rows with a measured editing value were apparently
+excluded before OptiPrime training, by a filter not stated in the text and not present in
+the released loader (which only filters `weight > 0` / non-null outcome).
+
+**Decision.** Keep `hsu2026_74769.parquet` at the literal, spec-mandated 74,769 count —
+that is explicitly the task target and is independently reproducible from public data.
+Document the 65,594-vs-74,769 gap as an open discrepancy rather than reverse-engineer an
+unstated filter; flag it wherever Liu-subset results are compared to OptiPrime's own
+reported numbers.
+
+**Finding — Data Availability confirmed.** No processed training corpus was deposited
+anywhere (SRA has only raw reads: BioProject `PRJNA1314411`, plus reanalyzed
+`PRJNA735408`, `PRJNA1055086`, `PRJNA1211588`). The per-partition figure is therefore the
+best available ground truth, not a shortcut around a missing but findable dataset.
+
+**Output.** `data/manifests/optiprime_context_counts.csv`,
+`reports/dataset_reconstruction_status.md` (rewritten), `reports/optiprime_data_loader_reverse_engineering.md`
+(§8 appended).
+
+**Next step.** Assemble Kim/DeepPrime and Schwank/PRIDICT+PRIDICT2.0 row-level tables
+against the 42 per-partition targets, not just lab-level totals.

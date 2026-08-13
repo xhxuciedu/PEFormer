@@ -99,6 +99,21 @@ proposal targets. All training therefore pins `CUDA_VISIBLE_DEVICES=6`.
 Note: sm_120 requires a CUDA 12.8+ PyTorch build; `torch==2.11.0+cu128` was installed and
 verified for BF16 matmul and fused SDPA. See `reports/environment.txt`.
 
+## Addendum — OptiPrime paper PDFs (supplied 2026-08-12, after initial inventory)
+
+The user separately supplied the OptiPrime main-text and Supplementary Information PDFs.
+Moved to `data/raw/hsu2026/`:
+
+| Path | SHA256 |
+|---|---|
+| `hsu2026_main_text.pdf` (`s41587-026-03261-7.pdf`) | `98333b596849a02c0b15a0ccc3c7eea6d585f0056b6373e0c995b4297afcb84c` |
+| `hsu2026_supplementary_info.pdf` (`41587_2026_3261_MOESM1_ESM.pdf`) | `7b51945dfebb8312161450c42e2b948e5dafc2471e27df8a76aebb0391e6f6a2` |
+
+Supplementary page 11 contains the exact per-partition dataset sizes used to train
+OptiPrime (42 partitions, summing exactly to 297,962) — see
+`reports/dataset_reconstruction_status.md` and
+`data/manifests/optiprime_context_counts.csv`.
+
 ## Deviations from the task spec
 
 1. **Python version**: the spec prefers 3.11, but no system 3.11 interpreter exists
