@@ -1,0 +1,16 @@
+Python: 3.11.13 | packaged by conda-forge | (main, Jun  4 2025, 14:48:23) [GCC 13.3.0]
+Platform: Linux-4.19.0-gvisor-x86_64-with-glibc2.36
+
+pandas: 3.0.5
+pyarrow: 25.0.1
+openpyxl: 3.1.5
+numpy: 2.4.6
+scipy: 1.17.1
+scikit-learn: 1.9.0
+matplotlib: 3.11.1
+statsmodels: 0.14.6
+tqdm: 4.70.0
+requests: 2.34.2
+pyyaml: 6.0.3
+torch: not installed yet (will install for model training phase)
+GPU: RTX PRO 6000 Blackwell-class (per claude.md)

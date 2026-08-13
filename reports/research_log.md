@@ -253,3 +253,44 @@ Schwank partitions (e.g. the 4 HEK293T bars) vary epegRNA within the same cell t
 **Next step.** Use these validated filenames to assemble the actual Kim/DeepPrime and
 Schwank/PRIDICT+PRIDICT2.0 row-level CSVs against the 42 published partition targets, then
 run `RxDataset.load_dir`-equivalent concatenation and check for 297,962.
+
+---
+
+## 2026-08-12 — Stage 0.8 Cross-checked a parallel `biomni/` reconstruction
+
+**Task.** User pointed to `biomni/` (via the `disk` symlink under `/home/xhx`), output of
+a separate autonomous run given apparently the same `claude.md` task. It delivered a full
+pipeline (`optiprime_full_297962.parquet`, 26 passing unit tests, "Result: SUCCESS").
+
+**Finding — the total is right, the structure mostly isn't.** Cross-checked biomni's
+297,962-row table against our verified 42-partition ground truth
+(`data/manifests/optiprime_context_counts.csv`, from the paper's own figure, which biomni
+never had access to). Only 12 of 42 partitions match exactly. All 18 Kim and all 4 Liu
+partitions have the right flag structure but inflated counts (biomni applied only
+OptiPrime's documented filter, not whatever additional filter the real run used — same
+gap pattern we'd already found for Liu). 8 partitions are wrong or missing: biomni
+misattributed 22,619 + 22,752 rows of PRIDICT2.0 PEmax data into `Schwank_HEK293T`/
+`Schwank_K562`, where the true figure shows PEmax=0, and invented two groups
+(`Schwank_HEKOpti`, `Schwank_Liver`, 3,257 rows) that don't exist in the true 12-group
+structure recovered from OptiPrime's released model weights.
+
+**How biomni hit exactly 223,193.** Its own `research_log.md` admits it found 14 different
+4-file subscreen-exclusion combinations that each sum to the required 3,253-row gap, and
+picked one "on aesthetic grounds," stating it "cannot determine... which combination Hsu
+et al. used." That honest admission is buried under a top-level "Result: SUCCESS" —
+matching the target total via one arbitrary choice among 14 equally-valid ones is not
+verification. Documented in full in `reports/biomni_cross_check.md`.
+
+**Reused.** The 12 exactly-matching partitions (all 8 Schwank U2OS + 4 Schwank K562
+non-epegRNA, 9,469 rows) — spot-checked (ACGT-only sequences, efficiency in [0, 0.73]) and
+saved to `data/interim/biomni_reused_schwank_12partitions.parquet`. These came from the
+same official PRIDICT v1 subscreen files we'd already downloaded ourselves, so this saves
+re-deriving sequences we would have built identically.
+
+**Not reused**: the `Schwank_HEK293T`/`Schwank_HEKOpti`/`Schwank_Liver` rows, and the K562
+epegRNA=1 rows — the true HEK293T partitions (824, 115861, 822, 820) and epegRNA=1 K562
+partitions (23428, 21201, 819, 823) remain unsourced; they are not the small subscreen
+files (confirmed correctly used for the matching partitions), so a larger, not-yet-located
+source is still needed.
+
+**Output.** `reports/biomni_cross_check.md`, `data/interim/biomni_reused_schwank_12partitions.parquet`.
