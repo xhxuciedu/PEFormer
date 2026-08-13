@@ -214,3 +214,42 @@ best available ground truth, not a shortcut around a missing but findable datase
 
 **Next step.** Assemble Kim/DeepPrime and Schwank/PRIDICT+PRIDICT2.0 row-level tables
 against the 42 per-partition targets, not just lab-level totals.
+
+---
+
+## 2026-08-12 — Stage 0.7 User supplied data_collect_prompt.md; real OptiPrime code now runs
+
+**Task.** User pointed to `data_collect_prompt.md`, a more rigorous data-reconstruction
+spec: run OptiPrime's actual preprocessing code where practical rather than a
+reimplementation, decode the filename convention precisely, and validate every
+constructed artifact against the real loader.
+
+**Finding.** `pe_utils.py::format_pe_df` transitively needs `jax`, `flax`, `chex`,
+`optax`, `ViennaRNA`, `networkx` at import time even though the function itself only
+needs pandas. All installed cleanly into `.venv` except `rs3` (pinned scikit-learn fails
+to build under Python 3.11; `rs3` is only used by unrelated scoring functions, not
+`format_pe_df`, so it was skipped). `pe_datasets.py::process_fname` has no heavy deps at
+all. Both now import and run directly from `external/optiprime` via the new
+`pe_rankformer.data.optiprime_compat` wrapper — real validation, not reimplementation.
+
+**Finding — upstream bug.** `format_pe_df` crashes (`ValueError: Columns must be same
+length as key`) when every row of the input is filtered out, because `df.apply(...,
+result_type='expand')` on an empty frame returns zero columns. Guarded in our wrapper
+(pre-checks and returns an empty frame) since this can't occur on real per-context files
+but broke naive unit tests.
+
+**Finding — filename convention fully decoded and validated.** Built and validated (by
+running the real `process_fname`) an OptiPrime-compatible filename for all 42 partitions
+from `data/manifests/optiprime_context_counts.csv`. Key asymmetry: Liu and Kim encode
+PEmax/PE-type/epegRNA/NRCH entirely in the filename, but **Schwank's filename only
+encodes PEmax and PE2-vs-PE4 (MLH1dn)** — epegRNA is not filename-derived for Schwank, so
+our reconstructed Schwank CSVs must carry an explicit per-row `motif` column since several
+Schwank partitions (e.g. the 4 HEK293T bars) vary epegRNA within the same cell type.
+
+**Output.** `reports/optiprime_input_specification.md`, `src/pe_rankformer/data/optiprime_compat.py`,
+`tests/test_optiprime_compat.py` (7 tests, all passing), `reports/optiprime_filename_context_map.csv`
+(42/42 partitions validated against the real loader), `scripts/data/build_filename_context_map.py`.
+
+**Next step.** Use these validated filenames to assemble the actual Kim/DeepPrime and
+Schwank/PRIDICT+PRIDICT2.0 row-level CSVs against the 42 published partition targets, then
+run `RxDataset.load_dir`-equivalent concatenation and check for 297,962.

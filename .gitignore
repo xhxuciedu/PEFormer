@@ -78,6 +78,7 @@ data/processed/
 *.npz
 !data/manifests/
 !data/manifests/**
+!reports/**/*.csv
 
 # Results caches (keep reports/)
 results/

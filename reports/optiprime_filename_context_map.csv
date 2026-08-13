@@ -1,0 +1,63 @@
+# OptiPrime filename convention (decoded from external/optiprime/scripts/pe/pe_datasets.py,
+# validated by running the real process_fname on every constructed filename below).
+#
+# All files: `{lab_prefix}_{name_parts[1]}_{name_parts[2]}_{name_parts[3]}.csv`, dispatched by
+# lab_prefix = stem.split('_', 1)[0] in process_fname().
+#
+# Liu      (this study):        name_parts[1]=cell_type in {HEK293T,HeLa}; name_parts[3]=pe_type in {PE2,PE4}.
+#                                Fixed: scaffold=BlpI_F+E, motif=tevoPreQ1, cas9_type=PEmax-Cas9.
+#                                time = 3.0 (HEK293T) or 5.0 (HeLa). epegRNA/NRCH not filename-derived (always epegRNA here).
+# Schwank  (PRIDICT/PRIDICT2.0): name_parts[3]=type_editor; pe_type=type_editor[:3], PEmax iff type_editor[3:]=='max'.
+#                                cas9_type = PEmax-Cas9 if PEmax else PE2-Cas9. time = 7.0 fixed.
+#                                epegRNA/NRCH are NOT set from filename -- Schwank source rows must carry their own
+#                                'motif' column since epegRNA status varies within some partitions (e.g. HEK293T bars 5-8).
+# Kim      (DeepPrime):         name_parts[2]=lib_name (time=8.0 iff 'LibClinvar' else 7.0); name_parts[3]=details.
+#                                pe_type=details[:3]; PEmax iff 'max' in details; epegRNA iff '-e' in details (hyphen
+#                                required -- 'PE4maxe' without hyphen does NOT set epegRNA); NRCH iff 'NRCH' in details.
+# YKim     (PAM-variant, unused in the released weights -- see loader report section 4):
+#                                name_parts[2]=PAM variant string used verbatim as cas9_pam. cas9_type=PE2-Cas9,
+#                                pe_type=PE2, motif=none, time=3.0 fixed.
+
+bar_index,lab_prefix,cell_type,constructed_filename,PEmax,epegRNA,MLH1dn,NRCH,n_target,validated_against_process_fname,validation_note
+1,Liu,HEK293T,Liu_HEK293T_Lib_PE2.csv,1,1,0,0,15678,True,ok
+2,Liu,HEK293T,Liu_HEK293T_Lib_PE4.csv,1,1,1,0,15598,True,ok
+3,Liu,HeLa,Liu_HeLa_Lib_PE2.csv,1,1,0,0,17160,True,ok
+4,Liu,HeLa,Liu_HeLa_Lib_PE4.csv,1,1,1,0,17158,True,ok
+5,Schwank,HEK293T,Schwank_HEK293T_Lib_PE2.csv,0,0,0,0,824,True,ok
+6,Schwank,HEK293T,Schwank_HEK293T_Lib_PE2.csv,0,1,0,0,115861,True,ok
+7,Schwank,HEK293T,Schwank_HEK293T_Lib_PE4.csv,0,0,1,0,822,True,ok
+8,Schwank,HEK293T,Schwank_HEK293T_Lib_PE4.csv,0,1,1,0,820,True,ok
+9,Schwank,K562,Schwank_K562_Lib_PE2.csv,0,0,0,0,789,True,ok
+10,Schwank,K562,Schwank_K562_Lib_PE2.csv,0,1,0,0,23428,True,ok
+11,Schwank,K562,Schwank_K562_Lib_PE2max.csv,1,0,0,0,816,True,ok
+12,Schwank,K562,Schwank_K562_Lib_PE2max.csv,1,1,0,0,819,True,ok
+13,Schwank,K562,Schwank_K562_Lib_PE4.csv,0,0,1,0,817,True,ok
+14,Schwank,K562,Schwank_K562_Lib_PE4.csv,0,1,1,0,21201,True,ok
+15,Schwank,K562,Schwank_K562_Lib_PE4max.csv,1,0,1,0,816,True,ok
+16,Schwank,K562,Schwank_K562_Lib_PE4max.csv,1,1,1,0,823,True,ok
+17,Schwank,U2OS,Schwank_U2OS_Lib_PE2.csv,0,0,0,0,781,True,ok
+18,Schwank,U2OS,Schwank_U2OS_Lib_PE2.csv,0,1,0,0,774,True,ok
+19,Schwank,U2OS,Schwank_U2OS_Lib_PE2max.csv,1,0,0,0,785,True,ok
+20,Schwank,U2OS,Schwank_U2OS_Lib_PE2max.csv,1,1,0,0,778,True,ok
+21,Schwank,U2OS,Schwank_U2OS_Lib_PE4.csv,0,0,1,0,780,True,ok
+22,Schwank,U2OS,Schwank_U2OS_Lib_PE4.csv,0,1,1,0,774,True,ok
+23,Schwank,U2OS,Schwank_U2OS_Lib_PE4max.csv,1,0,1,0,784,True,ok
+24,Schwank,U2OS,Schwank_U2OS_Lib_PE4max.csv,1,1,1,0,775,True,ok
+25,Kim,HEK293T,Kim_HEK293T_LibVariant_PE2.csv,0,0,0,0,3409,True,ok
+26,Kim,HEK293T,Kim_HEK293T_LibVariant_PE2NRCH.csv,0,0,0,1,3418,True,ok
+27,Kim,HEK293T,Kim_HEK293T_LibVariant_PE2max.csv,1,0,0,0,3277,True,ok
+28,Kim,HEK293T,Kim_HEK293T_LibVariant_PE2max-e.csv,1,1,0,0,3034,True,ok
+29,Kim,HEK293T,Kim_HEK293T_LibVariant_PE2maxNRCH.csv,1,0,0,1,3347,True,ok
+30,Kim,HEK293T,Kim_HEK293T_LibVariant_PE4max.csv,1,0,1,0,2531,True,ok
+31,Kim,HEK293T,Kim_HEK293T_LibVariant_PE4max-e.csv,1,1,1,0,3331,True,ok
+32,Kim,A549,Kim_A549_LibVariant_PE2max.csv,1,0,0,0,3436,True,ok
+33,Kim,A549,Kim_A549_LibVariant_PE2max-e.csv,1,1,0,0,3229,True,ok
+34,Kim,A549,Kim_A549_LibVariant_PE4max.csv,1,0,1,0,3392,True,ok
+35,Kim,A549,Kim_A549_LibVariant_PE4max-e.csv,1,1,1,0,3191,True,ok
+36,Kim,DLD1,Kim_DLD1_LibVariant_PE2max.csv,1,0,0,0,3423,True,ok
+37,Kim,DLD1,Kim_DLD1_LibVariant_PE4max.csv,1,0,1,0,3057,True,ok
+38,Kim,DLD1,Kim_DLD1_LibVariant_PE4maxNRCH.csv,1,0,1,1,3063,True,ok
+39,Kim,HeLa,Kim_HeLa_LibVariant_PE2max.csv,1,0,0,0,3386,True,ok
+40,Kim,MDA-MB-231,Kim_MDA-MB-231_LibVariant_PE2.csv,0,0,0,0,3145,True,ok
+41,Kim,NIH3T3,Kim_NIH3T3_LibVariant_PE4maxNRCH.csv,1,0,1,1,3298,True,ok
+42,Kim,HCT116,Kim_HCT116_LibVariant_PE2.csv,0,0,0,0,3334,True,ok
