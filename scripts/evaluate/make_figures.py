@@ -42,14 +42,32 @@ def save(fig, name):
 
 
 def fig_pred_vs_observed(df: pd.DataFrame):
-    fig, ax = plt.subplots(figsize=(4.5, 4.5))
-    ax.hexbin(df.true_efficiency, df.predicted_efficiency, gridsize=50, cmap="viridis", mincnt=1)
-    ax.plot([0, 1], [0, 1], "r--", lw=1, alpha=0.7)
+    from matplotlib.colors import LogNorm
+
+    fig, ax = plt.subplots(figsize=(5, 4.5))
+    hb = ax.hexbin(
+        df.true_efficiency, df.predicted_efficiency, gridsize=50, cmap="viridis",
+        mincnt=1, norm=LogNorm(),
+    )
+    fig.colorbar(hb, ax=ax, label="count (log scale)")
+    ax.plot([0, 1], [0, 1], "r--", lw=1, alpha=0.7, label="y = x")
+
+    # Binned calibration overlay: mean predicted vs. mean observed per decile.
+    bins = np.linspace(0, 1, 11)
+    df = df.copy()
+    df["bin"] = pd.cut(df.true_efficiency, bins)
+    means = df.groupby("bin", observed=True).agg(
+        mean_true=("true_efficiency", "mean"), mean_pred=("predicted_efficiency", "mean")
+    )
+    ax.plot(means.mean_true, means.mean_pred, "o-", color="white", ms=4, lw=1.5, label="decile mean")
+    ax.plot(means.mean_true, means.mean_pred, "o-", color="black", ms=3, lw=1)
+
     ax.set_xlabel("Observed editing efficiency")
     ax.set_ylabel("Predicted editing efficiency")
     ax.set_title("PE-RankFormer: predicted vs. observed\n(locked test fold)")
     ax.set_xlim(0, 1)
     ax.set_ylim(0, 1)
+    ax.legend(loc="upper left", fontsize=8)
     save(fig, "01_predicted_vs_observed")
 
 
@@ -78,7 +96,22 @@ def fig_within_target_distribution(df: pd.DataFrame, label: str):
     save(fig, "03_within_target_spearman_distribution")
 
 
-def fig_topk_regret(table: pd.DataFrame):
+def fig_topk_regret(metrics_paths: dict[str, Path]):
+    """Full test fold only -- Hsu's library design has ~no multi-pegRNA-per-edit
+    groups, so top-k regret isn't computable on the Hsu-only OptiPrime comparison
+    subset (see reports/pilot_results.md, within-target metrics caveat)."""
+    import json
+
+    rows = []
+    for name, path in metrics_paths.items():
+        if not path.exists():
+            continue
+        m = json.loads(path.read_text())
+        rows.append({"model": name, "top1_regret": m["top1_regret"], "top3_regret": m["top3_regret"]})
+    if not rows:
+        logger.warning("skipping top-k regret figure: no metrics available")
+        return
+    table = pd.DataFrame(rows)
     fig, ax = plt.subplots(figsize=(5.5, 3.5))
     x = np.arange(len(table))
     ax.bar(x - 0.2, table["top1_regret"], width=0.4, label="Top-1 regret")
@@ -86,7 +119,7 @@ def fig_topk_regret(table: pd.DataFrame):
     ax.set_xticks(x)
     ax.set_xticklabels(table["model"], rotation=20, ha="right")
     ax.set_ylabel("Regret (efficiency units)")
-    ax.set_title("Top-k pegRNA-selection regret (lower is better)")
+    ax.set_title("Top-k pegRNA-selection regret, full test fold\n(lower is better)")
     ax.legend()
     save(fig, "04_topk_regret_comparison")
 
@@ -128,11 +161,29 @@ def fig_training_curves(history_paths: dict[str, Path]):
     save(fig, "06_training_curves")
 
 
-def fig_ablation(table: pd.DataFrame):
-    ablation = table[table["model"].str.contains("PE-RankFormer")]
-    if len(ablation) < 2:
+def fig_ablation(metrics_paths: dict[str, Path]):
+    """Uses the full-test-fold per-model metrics JSONs (not the Hsu-only comparison
+    table), since Hsu's library design has ~no within-target ranking groups -- those
+    metrics are only meaningful on the full, DeepPrime/PRIDICT-inclusive test fold."""
+    import json
+
+    rows = []
+    for name, path in metrics_paths.items():
+        if not path.exists():
+            continue
+        m = json.loads(path.read_text())
+        rows.append(
+            {
+                "model": name,
+                "spearman": m["global"]["spearman"],
+                "within_target_spearman": m["within_target_spearman_macro_mean"],
+                "top3_regret": m["top3_regret"],
+            }
+        )
+    if len(rows) < 2:
         logger.warning("skipping ablation figure: need both PE-RankFormer variants")
         return
+    ablation = pd.DataFrame(rows)
     fig, axes = plt.subplots(1, 3, figsize=(9, 3.5))
     metrics = [("spearman", "Global Spearman ρ"), ("within_target_spearman", "Within-target Spearman ρ"), ("top3_regret", "Top-3 regret")]
     for ax, (col, title) in zip(axes, metrics):
@@ -154,10 +205,15 @@ def main() -> None:
     if table_path.exists():
         table = pd.read_csv(table_path)
         fig_global_correlation_comparison(table)
-        fig_topk_regret(table)
-        fig_ablation(table)
     else:
         logger.warning("no hsu_benchmark_table.csv yet -- skipping comparison figures")
+
+    model_metrics_paths = {
+        "PE-RankFormer (rank)": eval_dir / "metrics_model_a_rank.json",
+        "PE-RankFormer (no-rank)": eval_dir / "metrics_model_b_norank.json",
+    }
+    fig_topk_regret(model_metrics_paths)
+    fig_ablation(model_metrics_paths)
 
     import glob
 

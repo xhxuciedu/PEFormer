@@ -43,7 +43,7 @@ def within_target_spearman(
             continue
         rho = spearmanr(g[true_col], g[pred_col]).statistic
         rows.append({"group": key, "n": len(g), "spearman": rho})
-    return pd.DataFrame(rows)
+    return pd.DataFrame(rows, columns=["group", "n", "spearman"])
 
 
 def top_k_regret(df: pd.DataFrame, group_col: str, true_col: str, pred_col: str, k: int, min_n: int = 2) -> pd.DataFrame:
@@ -56,6 +56,8 @@ def top_k_regret(df: pd.DataFrame, group_col: str, true_col: str, pred_col: str,
         top_k = g.nlargest(min(k, len(g)), pred_col)
         regret = y_max - top_k[true_col].max()
         rows.append({"group": key, "n": len(g), "regret": regret})
+    if not rows:
+        return pd.DataFrame(rows, columns=["group", "n", "regret"])
     return pd.DataFrame(rows)
 
 

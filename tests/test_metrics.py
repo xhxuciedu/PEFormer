@@ -45,6 +45,19 @@ def test_within_target_spearman_respects_min_n():
     assert len(out) == 0  # groups only have 6 members
 
 
+def test_within_target_spearman_empty_result_has_spearman_column():
+    df = _grouped_df()
+    out = within_target_spearman(df, "group", "true", "pred", min_n=100)
+    assert list(out.columns) == ["group", "n", "spearman"]
+    assert out.spearman.tolist() == []
+
+
+def test_top_k_regret_empty_result_has_regret_column():
+    df = _grouped_df()
+    out = top_k_regret(df, "group", "true", "pred", k=1, min_n=100)
+    assert list(out.columns) == ["group", "n", "regret"]
+
+
 def test_within_target_spearman_computed_per_group():
     df = _grouped_df()
     out = within_target_spearman(df, "group", "true", "pred", min_n=5)
