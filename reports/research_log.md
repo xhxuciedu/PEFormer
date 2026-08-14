@@ -382,3 +382,46 @@ the previous integration. Combined total: 74,769 (ours) + 187,739 (reused) = 262
 
 **Output.** `reports/dataset_reconstruction_status.md` (updated),
 `data/interim/biomni_reused_verified.parquet` (updated).
+
+---
+
+## 2026-08-14 — Stage 1.1 Finalized corpus, dedup analysis, fold construction
+
+**Task.** User asked to continue our own pipeline work and estimate remaining time.
+Finalized data assembly (task spec §7-8) rather than continuing to chase the last ~12% gap
+indefinitely, per §8's explicit fallback: preserve a maximally verified dataset, label
+honestly, don't block progress.
+
+**Built** `scripts/data/build_full_corpus.py`: maps our Hsu extraction and the verified
+biomni-reused rows onto one OptiPrime-compatible column schema, concatenates, validates
+(`[0,1]` bounds, unique record IDs, RNA alphabet). Found and fixed a real issue during
+this: 6,276 Schwank_HEK293T rows had small negative `indel` values (same PRIDICT v1
+background-subtraction noise pattern already found for `edited`); clipped to 0 and
+recomputed `unedited`, logged clearly rather than silently.
+
+**Result**: `data/processed/optiprime_full_297962.parquet`, 262,508 / 297,962 rows (88.1%).
+
+**Duplicate analysis** (`scripts/data/duplicate_analysis.py`): initially flagged 10,412
+"exact duplicate" observations, which looked concerning. Investigated before reporting it
+at face value: only 2 have `edited > 0` — the other 10,410 are different designs that
+legitimately share `edited == 0.0` exactly, an artifact of DeepPrime's zero-inflated
+efficiency distribution (confirmed earlier against raw DeepPrime source files: 41-50% of
+raw measurements are exact zero). Zero cross-study design overlap. No deduplication
+needed or applied.
+
+**Fold construction**: built our own (not reusing biomni's), `pe_rankformer.data.folds`,
+seed 20260812, protospacer(spacer)-grouped, zero-leakage verified by assertion and by a
+new unit test (`tests/test_folds.py`, 5 tests). Folds balanced 19.2-20.8%.
+`data/processed/fold_assignments.parquet` (39,202 unique spacers).
+
+**Full test suite**: 12/12 passing.
+
+**Output.** `scripts/data/build_full_corpus.py`, `scripts/data/duplicate_analysis.py`,
+`src/pe_rankformer/data/folds.py`, `scripts/data/build_folds.py`, `tests/test_folds.py`,
+`data/processed/optiprime_full_297962.parquet`, `data/processed/fold_assignments.parquet`,
+`reports/duplicate_analysis.md`, `reports/dataset_reconstruction_status.md` (updated with
+final decision).
+
+**Next step.** Move to model implementation (spec §12-19): PE-RankFormer architecture,
+paired WT/edit tokenization, pegRNA encoder, cross-attention, context conditioning, unit
+tests, tiny-overfit sanity check, GPU profiling.

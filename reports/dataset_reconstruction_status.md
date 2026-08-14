@@ -165,7 +165,32 @@ Two real gaps remain, both on Schwank K562, epegRNA=1 partitions:
 Plus the still-unresolved Liu 65,594-vs-74,769 gap, unchanged across three independent
 attempts (ours and two of biomni's).
 
-### Still open (6 of 42 partitions)
+### Decision: proceed with the current corpus as final for the pilot
+
+Per task spec §8's fallback clause, after three independent reconstruction attempts (two
+by biomni, one by us) converging on the same ~6% residual gap, further searching has
+strongly diminishing returns. **We are proceeding with the assembled corpus as the pilot's
+training data**, labeled explicitly as an **OptiPrime-compatible reconstructed corpus**,
+not the exact training set:
+
+```
+data/processed/optiprime_full_297962.parquet: 262,508 / 297,962 rows (88.1%)
+```
+
+(Filename kept as `optiprime_full_297962.parquet` per the spec's deliverables list, despite
+the actual row count — the gap is loud and logged, not hidden.)
+
+Duplicate analysis (`scripts/data/duplicate_analysis.py`, full results in
+`reports/duplicate_analysis.md`): negligible — only 2 genuine non-zero exact-duplicate
+observations in 262,508 rows; the apparent 10,412 "duplicate" count before that check is
+explained entirely by DeepPrime's zero-inflated efficiency distribution (many different
+designs legitimately measuring exactly 0). Zero cross-study design overlap detected.
+
+Fold assignments built independently (not reusing biomni's), seed 20260812,
+protospacer(spacer)-disjoint, verified zero-leakage:
+`data/processed/fold_assignments.parquet` (39,202 spacers), folds balanced 19.2-20.8%.
+
+### Still open (6 of 42 partitions) — deferred, not blocking
 
 1. **Liu/Hsu: 65,594 target vs. 74,769 available** (4 partitions, 9,175-row excess). Both
    our own and biomni's independent investigations failed to find the exact filter;
