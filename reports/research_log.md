@@ -338,3 +338,47 @@ massively short at 823/21,201, two minor).
 **Next step.** Hunt for the missing K562 PE2-non-epegRNA source (789 rows) and investigate
 whether the K562 PE4-epegRNA partition (21,201 target) is recoverable at all from public
 data before concluding it's genuinely unavailable.
+
+---
+
+## 2026-08-14 — Stage 1.0 Third biomni/ run: bug fixes confirmed, integrated further
+
+**Task.** A third `biomni/` run appeared, following our recommendations from the previous
+session (detailed feedback given to the user to relay: investigate the Liu filter via
+`pe_constants.py` bounds, fix the K562/HEK293T misassignment, hunt for the K562 PE4-epegRNA
+data in specific named files, fix the stale-rollup report bug).
+
+**Finding — the K562 misassignment bug is fixed.** Bar 8 (Schwank K562, PE2, non-epegRNA,
+target 789) now matches exactly; `convert_schwank.py` shows it correctly mapped to
+`group='Schwank_K562'` with the right flags. Independently verified: our own re-run of the
+exact-match check (against our own ground truth, not their claim) gives **36/42
+partitions**, up from 34/42.
+
+**Finding — the reporting bug is fixed.** `report_dataset_reconstruction.md` states "All
+counts in this report are auto-generated... No values are hand-computed," and this now
+checks out: `df.groupby('group').size()` on the actual parquet matches every number in
+their report exactly (previously the `Schwank_HEK293T` group total was stale by ~18k rows).
+
+**Finding — real pipeline code included this round**: `convert_schwank.py`,
+`construct_folds.py`, `generate_report.py`, `test_data_pipeline.py`. Spot-checked
+`construct_folds.py`: correctly uses OptiPrime's actual SHA256-based `deterministic_hash`
+(not a substitute), asserts protospacer-disjointness before saving. Legitimate.
+
+**Nice independent cross-validation**: their own report still flags U2OS bar 19 as a
+mismatch (their ground truth: 780; actual data: 778), but 778 matches **our** independently
+-read ground truth for that bar exactly — confirming our PDF reading was right and their
+one glyph-decode error (which they'd already self-flagged as suspect) is on their side.
+
+**Still open**: Liu 65,594-vs-74,769 gap, unchanged across three independent attempts now.
+Two Schwank K562 epegRNA=1 partitions: one with a 94-row excess (traced to an unapplied
+PRIDICT2.0 QC pickle, `k562_indices_nan.pkl`, not yet fixed), one still short by 20,378
+rows after checking 4 more source files this round — increasingly looks genuinely
+unavailable in any public release.
+
+**Integrated.** Re-extracted matched partitions into
+`data/interim/biomni_reused_verified.parquet`: now 187,739 rows (36/42), +1,613 rows over
+the previous integration. Combined total: 74,769 (ours) + 187,739 (reused) = 262,508 /
+297,962 (88.1%).
+
+**Output.** `reports/dataset_reconstruction_status.md` (updated),
+`data/interim/biomni_reused_verified.parquet` (updated).

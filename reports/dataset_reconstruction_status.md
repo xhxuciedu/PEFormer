@@ -126,7 +126,46 @@ own `hsu2026_74769.parquet` (74,769 rows), current best-available total:
 74,769 (Hsu, ours)  +  186,126 (Kim + partial Schwank, reused)  =  260,895 / 297,962  (87.6%)
 ```
 
-### Still open (8 of 42 partitions)
+### Update 2026-08-14: third biomni/ run, further improved
+
+A third run fixed the K562/HEK293T misassignment bug (bar 8, K562 PE2/non-epegRNA) that we
+had flagged: it now matches exactly (789 rows). It also ships real, readable pipeline code
+(`biomni/convert_schwank.py`, `construct_folds.py`, `generate_report.py`,
+`test_data_pipeline.py`) instead of only a report, and its report tables are now genuinely
+auto-generated from the final parquet (confirmed by direct query — the stale-rollup bug we
+caught in the second run is gone; `df.groupby('group').size()` matches the report exactly).
+
+Re-running our own exact-match check (against **our** ground truth, independent of their
+claim) on the new `biomni/optiprime_full_297962.parquet`:
+
+| Lab | Exact-match partitions | Rows |
+|---|---:|---:|
+| Kim | 18 / 18 | 58,301 |
+| Schwank | 18 / 20 | 129,438 |
+| Liu | 0 / 4 | 0 (kept our own 74,769) |
+| **Total reused** | **36 / 42** | **187,739** |
+
+One nice cross-validation: their own report still flags Schwank U2OS bar 19 as a mismatch
+(their ground truth says 780, actual data has 778), but 778 is exactly what **our**
+independently-read ground truth already had for that bar — so against our numbers this
+partition is an exact match, not a mismatch. This confirms our visual PDF reading was
+correct and their programmatic glyph-decode has the one 2-row error, as they suspected
+themselves.
+
+Updated `data/interim/biomni_reused_verified.parquet` to 187,739 rows (36/42 partitions).
+Combined with our own Hsu data: `74,769 + 187,739 = 262,508 / 297,962 (88.1%)`.
+
+Two real gaps remain, both on Schwank K562, epegRNA=1 partitions:
+- PE2/epegRNA (target 23,428): 94-row excess, traced by biomni to an unapplied PRIDICT2.0
+  QC exclusion list (`k562_indices_nan.pkl`, 204 indices) — not yet fully resolved.
+- PE4/epegRNA (target 21,201): still only 823 rows found anywhere, after checking 4
+  additional PRIDICT v1/PRIDICT2.0 source files this round. Increasingly looks like this
+  specific context (K562, PE4, epegRNA) may not be in any public release.
+
+Plus the still-unresolved Liu 65,594-vs-74,769 gap, unchanged across three independent
+attempts (ours and two of biomni's).
+
+### Still open (6 of 42 partitions)
 
 1. **Liu/Hsu: 65,594 target vs. 74,769 available** (4 partitions, 9,175-row excess). Both
    our own and biomni's independent investigations failed to find the exact filter;
