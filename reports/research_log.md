@@ -294,3 +294,47 @@ files (confirmed correctly used for the matching partitions), so a larger, not-y
 source is still needed.
 
 **Output.** `reports/biomni_cross_check.md`, `data/interim/biomni_reused_schwank_12partitions.parquet`.
+
+---
+
+## 2026-08-13 — Stage 0.9 Integrated verified data from an improved biomni/ run
+
+**Task.** A second, much-improved reconstruction appeared in `biomni/` (new files:
+`kim_58301.parquet`, `schwank_combined.parquet`, `ground_truth_partitions.csv`,
+`report_dataset_reconstruction.md`). Assessed whether to trust and reuse it.
+
+**Finding — this run is largely trustworthy.** It independently re-derived the same
+42-partition ground truth via a different method (programmatic glyph decoding vs. our
+visual reading): 41/42 values agree exactly, the 1 disagreement (778 vs 780) is a 2-row
+difference it flagged itself as a likely decode artifact. It correctly identified the true
+12 groups (no more fabricated `HEKOpti`/`Liver` groups from the first attempt), and
+reports honestly: 34/42 exact partition matches, 286,948/297,962 rows (96.3%), explicitly
+documented gaps instead of a forced "SUCCESS".
+
+**Verification before reuse.** Caught one internal inconsistency in their own report (a
+summary table lists `Schwank_HEK293T` group total as 101,098; the actual parquet has
+119,193 — a stale rollup, not a data bug, confirmed by direct query). Spot-checked
+Kim/DeepPrime data quality: ~50% exact-zero editing rate and PBS lengths as short as 1-2nt
+looked alarming, but both check out against our own raw `external/deepprime/*.csv` files
+— genuine characteristics of DeepPrime's library design (deliberately titrated PBS length
+1-17nt), not a processing bug.
+
+**Integrated.** Re-ran our own exact-match check independently (not trusting their claimed
+table) against `biomni/optiprime_full_297962.parquet`: confirms 34/42 partitions match
+exactly. Extracted those 186,126 rows (all 18 Kim partitions, 16/20 Schwank partitions,
+including the previously-unsourced 115,861-row HEK293T partition) into
+`data/interim/biomni_reused_verified.parquet`. Found and clipped 258 rows (0.22%) with
+small negative `edited` values (PRIDICT v1 background-subtraction noise) to 0, per spec
+§18's `[0,1]` requirement.
+
+**Current best-available total**: 74,769 (our Hsu) + 186,126 (reused) = 260,895 / 297,962
+(87.6%). Remaining gap: the known Liu 65,594-vs-74,769 excess (unresolved by both
+independent attempts), and 4 Schwank K562 partitions (one fully unsourced at 789 rows, one
+massively short at 823/21,201, two minor).
+
+**Output.** `data/interim/biomni_reused_verified.parquet`,
+`reports/dataset_reconstruction_status.md` (updated).
+
+**Next step.** Hunt for the missing K562 PE2-non-epegRNA source (789 rows) and investigate
+whether the K562 PE4-epegRNA partition (21,201 target) is recoverable at all from public
+data before concluding it's genuinely unavailable.

@@ -94,6 +94,52 @@ explicitly prohibits inventing filtering criteria that cannot be justified from 
 Any comparison against OptiPrime's own reported cross-validation numbers on Liu data
 should account for this ~12% denominator difference.
 
+## Update 2026-08-13: verified data integrated from a second `biomni/` cross-check
+
+A second, much-improved run appeared in `biomni/` (see `reports/biomni_cross_check.md` for
+the full comparison methodology). Unlike the first run, it independently re-derived the
+same 42-partition ground truth from the SI PDF (41/42 values agree with ours exactly; the
+1 disagreement is a 2-row difference it flagged itself as a likely decode artifact) and
+honestly reports per-partition match/mismatch instead of forcing the grand total.
+
+Re-running our exact-match check against `biomni/optiprime_full_297962.parquet`:
+
+| Lab | Exact-match partitions | Rows reused |
+|---|---:|---:|
+| Kim (DeepPrime) | **18 / 18** | 58,301 |
+| Schwank (PRIDICT/PRIDICT2.0) | 16 / 20 | 127,825 |
+| Liu (Hsu) | 0 / 4 | 0 (kept our own 74,769; see below) |
+| **Total reused** | **34 / 42** | **186,126** |
+
+Spot-checked before reuse: no null sequences, all sampled sequences ACGT-only, PBS-length
+and zero-editing-rate distributions for Kim cross-checked against our own raw
+`external/deepprime` files and found consistent with genuine DeepPrime library design
+(not an artifact). Found and fixed one real issue: 258 Schwank_HEK293T rows (0.22%) had
+small negative `edited` values (background-subtraction noise from PRIDICT v1's raw
+`averageedited` column) — clipped to 0 per spec §18's `[0,1]` requirement, documented, not
+silently dropped.
+
+Saved to `data/interim/biomni_reused_verified.parquet` (186,126 rows). Combined with our
+own `hsu2026_74769.parquet` (74,769 rows), current best-available total:
+
+```
+74,769 (Hsu, ours)  +  186,126 (Kim + partial Schwank, reused)  =  260,895 / 297,962  (87.6%)
+```
+
+### Still open (8 of 42 partitions)
+
+1. **Liu/Hsu: 65,594 target vs. 74,769 available** (4 partitions, 9,175-row excess). Both
+   our own and biomni's independent investigations failed to find the exact filter;
+   documented as an unresolved gap rather than guessed. We use the full 74,769.
+2. **Schwank K562, PE2, non-epegRNA (bar 8, target 789)**: currently 0 rows — got
+   misassigned into a different group in biomni's data. Unsourced.
+3. **Schwank K562, PE4, epegRNA (bar 13, target 21,201)**: only 823 rows available anywhere
+   (823 vs 21,201 needed). Likely an unpublished K562 PE4 experiment not in any public
+   release — both independent reconstruction attempts hit the same wall here.
+4. **Schwank K562, PE2, epegRNA (bar 9, target 23,428)**: 112-row excess, unexplained but
+   minor.
+5. One more Schwank K562 partition remains unreconciled at minor scale.
+
 ## Status against spec §7-8 requirements
 
 | Requirement | Status |

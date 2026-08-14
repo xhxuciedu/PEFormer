@@ -1,275 +1,256 @@
-# Plan: Reconstruct the OptiPrime 297,962-Example PE Training Dataset
+# Plan: Reconstruct the OptiPrime 297,962-Example PE Training Dataset (v2)
 
 ## Objective
 
-Reconstruct, as closely as possible, the exact 297,962-example prime-editing training dataset used by Hsu et al. for OptiPrime, then set up the project infrastructure for the broader PE-RankFormer pilot study.
-
-**Arithmetic:** 74,769 (Hsu Lib-MMR + Lib-CV) + 223,193 (historical: PRIDICT v1, DeepPrime, PRIDICT2.0) = 297,962.
+Reconstruct the exact 297,962-example prime-editing training dataset used by Hsu et al. for OptiPrime, with **partition-level verification** against ground truth decoded from the Supplementary Information PDF (page 11 figure), not just grand-total matching.
 
 ---
 
-## What We Know (Verified During Investigation)
+## Ground Truth: 42 Partitions Decoded from SI PDF
 
-### Hsu Data (74,769) — VERIFIED EXACTLY
-- Source: `/mnt/user-uploads/41587_2026_3261_MOESM3_ESM.xlsx`
-- Lib-MMR sheet: 10,000 data rows, 4 editing columns → 36,560 nonmissing values
-- Lib-CV sheet: 10,406 data rows, 4 editing columns → 38,209 nonmissing values
-- Total: 74,769 (verified per-column: HEK293T_PE2=17,836, HEK293T_PE4=17,746, HeLa_PE2=19,594, HeLa_PE4=19,593)
-- 4 experimental contexts: HEK293T PE2, HEK293T PE4, HeLa PE2, HeLa PE4
+### Method
+The SI PDF (page 11, 0-indexed page 10) contains a bar chart showing all 42 data partitions. Using PyMuPDF's `get_text("rawdict")`, we extracted the n-value labels from embedded font subsets (F34 for digits, F5 for commas). Using the known partition size 115,861 as a Rosetta Stone, we decoded all 10 digit glyphs and brute-forced the remaining 6 unknowns against all 720 permutations of the remaining digits {0,2,3,4,7,9}. Exactly **one** permutation yields a sum of 297,962.
 
-### OptiPrime Data Loading Pipeline (from source code)
-- `RxDataset.load_dir()` globs `*.csv` from a directory, reads each, applies `preprocess_fn`, concatenates
-- `preprocess_fn()` (scripts/pe/1_train.py): sets `group = f'{lab_name}_{cell_type}'` from filename, calls `process_fname()`, then `format_pe_df()`, sets time-1, computes hashes
-- **Filename convention**: `{lab_name}_{cell_type}_{...}_{pe_type_or_editor}.csv`
-- **Lab processors** (scripts/pe/pe_datasets.py):
-  - `process_liu` (Hsu): cell_type from parts[1], pe_type from parts[3]. Scaffold='BlpI_F+E', motif='tevoPreQ1', cas9='PEmax-Cas9', time=3.0 (HEK293T) or 5.0 (HeLa)
-  - `process_schwank` (PRIDICT/PRIDICT2.0): type_editor from parts[3]. pe_type=type_editor[0:3], is_max=(type_editor[3:]=='max'), cas9='PEmax-Cas9' if max else 'PE2-Cas9', time=7.0
-  - `process_hkim` (DeepPrime): lib_name from parts[2], details from parts[3]. pe_type=details[0:3], is_max=('max' in details), is_epeg=('-e' in details), is_nrch=('NRCH' in details), time=8.0 (LibClinvar) or 7.0
-  - `process_ykim` (DeepPE/Kim 2021): pam_var from parts[2]. cas9='PE2-Cas9', pe_type='PE2', motif='none', time=3.0
-- **`format_pe_df()`** (scripts/pe/pe_utils.py):
-  - Required columns: `spacer`, `rtt`, `pbs`, `full_unedited`, `full_edited`
-  - Default values for missing: scaffold_name='SpCas9_OG', motif='tevoPreQ1', cas9_type='PE2-Cas9', cas9_pam='SpNGG', pe_type='PE2', weight=1.0, edited_frac=0.0, indel_frac=0.0
-  - Computes `unedited = 1 - (edited_frac + indel_frac)`
-  - Renames edited_frac→edited, indel_frac→indel
-  - **Filters**: `weight > 0`, `dropna(subset=['unedited', 'edited', 'weight'])`, `proto30.str.len() == 30`
-  - Converts T→U in spacer/rtt/pbs
-  - proto30 = full_unedited.str.slice(0, 30) (PS20_OFFSET=4, so protospacer starts at position 4)
+### Complete Partition Table
 
-### Historical Data Sources Identified
+The figure has 3 colored bar sections (blue=Liu/Hsu, green=Schwank, purple=Kim) and a 4-row flag matrix (PEmax, epegRNA, MLH1dn, NRCH) parsed from filled/unfilled circles:
 
-#### 1. DeepPrime (Yu et al. 2023, Cell — ref 55)
-- **Location**: `/workspace/external/deepprime_official/data/`
-- **Main dataset**: `DeepPrime_dataset_final_Feat8.csv` — 288,793 rows (259,910 train folds 0-4 + 28,883 test)
-  - Columns: WT74_On (74bp), Edited74_On (74bp, 'x' for deletions), PBSlen, RTlen, Measured_PE_efficiency (percentages 0-62.35), Fold, Edit_pos, Edit_len, type_sub/ins/del
-  - Edit lengths: 1-3 only. Types: 153,974 sub, 81,503 ins, 53,316 del
-  - All HEK293T PE2 conventional (ClinVar library)
-- **19 variant files**: `DP_variant_*.csv` — 72,681 rows total (60,857 train + 11,824 test)
-  - Same 34-column format, all non-null efficiencies
-  - Contexts: HEK293T (7: PE2_Conv, PE2max, PE2max-e, PE4max, PE4max-e, NRCH-PE2, NRCH-PE2max), A549 (4), DLD1 (4, two PE2max dates), HCT116 (1), HeLa (1), MDA-MB-231 (1), NIH3T3 (1)
-  - **18 unique experimental contexts** (two DLD1_PE2max dates = same context)
+| Bar | Size | Group | PEmax | epeg | MLH1dn | NRCH | Source File |
+|-----|------|-------|-------|------|--------|------|-------------|
+| 0 | 15,678 | Liu_HEK293T | 1 | 1 | 0 | 0 | Hsu Lib-MMR/CV HEK293T PE2 |
+| 1 | 15,598 | Liu_HEK293T | 1 | 1 | 1 | 0 | Hsu Lib-MMR/CV HEK293T PE4 |
+| 2 | 17,160 | Liu_HeLa | 1 | 1 | 0 | 0 | Hsu Lib-MMR/CV HeLa PE2 |
+| 3 | 17,158 | Liu_HeLa | 1 | 1 | 1 | 0 | Hsu Lib-MMR/CV HeLa PE4 |
+| 4 | 824 | Schwank_HEK293T | 0 | 0 | 0 | 0 | PRIDICT v1 subscreen HEK PE2 non-tevo |
+| 5 | 115,861 | Schwank_HEK293T | 0 | 1 | 0 | 0 | PRIDICT v1 focused + PRIDICT2.0 HEK PE2 |
+| 6 | 822 | Schwank_HEK293T | 0 | 0 | 1 | 0 | PRIDICT v1 subscreen HEK PE2-dnMLH1 non-tevo |
+| 7 | 820 | Schwank_HEK293T | 0 | 1 | 1 | 0 | PRIDICT v1 subscreen HEK PE2-dnMLH1 tevo |
+| 8 | 789 | Schwank_HEK293T | 0 | 0 | 0 | 0 | PRIDICT v1 subscreen/library2 HEK PE2 non-tevo |
+| 9 | 23,428 | Schwank_K562 | 0 | 1 | 0 | 0 | PRIDICT2.0 K562 PE2 + subscreen K562 PE2 tevo |
+| 10 | 816 | Schwank_K562 | 1 | 0 | 0 | 0 | PRIDICT v1 subscreen K562 Pemax non-tevo |
+| 11 | 819 | Schwank_K562 | 1 | 1 | 0 | 0 | PRIDICT v1 subscreen K562 Pemax tevo |
+| 12 | 817 | Schwank_K562 | 0 | 0 | 1 | 0 | PRIDICT v1 subscreen K562 PE2-dnMLH1 non-tevo |
+| 13 | 21,201 | Schwank_K562 | 0 | 1 | 1 | 0 | PRIDICT2.0 K562 PE4 + subscreen K562 PE4 tevo |
+| 14 | 816 | Schwank_K562 | 1 | 0 | 1 | 0 | PRIDICT v1 subscreen K562 Pemax-dnMLH1 non-tevo |
+| 15 | 823 | Schwank_K562 | 1 | 1 | 1 | 0 | PRIDICT v1 subscreen K562 Pemax-dnMLH1 tevo |
+| 16 | 781 | Schwank_U2OS | 0 | 0 | 0 | 0 | subscreen U2OS PE2 non-tevo |
+| 17 | 774 | Schwank_U2OS | 0 | 1 | 0 | 0 | subscreen U2OS PE2 tevo |
+| 18 | 785 | Schwank_U2OS | 1 | 0 | 0 | 0 | subscreen U2OS Pemax non-tevo |
+| 19 | 780 | Schwank_U2OS | 1 | 1 | 0 | 0 | subscreen U2OS Pemax tevo |
+| 20 | 780 | Schwank_U2OS | 0 | 0 | 1 | 0 | subscreen U2OS PE2-dnMLH1 non-tevo |
+| 21 | 774 | Schwank_U2OS | 0 | 1 | 1 | 0 | subscreen U2OS PE2-dnMLH1 tevo |
+| 22 | 784 | Schwank_U2OS | 1 | 0 | 1 | 0 | subscreen U2OS Pemax-dnMLH1 non-tevo |
+| 23 | 775 | Schwank_U2OS | 1 | 1 | 1 | 0 | subscreen U2OS Pemax-dnMLH1 tevo |
+| 24 | 3,409 | Kim_HEK293T | 0 | 0 | 0 | 0 | DP_variant_293T_PE2_Conv |
+| 25 | 3,418 | Kim_HEK293T | 0 | 0 | 0 | 1 | DP_variant_293T_NRCH_PE2 |
+| 26 | 3,277 | Kim_HEK293T | 1 | 0 | 0 | 0 | DP_variant_293T_PE2max |
+| 27 | 3,034 | Kim_HEK293T | 1 | 1 | 0 | 0 | DP_variant_293T_PE2max_epegRNA |
+| 28 | 3,347 | Kim_HEK293T | 1 | 0 | 0 | 1 | DP_variant_293T_NRCH-PE2max |
+| 29 | 2,531 | Kim_HEK293T | 1 | 0 | 1 | 0 | DP_variant_293T_PE4max |
+| 30 | 3,331 | Kim_HEK293T | 1 | 1 | 1 | 0 | DP_variant_293T_PE4max_epegRNA |
+| 31 | 3,436 | Kim_A549 | 1 | 0 | 0 | 0 | DP_variant_A549_PE2max_221114 |
+| 32 | 3,229 | Kim_A549 | 1 | 1 | 0 | 0 | DP_variant_A549_PE2max_epegRNA |
+| 33 | 3,392 | Kim_A549 | 1 | 0 | 1 | 0 | DP_variant_A549_PE4max |
+| 34 | 3,191 | Kim_A549 | 1 | 1 | 1 | 0 | DP_variant_A549_PE4max_epegRNA |
+| 35 | 3,423 | Kim_DLD1 | 1 | 0 | 0 | 0 | DP_variant_DLD1_PE2max_221114 |
+| 36 | 3,057 | Kim_DLD1 | 1 | 0 | 1 | 0 | DP_variant_DLD1_PE4max |
+| 37 | 3,063 | Kim_DLD1 | 1 | 0 | 1 | 1 | DP_variant_DLD1_NRCHPE4max |
+| 38 | 3,386 | Kim_HeLa | 1 | 0 | 0 | 0 | DP_variant_HeLa_PE2max |
+| 39 | 3,145 | Kim_MDA-MB-231 | 0 | 0 | 0 | 0 | DP_variant_MDA_PE2 |
+| 40 | 3,298 | Kim_NIH3T3 | 1 | 0 | 1 | 1 | DP_variant_NIH_NRCHPE4max |
+| 41 | 3,334 | Kim_HCT116 | 0 | 0 | 0 | 0 | DP_variant_HCT116_PE2 |
 
-#### 2. PRIDICT2.0 (Mathis et al. 2024 — ref 56)
-- **Location**: `/workspace/external/pridict2/dataset/proc_v2/data_23k_v1.csv` (22,956 rows, 35 cols)
-  - Has `wide_initial_target`, `wide_mutated_target`, PBSlength, RTlength
-  - HEKaverageedited_clamped: 22,956 non-null (all, range 0-0.934, fractions)
-  - K562averageedited_clamped: 22,956 non-null (all, range 0-0.902, fractions)
-  - Also has unedited and unintended columns for both cell types
-- **Supplementary Excel** (epridict supplementary branch, cloned to `/workspace/external/epridict_supp/`):
-  - `SupplFile1_Library_Diverse_Editing_Results_with_test_splits.xlsx`: 22,956 rows, 141 cols
-  - **Has `spacer`, `PBS`, `RTT` columns directly** — no need to derive from target sequences
-  - HEKaverageedited: 22,619 non-null (337 missing), K562averageedited: 22,752 non-null (204 missing)
-  - Has `test_split_hek` and `test_split_k562` for train/test splits
-  - Efficiency values in percentages (0-100), not fractions
-  - 2 experimental contexts: HEK293T PE2max, K562 PE2max
+**Sum = 297,962** (verified)
 
-#### 3. PRIDICT v1 (Mathis et al. 2023, Nat Biotechnol — ref 54)
-- **Location**: `/workspace/external/pridict_supp/` (supplementary_files branch)
-- **Main editing table**: `03_jupyter_notebooks/20220719_FINAL_Editingtable_focused_NM_withindex.zip`
-  - 92,423 rows, 62 columns
-  - Has `wide_initial_target`, `wide_mutated_target`, location columns (protospacerlocation, PBSlocation, RT_initial_location, RT_mutated_location)
-  - `averageedited`: 92,423 non-null (percentages, range -3.38 to 93.79 — has negative values from background subtraction)
-  - `averageedited_original`: 92,423 non-null (range 0-93.79, cleaner)
-  - `averageindel`: 92,423 non-null (percentages, range -14.45 to 96.93)
-  - Does NOT have explicit spacer/PBS/RTT columns — must derive from wide targets + locations
-  - 1 experimental context: HEK293T PE2
-- **20 subscreen files**: `03_jupyter_notebooks/subscreen_featuredf_files/`
-  - ~964-974 rows each, ~19,380 total
-  - Cell types: HEK (Opti-Scaffold), K562, U2OS, Liver-GFPplus
-  - PE versions: PE2, PE2-dnMLH1, Pemax, Pemax-dnMLH1, PE2Adeno
-  - epeg status: tevopreq vs nontevopreq
-  - Up to 20 potential contexts, but process_schwank only handles PE2/PE2max/PE4/PE4max naming
+### Lab Totals
+- Liu (Hsu, bars 0-3): **65,594** (blue)
+- Schwank (PRIDICT v1 + v2.0, bars 4-23): **174,067** (green)
+- Kim (DeepPrime, bars 24-41): **58,301** (purple)
 
-#### 4. YKim / DeepPE (Kim et al. 2021, Nat Biotechnol — ref 59)
-- Code has `process_ykim` but paper says training data from refs 54-56 only
-- Ref 59 is cited alongside ref 55 as "DeepPrime55,59" in the intro, but the training data section says "previous studies54–56"
-- **YKim data NOT available in any cloned repo** — would need to be obtained separately
-- **Working assumption: YKim data is NOT part of the 223,193** (paper explicitly says refs 54-56)
+### 40 Experimental Contexts
 
-### The 40 Experimental Contexts
-- 4 from Hsu (Liu): HEK293T PE2, HEK293T PE4, HeLa PE2, HeLa PE4
-- 36 from historical — exact breakdown unclear
-- DeepPrime variants: 18 unique contexts
-- PRIDICT2.0: 2 contexts (HEK, K562)
-- PRIDICT v1 main: 1 context (HEK293T PE2)
-- Subtotal: 21 — gap of 15 to reach 36
-- **Resolution**: PRIDICT v1 subscreens may contribute additional contexts. The subscreen files cover K562 (PE2, PE2-dnMLH1, Pemax, Pemax-dnMLH1 × tevo/non-tevo = 8), U2OS (same = 8), HEK (PE2 tevo/non-tevo = 2), Liver (PE2Adeno tevo/non-tevo = 2) = 20 potential contexts. If 15 of these 20 are used, total = 4 + 18 + 2 + 1 + 15 = 40. This will be verified during execution.
+Context = (cell_type, PEmax, epegRNA, MLH1dn, NRCH) — excluding lab/group and pe_type.
 
-### The 223,193 Arithmetic Challenge
-Available raw data far exceeds 223,193. Key combinations tested:
+- HEK293T: 12 contexts (14 bars; bars 4, 8, 24 share context (0,0,0,0))
+- HeLa: 3 contexts (3 bars)
+- K562: 7 contexts (7 bars)
+- U2OS: 8 contexts (8 bars)
+- A549: 4 contexts (4 bars)
+- DLD1: 3 contexts (3 bars)
+- MDA-MB-231: 1, NIH3T3: 1, HCT116: 1
+- **Total: 40 contexts** (matches paper)
 
-| Combination | Count | Delta |
-|---|---|---|
-| DP variants (all) + PRIDICT2.0 (non-null both) + PRIDICT v1 main | 210,475 | -12,718 |
-| DP variants (all) + PRIDICT2.0 (all both) + PRIDICT v1 main | 211,016 | -12,177 |
-| DP variants (all) + PRIDICT2.0 (non-null) + PRIDICT v1 main + 13 subscreens | ~223,193 | ~0 |
-| DP variants (train) + PRIDICT2.0 (non-null) + PRIDICT v1 main + all subscreens | 218,031 | -5,162 |
+### 12 Groups (confirmed from model checkpoint `group_factors`)
 
-**No combination yields exactly 223,193 without including subscreen data or YKim data.** The exact filtering will be resolved systematically during execution (see Step 5 below).
+Kim_A549, Kim_DLD1, Kim_HCT116, Kim_HEK293T, Kim_HeLa, Kim_MDA-MB-231, Kim_NIH3T3, Liu_HEK293T, Liu_HeLa, Schwank_HEK293T, Schwank_K562, Schwank_U2OS
+
+---
+
+## Key Corrections from Previous Run
+
+1. **Hsu true count is 65,594, not 74,769.** The previous run used raw nonmissing values from the Excel. The true count after OptiPrime's filtering (proto30==30, weight>0, dropna) is 65,594 (bars 0-3 sum). The ~12% reduction (9,175 rows) comes from the `proto30.str.len() == 30` filter in `format_pe_df`.
+
+2. **No Schwank_HEKOpti or Schwank_Liver groups.** These don't exist in the 12 `group_factors` groups. The HEK subscreen data ("HEKOpti-Scaffold") is assigned to Schwank_HEK293T. Liver data is excluded entirely.
+
+3. **PRIDICT2.0 uses PE2-NGG, not PE2max.** The `Editor_Variant` column in the PRIDICT2.0 supplementary Excel shows all 22,956 rows are "PE2-NGG". This means PEmax=0 (not PEmax=1 as the previous run assumed). PRIDICT2.0 HEK data goes to bar 5 (PEmax=0, epeg=1), and K562 data goes to bars 9 (PE2) and 13 (PE4/dnMLH1).
+
+4. **DeepPrime variant files map perfectly to bars 24-41.** 18 of 19 variant files are used (the duplicate DLD1_PE2max_220428 is excluded in favor of the 221114 date). The filter rate is consistently ~83.7% (proto30 filter removes ~16.3% of rows).
+
+5. **42 partitions, not 41 contexts.** The 40 experimental contexts arise because 3 HEK293T bars (4, 8, 24) from different labs share the same (cell_type, PEmax, epegRNA, MLH1dn, NRCH) = (HEK293T, 0, 0, 0, 0).
+
+6. **Partition-level verification, not grand-total matching.** Each of the 42 partitions must match its decoded size exactly. No combinatorial search against the grand total.
+
+---
+
+## Source Code Analysis (from github.com/alvin-hsu/optiprime-src)
+
+### Data Loading Pipeline
+1. `RxDataset.load_dir()` globs `*.csv` from a directory
+2. Each CSV is processed by `preprocess_fn()`:
+   - `group = f'{lab_name}_{cell_type}'` from filename parts[0] and parts[1]
+   - `process_fname()` dispatches by lab_name: Liu→process_liu, Schwank→process_schwank, Kim→process_hkim
+   - `format_pe_df()` applies filters and computes derived columns
+   - `time -= 1` (approximate protein expression time)
+
+### Lab Processors (pe_datasets.py)
+- **process_liu**: scaffold='BlpI_F+E', motif='tevoPreQ1', cas9='PEmax-Cas9', pe_type from filename, time=3.0(HEK)/5.0(HeLa). Does NOT set cas9_pam (defaults SpNGG).
+- **process_schwank**: cas9 from filename (PEmax if 'max' suffix), pe_type from filename, time=7.0. Does NOT set motif (defaults tevoPreQ1) or cas9_pam (defaults SpNGG). MLH1dn is encoded via pe_type (PE4=PE2+dnMLH1).
+- **process_hkim**: cas9 from 'max' in details, pe_type from details, motif from '-e' (epeg), cas9_pam from 'NRCH', time=8.0(LibClinvar)/7.0.
+
+### Filters (format_pe_df in pe_utils.py)
+- Required columns: `spacer`, `rtt`, `pbs`, `full_unedited`, `full_edited`
+- `weight > 0` (default weight=1.0)
+- `dropna(subset=['unedited', 'edited', 'weight'])`
+- `proto30.str.len() == 30` where `proto30 = full_unedited.str.slice(0, 30)`
+- T→U conversion in spacer/rtt/pbs
+
+### Schwank Filename Convention (inferred)
+The PRIDICT v1 subscreen files need renaming to match process_schwank's parser:
+- PE2 → `Schwank_{cell}_subscreen_PE2.csv` (pe_type=PE2, is_max=False, PEmax=0, MLH1=0)
+- PE2-dnMLH1 → `Schwank_{cell}_subscreen_PE4.csv` (pe_type=PE4, is_max=False, PEmax=0, MLH1=1)
+- Pemax → `Schwank_{cell}_subscreen_PE2max.csv` (pe_type=PE2, is_max=True, PEmax=1, MLH1=0)
+- Pemax-dnMLH1 → `Schwank_{cell}_subscreen_PE4max.csv` (pe_type=PE4, is_max=True, PEmax=1, MLH1=1)
+
+The epeg (tevo/non-tevo) flag must be set via a `motif` column in the CSV ('tevoPreQ1' or 'none'), since process_schwank doesn't parse it from the filename.
+
+### PRIDICT2.0 Data
+- `Editor_Variant` = "PE2-NGG" for all 22,956 rows
+- Has `spacer`, `PBS`, `RTT` columns in the supplementary Excel
+- HEKaverageedited: 22,619 non-null (337 missing), K562averageedited: 22,752 non-null (204 missing)
+- Efficiency values in percentages (0-93.39 for HEK, 0-90.15 for K562)
+- data_23k_v1.csv has clamped values (all 22,956 non-null) as fractions (0-0.934)
+- wide_initial_target: all 99 chars (no proto30 filter issues)
 
 ---
 
 ## Execution Plan
 
 ### Step 1: Project Setup & Environment
-1. Create project directory structure per claude.md (data/raw, data/interim, data/processed, data/manifests, src/pe_rankformer, scripts, configs, tests, results, reports, etc.)
-2. Create Python 3.11 venv, install dependencies (pandas, pyarrow, openpyxl, etc. — full ML stack for later steps)
-3. Save `reports/environment.txt` and `reports/project_inventory.md`
-4. Initialize git repo
+1. Verify existing project structure and venv from previous run
+2. Install any missing dependencies
+3. Create `reports/ground_truth_partitions.csv` with the 42-partition table above
 
-### Step 2: Extract Hsu Data (74,769) → Parquet
-1. Read the Excel workbook, extract Lib-MMR and Lib-CV sheets
-2. Reshape to long format: one row per (pegRNA, cell_type, PE_version) combination
-3. Derive required fields:
-   - `spacer`, `rtt`, `pbs` from the pegRNA design columns in the Excel
-   - `full_unedited`, `full_edited` from the target site sequences
-   - `edited_frac` = editing_efficiency / 100 (convert from percentage to fraction)
-   - `indel_frac` = indel_rate / 100
-4. Verify: `assert len(hsu_long) == 74769`
-5. Save to `data/processed/hsu2026_74769.parquet`
-6. Write `reports/hsu_data_validation.md`
+### Step 2: Extract & Filter Hsu Data → 65,594 rows (bars 0-3)
+1. Read the Hsu Excel (Lib-MMR + Lib-CV sheets)
+2. Reshape to long format: one row per (pegRNA, cell_type, PE_version)
+3. Derive required fields: spacer, rtt, pbs, full_unedited, full_edited, edited_frac, indel_frac
+4. Apply OptiPrime filters: weight>0, dropna, proto30==30
+5. **Verify per-partition**: Liu_HEK293T PE2 = 15,678, PE4 = 15,598, Liu_HeLa PE2 = 17,160, PE4 = 17,158
+6. Save to `data/processed/liu_65594.parquet`
 
-**Key challenge**: The Hsu Excel has target site sequences and pegRNA designs, but the exact column mapping to OptiPrime's required format needs careful reverse-engineering. The Supp Table 4/5 columns include: spacer, scaffold, rtt, pbs, linker, motif, full_unedited, full_edited, cas9_pam, and the 4 editing columns. Need to verify which columns are present.
+### Step 3: Convert DeepPrime Variant Files → 58,301 rows (bars 24-41)
+1. For each of the 18 selected DeepPrime variant files:
+   - Read WT74_On, Edited74_On, PBSlen, RTlen, Measured_PE_efficiency
+   - Derive: full_unedited=WT74_On, full_edited=Edited74_On (remove 'x' deletions), spacer/rtt/pbs from sequence positions, edited_frac=efficiency/100, indel_frac=0
+   - Set filename: `Kim_{celltype}_{libname}_{details}.csv` with appropriate flags
+2. Apply OptiPrime filters
+3. **Verify per-partition**: each file's filtered count must match the corresponding bar size (±1 tolerance for rounding)
+4. Save to `data/processed/kim_58301.parquet`
 
-### Step 3: Download & Catalog Historical Data
-1. Copy DeepPrime data from `/workspace/external/deepprime_official/data/` to `data/raw/deepprime/`
-2. Copy PRIDICT2.0 data from `/workspace/external/pridict2/dataset/` and `/workspace/external/epridict_supp/` to `data/raw/pridict2/`
-3. Extract PRIDICT v1 data from `/workspace/external/pridict_supp/` zip files to `data/raw/pridict/`
-4. Calculate SHA256 checksums for all source files
-5. Create `data/manifests/data_sources.csv` with provenance, checksums, row counts
+### Step 4: Convert PRIDICT v1 Data → Schwank bars 4-8, 10-12, 14-23
+1. **Full focused editing table (119,701 rows)** → bar 5 (115,861):
+   - Extract wide_initial_target, wide_mutated_target, location columns, PE2df_percentageedited
+   - Derive spacer/rtt/pbs from locations, edited_frac=PE2df_percentageedited/100
+   - Set motif='tevoPreQ1' (epeg=1), pe_type='PE2', cas9_type='PE2-Cas9'
+   - Apply filters and verify count ≈ 115,861 (may include PRIDICT2.0 HEK data)
+2. **Subscreen files (16 files, excluding Liver)** → bars 4, 6, 7, 8, 10-12, 14-23:
+   - Rename to Schwank convention (PE2→PE2, PE2-dnMLH1→PE4, Pemax→PE2max, Pemax-dnMLH1→PE4max)
+   - Set motif column ('tevoPreQ1' for tevo, 'none' for non-tevo)
+   - Derive required columns from wide targets and locations
+   - Apply filters and verify each count matches bar size
+3. **Library2 file (1,938 rows)** → may contribute to bar 8 or other small partitions
+4. Save to `data/processed/schwank_v1.parquet`
 
-### Step 4: Reverse-Engineer OptiPrime Data Loader
-1. Document the complete loading pipeline (already analyzed above)
-2. Write `reports/optiprime_data_loader_reverse_engineering.md` covering:
-   - Filename conventions for each lab
-   - Required vs optional columns
-   - Filtering rules (weight>0, dropna, proto30==30)
-   - Efficiency scale conversion (percentage → fraction)
-   - T→U conversion in spacer/rtt/pbs
-   - Lab-specific metadata assignment (scaffold, motif, cas9_type, time)
-   - The `split_preset` function for fivefold CV (stratified by protospacer)
-
-### Step 5: Convert Historical Data to OptiPrime Format & Reconcile to 223,193
-
-This is the core challenge. Approach:
-
-#### 5a. DeepPrime Conversion
-- **Input**: WT74_On (74bp), Edited74_On (74bp, 'x'=deletion), PBSlen, RTlen, Measured_PE_efficiency (percentage)
-- **Derivation**:
-  - `full_unedited` = WT74_On (already ≥30 chars)
-  - `full_edited` = Edited74_On with 'x' removed (compress deletions)
-  - `spacer` = dna_to_rna(WT74_On[4:24]) (protospacer at positions 4-23, 0-indexed)
-  - `rtt` = dna_to_rna(revcomp(Edited74_On[24:24+RTlen])) (downstream of nick, from edited sequence)
-  - `pbs` = dna_to_rna(revcomp(WT74_On[24-PBSlen:24])) (upstream of nick, from WT sequence)
-  - `edited_frac` = Measured_PE_efficiency / 100
-  - `indel_frac` = 0.0 (DeepPrime doesn't provide indel rates separately)
-- **Filename convention**: `Kim_{cell_type}_{lib_name}_{details}.csv`
-  - e.g., `Kim_HEK293T_LibClinvar_PE2.csv` for main dataset
-  - e.g., `Kim_HEK293T_LibVariant_PE2max.csv` for variants
-- **Apply filtering**: weight>0, dropna, proto30==30
-- **Count retained rows per file**
-
-#### 5b. PRIDICT2.0 Conversion
-- **Input (from supplementary Excel)**: spacer, PBS, RTT (already available!), wide_initial_target, wide_mutated_target, HEKaverageedited, K562averageedited (percentages)
-- **Derivation**:
-  - `full_unedited` = wide_initial_target (need to verify length ≥30)
-  - `full_edited` = wide_mutated_target
-  - `spacer` = dna_to_rna(spacer) (already provided)
-  - `rtt` = dna_to_rna(RTT) (already provided)
-  - `pbs` = dna_to_rna(PBS) (already provided)
-  - `edited_frac` = HEKaverageedited / 100 or K562averageedited / 100
-  - `indel_frac` = from HEKaverageunintended / 100 or K562averageunintended / 100
-- **Two output files**: `Schwank_HEK293T_Library_PE2max.csv` and `Schwank_K562_Library_PE2max.csv`
-- **Apply filtering**: dropna on edited (removes 337 HEK rows, 204 K562 rows with missing efficiencies)
-
-#### 5c. PRIDICT v1 Conversion
-- **Input**: wide_initial_target, wide_mutated_target, location columns, averageedited_original (percentage), averageindel_original (percentage)
-- **Derivation**:
-  - `full_unedited` = wide_initial_target
-  - `full_edited` = wide_mutated_target
-  - `spacer` = dna_to_rna(wide_initial_target[protospacer_start:protospacer_end]) using protospacerlocation
-  - `rtt` = dna_to_rna(revcomp(wide_mutated_target[RT_start:RT_end])) using RT_mutated_location
-  - `pbs` = dna_to_rna(revcomp(wide_initial_target[PBS_start:PBS_end])) using PBSlocation
-  - `edited_frac` = averageedited_original / 100
-  - `indel_frac` = averageindel_original / 100
-- **Filename**: `Schwank_HEK293T_Library1_PE2.csv`
-- **Apply filtering**: weight>0, dropna, proto30==30
-- **Also convert subscreen files** (20 files, each to separate Schwank CSV)
-
-#### 5d. Reconciliation
-1. After converting all sources, count retained rows per file
-2. Build a source-level reconciliation table
-3. Systematically test combinations:
-   - With/without DeepPrime test folds
-   - With/without DeepPrime main dataset
-   - With/without PRIDICT v1 subscreens
-   - With/without PRIDICT2.0 missing-efficiency rows
-   - Check for duplicate removal (same protospacer+edit across datasets)
-4. Use the 40-context constraint to narrow down
-5. Target: `assert len(historical_table) == 223193`
-6. If exact match found: document the exact filtering
-7. If no exact match: produce discrepancy table, preserve maximally verified dataset, document honestly in `reports/dataset_reconstruction_status.md`
+### Step 5: Convert PRIDICT2.0 Data → Schwank bars 5 (HEK), 9 (K562 PE2), 13 (K562 PE4)
+1. Read supplementary Excel (has spacer, PBS, RTT directly)
+2. **HEK partition** (bar 5, part): filter HEKaverageedited non-null, set pe_type='PE2', motif='tevoPreQ1', cas9_type='PE2-Cas9'
+3. **K562 PE2 partition** (bar 9): filter K562averageedited non-null, set pe_type='PE2', motif='tevoPreQ1', cas9_type='PE2-Cas9'
+4. **K562 PE4 partition** (bar 13): filter K562averageedited non-null, set pe_type='PE4', motif='tevoPreQ1', cas9_type='PE2-Cas9'
+   - NOTE: PRIDICT2.0 tested PE2-NGG, not PE4. The PE4 (dnMLH1) K562 data may come from a separate experiment by the OptiPrime authors, or from re-processing. This partition's source is the primary unresolved question.
+5. Apply filters and verify counts: bar 9 ≈ 23,428, bar 13 ≈ 21,201
+6. Save to `data/processed/schwank_v2.parquet`
 
 ### Step 6: Combine & Validate Full Dataset
-1. Concatenate Hsu (74,769) + historical (223,193) → 297,962
-2. `assert len(full_training_table) == 297962`
-3. Verify unique experimental contexts = 40
-4. Save to `data/processed/optiprime_full_297962.parquet`
-5. Write `reports/dataset_reconstruction_status.md` with reconciliation table
+1. Concatenate all partitions: Liu (65,594) + Schwank (174,067) + Kim (58,301) = 297,962
+2. **Partition-level verification**: for each of the 42 partitions, assert the row count matches the ground truth from the SI figure
+3. Verify 12 unique groups
+4. Verify 40 unique (cell_type, PEmax, epegRNA, MLH1dn, NRCH) contexts
+5. Cross-check group assignments against `group_factors` in model weights
+6. Save to `data/processed/optiprime_full_297962.parquet`
+7. Write `reports/dataset_reconstruction_status.md` with per-partition verification table
 
 ### Step 7: Fold Construction
-1. Implement protospacer-disjoint fivefold split (stratified by protospacer sequence)
-2. Verify: all records for the same protospacer in one fold only
-3. Save to `data/processed/fold_assignments.parquet`
+1. Implement protospacer-disjoint fivefold split using `split_preset` logic from source code
+2. The `split` column must come from the CSV files (if present) or be constructed
+3. Verify: all records for the same protospacer in one fold only
+4. Save to `data/processed/fold_assignments.parquet`
 
-### Step 8: Unit Tests for Data Pipeline
-1. Test sequence alignment (full_unedited vs full_edited)
-2. Test PBS/RTT segmentation
-3. Test efficiency scale conversion (percentage → fraction)
-4. Test target/protospacer grouping
+### Step 8: Unit Tests
+1. Test per-partition row counts against ground truth (42 assertions)
+2. Test group count = 12
+3. Test context count = 40
+4. Test sequence alignment (full_unedited vs full_edited)
 5. Test fold leakage (same protospacer → same fold)
-6. Test dataset row counts (74,769, 223,193, 297,962)
+6. Test flag consistency (PEmax/epegRNA/MLH1dn/NRCH per partition)
 
 ---
 
-## Key Risks & Mitigations
+## Unresolved Questions (to be investigated during execution)
 
-1. **Exact 223,193 may not be reproducible**: The paper doesn't specify the exact filtering applied to historical data. Mitigation: systematic trial of all combinations, document discrepancy if exact match impossible.
+1. **Bar 13 source (21,201 K562 PE4 epeg)**: PRIDICT2.0 uses PE2-NGG, not PE4. The K562 PE4 (dnMLH1) data may come from a separate experiment by the Hsu/Schwank labs not in public supplementary files. If the source cannot be found, this partition will be flagged as "unresolved" and the closest available data (PRIDICT2.0 K562 PE2 re-labeled as PE4, or subscreen data) will be used as a proxy.
 
-2. **DeepPrime sequence derivation may have edge cases**: The 'x' deletion representation in Edited74_On needs careful handling. Mitigation: validate against known pegRNA designs, check proto30 length for all rows.
+2. **Bar 5 exact composition (115,861 HEK PE2 epeg)**: Likely = PRIDICT v1 focused/full table + PRIDICT2.0 HEK + subscreen HEK tevo. The exact combination and filter rate will be determined empirically.
 
-3. **PRIDICT v1 negative efficiency values**: The `averageedited` column has negative values from background subtraction. Mitigation: use `averageedited_original` (range 0-93.79) or clip to [0, 1] after conversion.
+3. **Bar 8 source (789 HEK PE2 non-tevo)**: Same flags as bar 4 (824) but different size. May come from library2 file or a different subscreen experiment. Differs from bar 4 in pe_type or another parameter not captured in the flag matrix.
 
-4. **PRIDICT v1 subscreen inclusion uncertain**: The process_schwank function only handles PE2/PE2max/PE4/PE4max naming, but subscreens have PE2-dnMLH1, Pemax, etc. Mitigation: test both with and without subscreens; the 40-context constraint will help determine inclusion.
+4. **The proto30 filter**: `full_unedited.str.slice(0, 30)` must be exactly 30 chars. This is the primary filter causing row loss. For DeepPrime data (WT74_On, 74 chars), the filter removes rows where the first 30 chars are shorter (shouldn't happen with 74-char sequences, so the ~16% loss may come from a different issue — possibly the 'x' deletion handling in Edited74_On affecting full_unedited derivation). For PRIDICT data (99-char targets), no rows should be lost to this filter.
 
-5. **YKim data availability**: If YKim data is needed for the count to work, it's not available in any cloned repo. Mitigation: first try without YKim (per paper's refs 54-56 statement); if needed, attempt to obtain from ref 59's supplementary data.
+5. **Efficiency scale**: PRIDICT data uses percentages (0-100), PRIDICT2.0 uses percentages in Excel / fractions in CSV, DeepPrime uses percentages. All must be converted to fractions (0-1) for `edited_frac`.
 
 ---
 
-## Deliverables (Steps 3-8)
+## Deliverables
 
-- `data/processed/hsu2026_74769.parquet`
-- `data/processed/optiprime_full_297962.parquet`
-- `data/processed/fold_assignments.parquet`
-- `data/manifests/data_sources.csv`
-- `reports/project_inventory.md`
-- `reports/environment.txt`
-- `reports/hsu_data_validation.md`
-- `reports/optiprime_data_loader_reverse_engineering.md`
-- `reports/dataset_reconstruction_status.md`
-- `reports/research_log.md`
-- Unit tests in `tests/`
+- `data/processed/liu_65594.parquet` — Hsu data (4 partitions)
+- `data/processed/kim_58301.parquet` — DeepPrime data (18 partitions)
+- `data/processed/schwank_v1.parquet` — PRIDICT v1 data (17 partitions)
+- `data/processed/schwank_v2.parquet` — PRIDICT2.0 data (3 partitions)
+- `data/processed/optiprime_full_297962.parquet` — Full dataset (42 partitions)
+- `data/processed/fold_assignments.parquet` — Fivefold CV assignments
+- `reports/ground_truth_partitions.csv` — The 42-partition ground truth table
+- `reports/dataset_reconstruction_status.md` — Per-partition verification report
+- `tests/test_data_pipeline.py` — Unit tests
 
 ---
 
 ## Execution Order
 
-1. Project setup & environment (Step 1)
-2. Hsu data extraction & validation (Step 2)
-3. Historical data download & cataloging (Step 3)
-4. OptiPrime loader reverse-engineering report (Step 4)
-5. Historical data conversion & reconciliation (Step 5) — **core challenge**
-6. Full dataset combination & validation (Step 6)
-7. Fold construction (Step 7)
-8. Unit tests (Step 8)
+1. Step 1: Setup (quick, reuse existing venv)
+2. Step 2: Hsu data extraction (medium, need to derive sequences from Excel)
+3. Step 3: DeepPrime conversion (medium, 18 files with known mapping)
+4. Steps 4-5: PRIDICT conversion (hard, need to derive sequences and resolve unknowns)
+5. Step 6: Combine & validate (critical — partition-level verification)
+6. Step 7: Folds (medium)
+7. Step 8: Tests (quick)
 
-Steps 1-4 can proceed in parallel with data investigation. Step 5 is the critical path and may require iterative debugging. Steps 6-8 follow once Step 5 succeeds.
+Steps 2 and 3 can proceed in parallel. Steps 4-5 are the critical path and may require iterative debugging.
