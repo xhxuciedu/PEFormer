@@ -120,6 +120,24 @@ def test_param_count_in_target_range_for_full_size_config():
     assert 15_000_000 <= n <= 35_000_000, f"expected ~20-30M params, got {n}"
 
 
+def test_no_context_ablation_forward_pass():
+    df = _toy_corpus()
+    vocab = ContextVocab.fit(df)
+    cfg = PERankFormerConfig(
+        d_model=32, n_heads=2, ffn_dim=64, n_edit_layers=1, n_peg_layers=1, n_cross_blocks=1,
+        context_fields=vocab.fields, context_vocab_sizes=vocab.sizes(), context_embed_dim=8,
+        use_context=False,
+    )
+    model = PERankFormer(cfg)
+    assert model.context_encoder is None
+    assert model.film is None
+    corpus = featurize(df, vocab)
+    ds = PEDataset(corpus)
+    batch = collate([ds[i] for i in range(6)])
+    score = model(batch)
+    assert score.shape == (6,)
+
+
 def test_batch_of_one_does_not_crash():
     model, vocab = _tiny_model()
     df = _toy_corpus()

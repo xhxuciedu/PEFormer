@@ -38,6 +38,7 @@ class PERankFormerConfig:
     context_fields: tuple[str, ...] = ()
     context_vocab_sizes: dict[str, int] = field(default_factory=dict)
     context_embed_dim: int = 32
+    use_context: bool = True  # False = Model C ablation (no FiLM conditioning)
 
 
 def _encoder_stack(d_model: int, n_heads: int, ffn_dim: int, dropout: float, n_layers: int) -> nn.TransformerEncoder:
@@ -165,11 +166,15 @@ class PERankFormer(nn.Module):
         self.edit_pool = AttentionPool(d, config.n_heads, config.dropout)
         self.peg_pool = AttentionPool(d, config.n_heads, config.dropout)
 
-        self.context_encoder = ContextEncoder(
-            config.context_fields, config.context_vocab_sizes, config.context_embed_dim
-        )
         pooled_dim = 2 * d
-        self.film = FiLM(self.context_encoder.out_dim, pooled_dim)
+        if config.use_context:
+            self.context_encoder = ContextEncoder(
+                config.context_fields, config.context_vocab_sizes, config.context_embed_dim
+            )
+            self.film = FiLM(self.context_encoder.out_dim, pooled_dim)
+        else:
+            self.context_encoder = None
+            self.film = None
 
         self.head = nn.Sequential(
             nn.LayerNorm(pooled_dim),
@@ -217,8 +222,9 @@ class PERankFormer(nn.Module):
         peg_pooled = self.peg_pool(peg_h, peg_pad_mask)
         pooled = torch.cat([edit_pooled, peg_pooled], dim=-1)
 
-        context_vector = self.context_encoder(batch)
-        pooled = self.film(pooled, context_vector)
+        if self.config.use_context:
+            context_vector = self.context_encoder(batch)
+            pooled = self.film(pooled, context_vector)
 
         score = self.head(pooled).squeeze(-1)
         return score

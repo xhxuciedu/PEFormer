@@ -75,6 +75,9 @@ def main() -> None:
     ap.add_argument("--lambda-rank", type=float, default=None, help="override loss.lambda_rank")
     ap.add_argument("--seed", type=int, default=None)
     ap.add_argument("--max-epochs", type=int, default=None)
+    ap.add_argument(
+        "--no-context", action="store_true", help="Model C ablation: disable FiLM context conditioning"
+    )
     args = ap.parse_args()
 
     cfg = yaml.safe_load(args.config.read_text())
@@ -84,6 +87,8 @@ def main() -> None:
         cfg["seed"] = args.seed
     if args.max_epochs is not None:
         cfg["train"]["max_epochs"] = args.max_epochs
+    if args.no_context:
+        cfg["model"]["use_context"] = False
 
     set_seed(cfg["seed"])
     device = torch.device("cuda")
