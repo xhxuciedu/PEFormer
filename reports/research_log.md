@@ -425,3 +425,60 @@ final decision).
 **Next step.** Move to model implementation (spec §12-19): PE-RankFormer architecture,
 paired WT/edit tokenization, pegRNA encoder, cross-attention, context conditioning, unit
 tests, tiny-overfit sanity check, GPU profiling.
+
+---
+
+## 2026-08-14 — Stage 2.0 Pilot complete: both models trained, real OptiPrime baseline, final report
+
+**Task.** Complete the remaining pipeline stages: full training, baseline comparison,
+statistical analysis, figures, final report (task spec §12-18, §27-51).
+
+**Trained both models** on the locked protospacer-disjoint split (fold 0 test, fold 1
+val, folds 2-4 train), 30 epochs each, batch 512, ~25 min per run on the RTX PRO 6000
+Blackwell (13GB peak, well within the 95GB budget).
+
+- Model A (rank, λ=0.25): test-fold Spearman 0.783, within-target Spearman 0.532,
+  top-1 regret 0.013.
+- Model B (no-rank, λ=0): test-fold Spearman 0.864 (higher), within-target Spearman
+  0.447, top-1 regret 0.016 (both worse, non-overlapping bootstrap CIs on both). A
+  clean, unmanipulated ablation finding: ranking loss trades global correlation for
+  significantly better selection metrics, not a "no cost" improvement.
+
+**Real OptiPrime baseline achieved**, not a stand-in. Required resolving: `rs3`
+(RuleSet3 scoring) needs scikit-learn<=1.0.2, incompatible with the main env — resolved
+via an isolated Python 3.10 env computing scores for the 233 unique test-fold spacers,
+pre-populating OptiPrime's own on-disk hash cache (skip-if-cached logic means the main
+env never needs to call the incompatible package). Missing `tensorflow-cpu` for its
+data pipeline. A documented 4bp-padding workaround for missing upstream genomic context
+in ~57% of Hsu rows. Before trusting the result, checked whether padding distorts
+OptiPrime's predictions: correlation is statistically indistinguishable on padded vs.
+non-padded rows (0.727 vs 0.712 Pearson) — it doesn't. Full 5-model ensemble completed
+on all 15,022 locked Hsu test rows: OptiPrime Spearman 0.724. PE-RankFormer (no-rank)
+modestly exceeds this (0.775); PE-RankFormer (rank) does not (0.670). Flagged the
+remaining leakage caveat clearly (we lack OptiPrime's original fold assignments, so
+some test rows may have been in the released models' own training data — this risk
+runs in OptiPrime's favor, not ours).
+
+**DeepPrime-FT / PRIDICT2.0**: investigated, deferred with specific documented reasons
+(both need a separate DeepSpCas9 on-target model plus DeepPrime's 24 hand-engineered
+input features; a rushed, subtly-wrong reproduction would be worse than an honest gap).
+
+**Caught and fixed two things before they became misleading report content**:
+1. `within_target_spearman`/`top_k_regret` crashed on all-empty results (Hsu-only
+   subset has ~no multi-pegRNA-per-edit groups, unlike DeepPrime/PRIDICT screens) —
+   fixed to return an empty frame with correct columns, added regression tests.
+2. The first predicted-vs-observed hexbin figure looked like severe miscalibration
+   everywhere (unscaled color, single dense region dominating the linear color scale).
+   Added a log-scale colorbar and a decile-mean overlay before writing any conclusion
+   into the report — the real picture is good calibration through ~60% efficiency, with
+   under-prediction (not misranking) specifically for the highest-efficiency designs.
+
+**Output.** `reports/pilot_results.md` (full report answering all 6 research questions),
+`reports/baseline_reproduction_notes.md` (updated with the padding control check and
+final numbers), 7 figures in `results/figures/`, checkpoints and predictions for both
+models, `results/hsu_benchmark_table.csv`. 82/82 tests passing.
+
+**Next step** (documented in `reports/pilot_results.md` §17, priority order): Model C
+(no-context ablation, answers Q3, ~25 min); λ_rank sweep; locate the missing Schwank
+K562 PE4+epegRNA data; complete DeepPrime-FT/PRIDICT2.0 properly; isotonic calibration
+for high-efficiency designs; full 5-fold CV once architecture is locked.
