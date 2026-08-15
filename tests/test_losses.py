@@ -60,3 +60,25 @@ def test_total_loss_combines_both_terms():
     assert parts["loss"] == pytest.approx(parts["reg"] + 0.25 * parts["rank"], abs=1e-6)
     loss.backward()
     assert score.grad is not None
+
+
+def test_logit_space_regression_loss_zero_for_perfect_prediction():
+    target = torch.tensor([0.3, 0.7])
+    score = torch.logit(target)  # raw score == logit(target)
+    loss = regression_loss(score, target, space="logit")
+    assert loss.item() < 1e-4
+
+
+def test_logit_space_clips_extreme_targets():
+    # y=0 would be logit(-inf); clipping must keep the loss finite
+    target = torch.tensor([0.0, 1.0])
+    score = torch.tensor([0.0, 0.0])
+    loss = regression_loss(score, target, space="logit")
+    assert torch.isfinite(loss)
+
+
+def test_unknown_regression_space_raises():
+    import pytest as _pytest
+
+    with _pytest.raises(ValueError):
+        regression_loss(torch.tensor([0.0]), torch.tensor([0.5]), space="nonsense")

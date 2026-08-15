@@ -8,11 +8,33 @@ import torch
 import torch.nn.functional as F
 
 
-def regression_loss(score: torch.Tensor, target: torch.Tensor, huber_beta: float = 0.1) -> torch.Tensor:
-    """Smooth L1 (Huber) loss between predicted efficiency (sigmoid of score) and the
-    measured efficiency, both in [0,1]."""
-    pred = torch.sigmoid(score)
-    return F.smooth_l1_loss(pred, target, beta=huber_beta)
+def regression_loss(
+    score: torch.Tensor,
+    target: torch.Tensor,
+    huber_beta: float = 0.1,
+    space: str = "raw",
+    logit_clip: float = 0.005,
+) -> torch.Tensor:
+    """Huber regression loss, in either raw efficiency space or clipped-logit space.
+
+    `space='raw'`   : Huber(sigmoid(score), y)      -- y in [0,1].
+    `space='logit'` : Huber(score, logit(clip(y)))  -- compares pre-sigmoid scores
+                      directly against the logit-transformed target (task spec §19,
+                      which asks for both to be compared on validation).
+
+    The corpus is heavily zero-inflated (27% of rows below 0.01 efficiency), so raw-space
+    Huber spends most of its gradient budget on an easy near-zero mass. Logit space
+    spreads that mass out; whether that helps or just amplifies measurement noise at the
+    low end is an empirical question, answered in reports/pilot_results.md.
+    """
+    if space == "raw":
+        pred = torch.sigmoid(score)
+        return F.smooth_l1_loss(pred, target, beta=huber_beta)
+    if space == "logit":
+        y = target.clamp(logit_clip, 1.0 - logit_clip)
+        target_logit = torch.log(y / (1 - y))
+        return F.smooth_l1_loss(score, target_logit, beta=1.0)
+    raise ValueError(f"unknown regression space: {space!r}")
 
 
 def ranking_loss(
@@ -40,6 +62,7 @@ class LossWeights:
     lambda_rank: float = 0.25
     huber_beta: float = 0.1
     min_pair_diff: float = 0.02
+    regression_space: str = "raw"  # "raw" or "logit" (task spec §19 comparison)
 
 
 def total_loss(
@@ -49,7 +72,9 @@ def total_loss(
     pairs_j: torch.Tensor,
     weights: LossWeights,
 ) -> tuple[torch.Tensor, dict[str, float]]:
-    l_reg = regression_loss(score, target, huber_beta=weights.huber_beta)
+    l_reg = regression_loss(
+        score, target, huber_beta=weights.huber_beta, space=weights.regression_space
+    )
     l_rank = ranking_loss(score, target, pairs_i, pairs_j, min_diff=weights.min_pair_diff)
     loss = l_reg + weights.lambda_rank * l_rank
     return loss, {"loss": loss.item(), "reg": l_reg.item(), "rank": l_rank.item()}

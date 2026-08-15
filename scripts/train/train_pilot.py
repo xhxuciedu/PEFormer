@@ -78,6 +78,11 @@ def main() -> None:
     ap.add_argument(
         "--no-context", action="store_true", help="Model C ablation: disable FiLM context conditioning"
     )
+    ap.add_argument("--patience", type=int, default=None, help="override early-stop patience")
+    ap.add_argument(
+        "--regression-space", choices=["raw", "logit"], default=None,
+        help="regression loss space (task spec §19 comparison)",
+    )
     args = ap.parse_args()
 
     cfg = yaml.safe_load(args.config.read_text())
@@ -89,6 +94,10 @@ def main() -> None:
         cfg["train"]["max_epochs"] = args.max_epochs
     if args.no_context:
         cfg["model"]["use_context"] = False
+    if args.patience is not None:
+        cfg["train"]["early_stop_patience"] = args.patience
+    if args.regression_space is not None:
+        cfg["loss"]["regression_space"] = args.regression_space
 
     set_seed(cfg["seed"])
     device = torch.device("cuda")
@@ -116,6 +125,7 @@ def main() -> None:
         lambda_rank=cfg["loss"]["lambda_rank"],
         huber_beta=cfg["loss"]["huber_beta"],
         min_pair_diff=cfg["loss"]["min_pair_diff"],
+        regression_space=cfg["loss"].get("regression_space", "raw"),
     )
     max_pairs_per_group = cfg["loss"]["max_pairs_per_group"]
 
