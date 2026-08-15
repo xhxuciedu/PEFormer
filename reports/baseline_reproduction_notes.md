@@ -65,6 +65,31 @@ strictly leak-free held-out evaluation of OptiPrime. We ensemble all 5 released 
 seen by every model. PE-RankFormer's own numbers on this same test fold are leak-free
 by construction (fold 0 was never touched during training or model selection).
 
+### Result and a control check on the padding concern
+
+Full 5-model ensemble completed on all 15,022 locked Hsu test-fold rows. Before trusting
+the headline number, checked whether the 4bp-padding limitation (§ above) is actually
+distorting OptiPrime's predictions: split the test set by whether padding was needed and
+compared correlation separately.
+
+| Subset | n | Pearson | Spearman |
+|---|---:|---:|---:|
+| No padding needed (offset already 4) | 6,424 | 0.712 | 0.726 |
+| Padded (LibMMR full 4bp, or LibCV 1bp) | 8,598 | 0.727 | 0.719 |
+
+Essentially identical — padding is **not** meaningfully distorting OptiPrime's
+aggregate performance here. The core PBS/RTT/edit representation dominates its
+predictions; the placeholder upstream bases mainly feed auxiliary PAM-adjacent features.
+This does not resolve the separate leakage caveat (unknown fold overlap with the 5
+released models), but it does mean the padding workaround itself is not the reason for
+any gap observed between OptiPrime and PE-RankFormer below.
+
+**Headline comparison** (`results/hsu_benchmark_table.csv`, full detail and CIs in
+`reports/pilot_results.md`): PE-RankFormer (no-rank) Pearson 0.756 / Spearman 0.775
+slightly exceeds OptiPrime's 0.724 / 0.724 on this exact test set; PE-RankFormer (rank)
+at 0.659 / 0.670 falls short of it. Read this alongside the leakage caveat above — it is
+not a fully controlled comparison in OptiPrime's favor or against it.
+
 ## DeepPrime-FT and PRIDICT2.0 — attempted, deferred with specific reasons
 
 Both were investigated (not just skipped outright) before deciding not to complete
