@@ -61,6 +61,11 @@ def main() -> None:
     ap.add_argument("--checkpoints", nargs="+", type=Path, required=True)
     ap.add_argument("--model-name", type=str, required=True)
     ap.add_argument("--out-dir", type=Path, default=Path("results/runs/eval_test_fold"))
+    ap.add_argument(
+        "--split", choices=["val", "test"], default="test",
+        help="Evaluate on the validation fold (for choosing ensemble composition) or the "
+             "locked test fold (final report number only).",
+    )
     args = ap.parse_args()
 
     device = torch.device("cuda")
@@ -69,9 +74,13 @@ def main() -> None:
     full_df = pd.read_parquet("data/processed/optiprime_full_297962.parquet")
 
     first = torch.load(args.checkpoints[0], map_location="cpu", weights_only=False)
-    test_fold = first["config"]["data"]["test_fold"]
+    fold_key = "test_fold" if args.split == "test" else "val_fold"
+    test_fold = first["config"]["data"][fold_key]
     test_idx = np.where(corpus.fold == test_fold)[0]
-    logger.info("ensembling %d checkpoints over %d test rows", len(args.checkpoints), len(test_idx))
+    logger.info(
+        "ensembling %d checkpoints over %d rows of the %s fold (%d)",
+        len(args.checkpoints), len(test_idx), args.split, test_fold,
+    )
 
     member_preds = []
     for ck in args.checkpoints:

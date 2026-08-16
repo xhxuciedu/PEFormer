@@ -233,6 +233,64 @@ competitors — and matters less once the experimenter can afford to test a few 
 
 ## 14. Ablation results
 
+### 14.0 Full ablation / configuration sweep (selected on VALIDATION only)
+
+All runs share the identical split, seed, and 30-epoch budget. Selection was performed on
+the **validation** fold; the locked test fold was not consulted to choose any of these.
+
+| Run | λ_rank | Reg. space | Context | Best val ρ |
+|---|---:|---|---|---:|
+| `exp_logit_norank` | 0.00 | logit | yes | **0.8659** |
+| `model_b_norank` | 0.00 | raw | yes | 0.8643 |
+| `exp_lowrank005` | 0.05 | raw | yes | 0.8500 |
+| `model_a_rank` (Model A) | 0.25 | raw | yes | 0.7857 |
+| `model_c_nocontext_fair` (Model C) | 0.25 | raw | **no** | 0.7048 |
+
+Three findings, each a direct answer to a spec question:
+
+1. **Raw vs. clipped-logit regression space (task spec §19) is a wash.** 0.8659 vs.
+   0.8643 — a +0.0016 difference, well inside seed-to-seed noise. The zero-inflation
+   concern that motivated trying logit space turns out not to matter for rank
+   correlation. We adopt logit for the final model because it won on validation, but we
+   explicitly do **not** claim it is meaningfully better.
+2. **λ_rank monotonically degrades global correlation**: 0.00 → 0.864, 0.05 → 0.850,
+   0.25 → 0.786. This is a clean dose-response, not a threshold effect, and it settles
+   a question §14 below could only speculate about after two points: the global-vs-
+   selection tension is real and continuous in λ_rank, not an artifact of an
+   over-aggressive λ=0.25.
+3. **Context conditioning is the single most valuable architectural component tested**
+   (§14.1).
+
+### 14.1 Model C — experimental-context conditioning (answers Q3)
+
+Model C removes FiLM context conditioning entirely (`context_encoder` and `film` set to
+`None`, not zeroed — a real ablation), holding λ_rank=0.25, seed, and split fixed for a
+controlled comparison against Model A.
+
+> **Fairness note**: an initial Model C run early-stopped at epoch 7 (best epoch 1) under
+> the shared `patience=5` rule, because its validation curve was noisy-flat early. Models
+> A and B had run the full 30 epochs, so comparing against that run would have understated
+> Model C. It was **re-run with patience=30 for a like-for-like 30-epoch budget**, and only
+> the fair re-run is reported here.
+
+| Metric (locked test fold) | Model A (with context) | Model C (no context) | Δ |
+|---|---:|---:|---:|
+| Global Spearman ρ | **0.783** | 0.710 | −0.073 |
+| Global Pearson r | **0.761** | 0.681 | −0.080 |
+| Within-target Spearman ρ | **0.532** | 0.281 | −0.251 |
+| Top-1 regret | **0.0131** | 0.0276 | +0.0145 (worse) |
+| MAE | **0.114** | 0.135 | +0.021 (worse) |
+
+**Q3 is answered clearly and affirmatively**: explicit experimental-context conditioning
+substantially improves generalization across the heterogeneous corpus. The effect is
+large on global correlation (−0.073 without it) and *dramatic* on within-target ranking
+(−0.251, nearly halving it). This makes mechanistic sense: the corpus spans 12 lab×cell
+groups whose absolute efficiency scales differ markedly, and without a context signal the
+model must average over incompatible scales — which corrupts within-group ordering far
+more than it corrupts the global trend.
+
+### 14.2 Ranking-loss ablation (Models A vs B)
+
 Directly answering task spec Research Question 4 ("Does adding within-target ranking
 loss improve actual pegRNA selection even if global Pearson/Spearman changes little?"):
 **partially yes, with an honest caveat the question's framing doesn't anticipate** —
@@ -250,7 +308,7 @@ natural next experiment (task spec's own guidance not to run a broad hyperparame
 sweep in the pilot stands — this is a specific, motivated follow-up, not exploratory
 search).
 
-Model C (no experimental-context conditioning) was not run this pilot; §17 addresses this.
+Model C (no experimental-context conditioning) is reported in §14.1 above.
 
 ## 15. Failure analysis
 
@@ -300,11 +358,12 @@ pilot (would require a second model variant with e.g. separately-encoded WT/edit
 sequences) — flagged as a gap, not answered. The representation was used successfully
 throughout, but its specific contribution vs. an alternative encoding is untested.
 
-**Q3: Does experimental-context conditioning improve generalization?** Not directly
-ablated this pilot (Model C from the proposal was optional, "if compute permits" — GPU
-time was available but this specific run was not prioritized over completing the
-OptiPrime baseline and the two required models). Flagged as the clearest immediate
-follow-up given each run costs only ~25 minutes.
+**Q3: Does experimental-context conditioning improve generalization?** **Yes,
+substantially — it is the most valuable single component tested.** Removing FiLM context
+conditioning costs −0.073 global Spearman and −0.251 within-target Spearman on the locked
+test fold (§14.1, controlled against Model A with a like-for-like 30-epoch budget). Joint
+training across 12 heterogeneous lab×cell groups depends on the model being able to tell
+those groups apart.
 
 **Q4: Does within-target ranking loss improve pegRNA selection even if global
 correlation changes little?** More precisely than the question assumes: **it improves
