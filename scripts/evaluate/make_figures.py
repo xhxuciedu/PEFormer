@@ -72,15 +72,32 @@ def fig_pred_vs_observed(df: pd.DataFrame):
 
 
 def fig_global_correlation_comparison(table: pd.DataFrame):
-    fig, ax = plt.subplots(figsize=(5.5, 3.5))
+    short = {
+        "OptiPrime (official 5-model ensemble)": "OptiPrime\n(official 5-model)",
+        "PE-RankFormer ENSEMBLE (6-model)": "PE-RankFormer\nENSEMBLE (6-model)",
+        "PE-RankFormer (no-rank, single)": "PE-RankFormer\n(no-rank, single)",
+        "PE-RankFormer (rank, single)": "PE-RankFormer\n(rank, single)",
+    }
+    labels = [short.get(m, m) for m in table["model"]]
+    colors_p = ["#8C8C8C" if "OptiPrime" in m else "#4C72B0" for m in table["model"]]
+    colors_s = ["#BFBFBF" if "OptiPrime" in m else "#DD8452" for m in table["model"]]
+
+    fig, ax = plt.subplots(figsize=(7, 4.2))
     x = np.arange(len(table))
-    ax.bar(x - 0.2, table["pearson"], width=0.4, label="Pearson r")
-    ax.bar(x + 0.2, table["spearman"], width=0.4, label="Spearman ρ")
+    b1 = ax.bar(x - 0.2, table["pearson"], width=0.4, color=colors_p, label="Pearson r")
+    b2 = ax.bar(x + 0.2, table["spearman"], width=0.4, color=colors_s, label="Spearman ρ")
+    for bars in (b1, b2):
+        ax.bar_label(bars, fmt="%.3f", fontsize=7, padding=2)
+    ax.axhline(
+        table.loc[table.model.str.contains("OptiPrime"), "spearman"].iloc[0],
+        color="k", ls=":", lw=1, alpha=0.6,
+    )
     ax.set_xticks(x)
-    ax.set_xticklabels(table["model"], rotation=20, ha="right")
+    ax.set_xticklabels(labels, fontsize=8)
     ax.set_ylabel("Correlation")
-    ax.set_title("Global rank correlation (Hsu test subset)")
-    ax.legend()
+    ax.set_ylim(0, 1.0)
+    ax.set_title("Global correlation on the locked Hsu test subset (n=15,022)\ngrey = OptiPrime baseline")
+    ax.legend(loc="upper right", fontsize=8, framealpha=0.95)
     save(fig, "02_global_correlation_comparison")
 
 
@@ -195,7 +212,8 @@ def fig_ablation(metrics_paths: dict[str, Path]):
 
 def main() -> None:
     eval_dir = Path("results/runs/eval_test_fold")
-    a = pd.read_parquet(eval_dir / "predictions_model_a_rank.parquet")
+    ens = eval_dir / "predictions_pe_rankformer_ens6.parquet"
+    a = pd.read_parquet(ens if ens.exists() else eval_dir / "predictions_model_a_rank.parquet")
 
     fig_pred_vs_observed(a)
     fig_within_target_distribution(a, "PE-RankFormer (rank)")
@@ -211,6 +229,8 @@ def main() -> None:
     model_metrics_paths = {
         "PE-RankFormer (rank)": eval_dir / "metrics_model_a_rank.json",
         "PE-RankFormer (no-rank)": eval_dir / "metrics_model_b_norank.json",
+        "PE-RankFormer (no-context)": eval_dir / "metrics_model_c_nocontext.json",
+        "PE-RankFormer ENSEMBLE": eval_dir / "metrics_pe_rankformer_ens6.json",
     }
     fig_topk_regret(model_metrics_paths)
     fig_ablation(model_metrics_paths)

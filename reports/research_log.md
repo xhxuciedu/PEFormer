@@ -482,3 +482,59 @@ models, `results/hsu_benchmark_table.csv`. 82/82 tests passing.
 (no-context ablation, answers Q3, ~25 min); λ_rank sweep; locate the missing Schwank
 K562 PE4+epegRNA data; complete DeepPrime-FT/PRIDICT2.0 properly; isotonic calibration
 for high-efficiency designs; full 5-fold CV once architecture is locked.
+
+---
+
+## 2026-08-15 — Stage 3.0 Model improvement: decisive win over OptiPrime
+
+**Task.** User directive: keep improving until the model clearly outperforms OptiPrime.
+
+**Diagnosis before optimizing.** Two findings drove everything: (1) the scalar model
+*overfits* — Model B train loss fell 4x while val Spearman plateaued from epoch 20, so
+added capacity was the wrong lever; (2) the `indel` channel was being discarded entirely
+despite being present for 100% of rows, nonzero for 60%, and only weakly correlated with
+editing (r=0.25) — i.e. free independent supervision.
+
+**Innovation: 3-way simplex outcome head.** PE outcomes are mutually exclusive (every
+locus ends unedited / correctly edited / indel) and the measurements are read
+proportions, i.e. a point on the 2-simplex. Replaced the scalar sigmoid head with a 3-way
+softmax trained by soft cross-entropy against observed proportions. Stays inside the
+spec's "minimally mechanistic" constraint: mutual exclusivity of measured outcomes is a
+property of the assay, not an imported reaction graph. Result: the four best single
+models in the whole sweep were all simplex (val 0.870-0.879 vs 0.862-0.867 for every
+scalar variant).
+
+**Reported as NOT helping** (avoiding report-only-what-worked bias): clipped-logit
+regression space (0.8659 vs 0.8643 raw — inside seed noise, but it does fulfill the spec
+§19 comparison), and dropout 0.2 (0.8712 vs 0.8703 — no gain, so the overfitting is
+better addressed by extra supervision than heavier regularization).
+
+**Ensembling** gave the other large gain (+0.015 val) and is also the *fair* comparison,
+since the OptiPrime baseline is itself a 5-model ensemble — comparing one model against
+five had been understating our side. Selected a diverse 6-model ensemble (3 simplex + 3
+logit seeds) on VALIDATION; its val rho (0.8940) matched its test rho (0.8940) exactly,
+indicating no selection overfitting.
+
+**FINAL RESULT (locked Hsu test subset, 15,022 rows, vs real OptiPrime code + all 5
+official checkpoints):**
+- PE-RankFormer 6-model ensemble: Pearson 0.780, **Spearman 0.807**, MAE 0.0782
+- OptiPrime official 5-model ensemble: Pearson 0.724, Spearman 0.724, MAE 0.0911
+- Delta Spearman **+0.083**; MAE 14% lower; RMSE 9% lower.
+- Full test fold (52,319 rows): Spearman 0.894, Pearson 0.875.
+
+**Statistical test.** Paired bootstrap clustered by **protospacer** (233 clusters).
+Deliberately chose this over the ranking-group clustering the spec suggests, because in
+the Hsu libraries each design installs a distinct edit so ranking groups are singletons —
+resampling them is just a row-level bootstrap and would have produced a misleadingly
+tight CI ([+0.075, +0.091] vs the honest [+0.047, +0.118]). PE-RankFormer wins 2000/2000
+resamples, two-sided p < 0.0005.
+
+**Disclosed honestly**: the locked test fold has now been queried several times across
+the project (Models A/B/C plus the final ensemble), not exactly once. All selection was
+done on validation, and val==test for the final model, but the repeated querying is a
+mild multiple-comparisons exposure and is stated in the report rather than hidden.
+
+**Output.** `results/runs/eval_test_fold/metrics_pe_rankformer_ens6.json`,
+`results/paired_bootstrap_vs_optiprime.json`, `results/hsu_benchmark_table.csv`,
+regenerated figures, `reports/pilot_results.md` §0 headline + §5.1 simplex head +
+§14.0 sweep. 90/90 tests passing.
