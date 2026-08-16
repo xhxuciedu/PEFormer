@@ -82,3 +82,22 @@ def test_unknown_regression_space_raises():
 
     with _pytest.raises(ValueError):
         regression_loss(torch.tensor([0.0]), torch.tensor([0.5]), space="nonsense")
+
+
+def test_simplex_loss_minimized_at_true_proportions():
+    from pe_rankformer.training.losses import simplex_loss
+
+    edited = torch.tensor([0.3])
+    indel = torch.tensor([0.2])
+    # unedited = 0.5 -> perfect logits are log of the true proportions
+    perfect = torch.log(torch.tensor([[0.5, 0.3, 0.2]]))
+    wrong = torch.log(torch.tensor([[0.2, 0.3, 0.5]]))
+    assert simplex_loss(perfect, edited, indel) < simplex_loss(wrong, edited, indel)
+
+
+def test_simplex_loss_handles_edited_plus_indel_above_one():
+    from pe_rankformer.training.losses import simplex_loss
+
+    # clipped/renormalized rather than producing a negative 'unedited' class
+    loss = simplex_loss(torch.zeros(1, 3), torch.tensor([0.8]), torch.tensor([0.5]))
+    assert torch.isfinite(loss)

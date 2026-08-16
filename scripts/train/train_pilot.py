@@ -60,8 +60,8 @@ def evaluate(model, corpus, indices, device, batch_size=1024):
         batch = collate([ds[i] for i in idx])
         batch = {k: v.to(device, non_blocking=True) for k, v in batch.items()}
         with torch.autocast(device_type="cuda", dtype=torch.bfloat16):
-            score = model(batch)
-        preds.append(torch.sigmoid(score).float().cpu().numpy())
+            out = model(batch)
+        preds.append(model.efficiency_from_output(out).float().cpu().numpy())
         targets.append(batch["target"].float().cpu().numpy())
     preds = np.concatenate(preds)
     targets = np.concatenate(targets)
@@ -79,6 +79,10 @@ def main() -> None:
         "--no-context", action="store_true", help="Model C ablation: disable FiLM context conditioning"
     )
     ap.add_argument("--patience", type=int, default=None, help="override early-stop patience")
+    ap.add_argument(
+        "--simplex-head", action="store_true",
+        help="3-way outcome distribution head over (unedited, edited, indel)",
+    )
     ap.add_argument(
         "--regression-space", choices=["raw", "logit"], default=None,
         help="regression loss space (task spec §19 comparison)",
@@ -98,6 +102,9 @@ def main() -> None:
         cfg["train"]["early_stop_patience"] = args.patience
     if args.regression_space is not None:
         cfg["loss"]["regression_space"] = args.regression_space
+    if args.simplex_head:
+        cfg["model"]["outcome_head"] = "simplex"
+        cfg["loss"]["outcome_head"] = "simplex"
 
     set_seed(cfg["seed"])
     device = torch.device("cuda")
@@ -126,6 +133,7 @@ def main() -> None:
         huber_beta=cfg["loss"]["huber_beta"],
         min_pair_diff=cfg["loss"]["min_pair_diff"],
         regression_space=cfg["loss"].get("regression_space", "raw"),
+        outcome_head=cfg["loss"].get("outcome_head", "scalar"),
     )
     max_pairs_per_group = cfg["loss"]["max_pairs_per_group"]
 
@@ -163,12 +171,16 @@ def main() -> None:
             batch = {k: v.to(device, non_blocking=True) for k, v in batch.items()}
 
             with torch.autocast(device_type="cuda", dtype=torch.bfloat16):
-                score = model(batch)
+                out = model(batch)
+                rank_score = model.ranking_score(out)
                 pi, pj = sample_ranking_pairs(
                     batch["group_key"], batch["target"],
                     min_diff=cfg["loss"]["min_pair_diff"], max_pairs_per_group=max_pairs_per_group,
                 )
-                loss, parts = total_loss(score, batch["target"], pi, pj, weights)
+                loss, parts = total_loss(
+                    out, batch["target"], pi, pj, weights,
+                    rank_score=rank_score, target_indel=batch.get("target_indel"),
+                )
 
             opt.zero_grad(set_to_none=True)
             loss.backward()

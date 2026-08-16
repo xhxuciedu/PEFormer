@@ -39,6 +39,7 @@ class PERankFormerConfig:
     context_vocab_sizes: dict[str, int] = field(default_factory=dict)
     context_embed_dim: int = 32
     use_context: bool = True  # False = Model C ablation (no FiLM conditioning)
+    outcome_head: str = "scalar"  # "scalar" | "simplex" (3-way outcome distribution)
 
 
 def _encoder_stack(d_model: int, n_heads: int, ffn_dim: int, dropout: float, n_layers: int) -> nn.TransformerEncoder:
@@ -176,12 +177,19 @@ class PERankFormer(nn.Module):
             self.context_encoder = None
             self.film = None
 
+        # "simplex": every edited locus ends in exactly one of {unedited, correctly
+        # edited, indel}, and the measured values are the proportions of each. Predicting
+        # a 3-way distribution respects that constraint by construction and supervises on
+        # the indel signal the scalar head throws away -- without importing any
+        # biochemical reaction graph (task spec §11 forbids that, but the mutual
+        # exclusivity of measured outcomes is a property of the assay, not a mechanism).
+        n_out = 3 if config.outcome_head == "simplex" else 1
         self.head = nn.Sequential(
             nn.LayerNorm(pooled_dim),
             nn.Linear(pooled_dim, d),
             nn.GELU(),
             nn.Dropout(config.dropout),
-            nn.Linear(d, 1),
+            nn.Linear(d, n_out),
         )
 
         self.apply(self._init_weights)
@@ -226,11 +234,28 @@ class PERankFormer(nn.Module):
             context_vector = self.context_encoder(batch)
             pooled = self.film(pooled, context_vector)
 
-        score = self.head(pooled).squeeze(-1)
-        return score
+        out = self.head(pooled)
+        if self.config.outcome_head == "simplex":
+            return out  # (B, 3) logits over [unedited, edited, indel]
+        return out.squeeze(-1)  # (B,) raw score
+
+    def ranking_score(self, out: torch.Tensor) -> torch.Tensor:
+        """Monotone-in-efficiency scalar used by the pairwise ranking loss.
+
+        For the simplex head this is the log-odds of a correct edit against no edit,
+        which is the natural ordering quantity and is invariant to the indel logit.
+        """
+        if self.config.outcome_head == "simplex":
+            return out[:, 1] - out[:, 0]
+        return out
+
+    def efficiency_from_output(self, out: torch.Tensor) -> torch.Tensor:
+        if self.config.outcome_head == "simplex":
+            return torch.softmax(out, dim=-1)[:, 1]
+        return torch.sigmoid(out)
 
     def predict_efficiency(self, batch: dict[str, torch.Tensor]) -> torch.Tensor:
-        return torch.sigmoid(self.forward(batch))
+        return self.efficiency_from_output(self.forward(batch))
 
     def num_parameters(self) -> int:
         return sum(p.numel() for p in self.parameters())

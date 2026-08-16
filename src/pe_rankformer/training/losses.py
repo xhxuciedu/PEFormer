@@ -57,12 +57,32 @@ def ranking_loss(
     return F.softplus(-(si - sj)).mean()
 
 
+def simplex_loss(logits: torch.Tensor, edited: torch.Tensor, indel: torch.Tensor) -> torch.Tensor:
+    """Soft cross-entropy against the observed 3-way outcome proportions.
+
+    Each assayed locus ends in exactly one of {unedited, correctly edited, indel}; the
+    measured values are the proportions of reads in each class, i.e. a point on the
+    2-simplex. Soft cross-entropy `-Σ_k y_k log p_k` is the natural likelihood for
+    proportion data and supervises on the indel channel that a scalar efficiency head
+    discards entirely (indel is nonzero for 60% of the corpus and only weakly correlated
+    with editing, r=0.25, so it carries genuinely independent signal).
+    """
+    edited = edited.clamp(0, 1)
+    indel = indel.clamp(0, 1)
+    unedited = (1.0 - edited - indel).clamp(min=0.0)
+    y = torch.stack([unedited, edited, indel], dim=-1)
+    y = y / y.sum(dim=-1, keepdim=True).clamp(min=1e-6)
+    log_p = torch.log_softmax(logits, dim=-1)
+    return -(y * log_p).sum(dim=-1).mean()
+
+
 @dataclass
 class LossWeights:
     lambda_rank: float = 0.25
     huber_beta: float = 0.1
     min_pair_diff: float = 0.02
     regression_space: str = "raw"  # "raw" or "logit" (task spec §19 comparison)
+    outcome_head: str = "scalar"  # "scalar" or "simplex"
 
 
 def total_loss(
@@ -71,10 +91,20 @@ def total_loss(
     pairs_i: torch.Tensor,
     pairs_j: torch.Tensor,
     weights: LossWeights,
+    rank_score: torch.Tensor | None = None,
+    target_indel: torch.Tensor | None = None,
 ) -> tuple[torch.Tensor, dict[str, float]]:
-    l_reg = regression_loss(
-        score, target, huber_beta=weights.huber_beta, space=weights.regression_space
-    )
-    l_rank = ranking_loss(score, target, pairs_i, pairs_j, min_diff=weights.min_pair_diff)
+    """`score` is the model's raw head output: (B,) for the scalar head, (B,3) logits for
+    the simplex head. `rank_score` is the monotone scalar used for ranking (supplied by
+    the model, since it differs between head types)."""
+    if weights.outcome_head == "simplex":
+        assert target_indel is not None, "simplex head requires target_indel"
+        l_reg = simplex_loss(score, target, target_indel)
+    else:
+        l_reg = regression_loss(
+            score, target, huber_beta=weights.huber_beta, space=weights.regression_space
+        )
+    rs = score if rank_score is None else rank_score
+    l_rank = ranking_loss(rs, target, pairs_i, pairs_j, min_diff=weights.min_pair_diff)
     loss = l_reg + weights.lambda_rank * l_rank
     return loss, {"loss": loss.item(), "reg": l_reg.item(), "rank": l_rank.item()}

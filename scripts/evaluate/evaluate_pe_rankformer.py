@@ -43,8 +43,8 @@ def predict(model, corpus, indices, device, batch_size=1024):
         batch = collate([ds[i] for i in idx])
         batch = {k: v.to(device, non_blocking=True) for k, v in batch.items()}
         with torch.autocast(device_type="cuda", dtype=torch.bfloat16):
-            score = model(batch)
-        preds.append(torch.sigmoid(score).float().cpu().numpy())
+            out = model(batch)
+        preds.append(model.efficiency_from_output(out).float().cpu().numpy())
     return np.concatenate(preds)
 
 

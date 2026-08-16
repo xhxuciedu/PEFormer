@@ -47,6 +47,7 @@ class FeaturizedCorpus:
     peg_seg_ids: np.ndarray  # (N, PEG_MAX_LEN) int8
     context_ids: dict[str, np.ndarray]  # each (N,) int16
     target: np.ndarray  # (N,) float32, editing efficiency in [0,1]
+    target_indel: np.ndarray  # (N,) float32, indel rate in [0,1]
     group_key: np.ndarray  # (N,) int64
     fold: np.ndarray  # (N,) int8
     record_id: np.ndarray  # (N,) object (str)
@@ -78,6 +79,7 @@ def featurize(df: pd.DataFrame, vocab: ContextVocab) -> FeaturizedCorpus:
         context_ids[f_] = col.map(lambda s: index.get(s, 0)).to_numpy(dtype=np.int16)
 
     target = df["edited"].to_numpy(dtype=np.float32)
+    target_indel = df["indel"].to_numpy(dtype=np.float32) if "indel" in df.columns else np.zeros(n, dtype=np.float32)
     group_key = ranking_group_key(df)
     fold = df["fold"].to_numpy(dtype=np.int8)
     record_id = df["record_id"].to_numpy(dtype=object)
@@ -88,6 +90,7 @@ def featurize(df: pd.DataFrame, vocab: ContextVocab) -> FeaturizedCorpus:
         peg_seg_ids=peg_seg_ids,
         context_ids=context_ids,
         target=target,
+        target_indel=target_indel,
         group_key=group_key,
         fold=fold,
         record_id=record_id,
@@ -104,6 +107,7 @@ def load_featurized(npz_path: str, vocab: ContextVocab) -> FeaturizedCorpus:
         peg_seg_ids=data["peg_seg_ids"],
         context_ids=context_ids,
         target=data["target"],
+        target_indel=data["target_indel"] if "target_indel" in data else np.zeros_like(data["target"]),
         group_key=data["group_key"],
         fold=data["fold"],
         record_id=data["record_id"],
@@ -128,6 +132,7 @@ class PEDataset(Dataset):
             "peg_nuc_ids": torch.from_numpy(c.peg_nuc_ids[j].astype(np.int64)),
             "peg_seg_ids": torch.from_numpy(c.peg_seg_ids[j].astype(np.int64)),
             "target": torch.tensor(c.target[j], dtype=torch.float32),
+            "target_indel": torch.tensor(c.target_indel[j], dtype=torch.float32),
             "group_key": torch.tensor(c.group_key[j], dtype=torch.int64),
         }
         for f_, arr in c.context_ids.items():

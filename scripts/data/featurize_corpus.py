@@ -34,6 +34,7 @@ def main() -> None:
         peg_nuc_ids=corpus.peg_nuc_ids,
         peg_seg_ids=corpus.peg_seg_ids,
         target=corpus.target,
+        target_indel=corpus.target_indel,
         group_key=corpus.group_key,
         fold=corpus.fold,
         record_id=corpus.record_id,

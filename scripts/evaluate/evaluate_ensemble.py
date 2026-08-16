@@ -49,8 +49,8 @@ def predict_one(ckpt_path: Path, corpus, indices, device, batch_size=1024) -> np
         batch = collate([ds[i] for i in idx])
         batch = {k: v.to(device, non_blocking=True) for k, v in batch.items()}
         with torch.autocast(device_type="cuda", dtype=torch.bfloat16):
-            score = model(batch)
-        preds.append(torch.sigmoid(score).float().cpu().numpy())
+            out = model(batch)
+        preds.append(model.efficiency_from_output(out).float().cpu().numpy())
     del model
     torch.cuda.empty_cache()
     return np.concatenate(preds)

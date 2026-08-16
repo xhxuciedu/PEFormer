@@ -148,3 +148,29 @@ def test_batch_of_one_does_not_crash():
     with torch.no_grad():
         score = model(batch)
     assert score.shape == (1,)
+
+
+def test_simplex_head_shapes_and_efficiency_range():
+    df = _toy_corpus()
+    vocab = ContextVocab.fit(df)
+    cfg = PERankFormerConfig(
+        d_model=32, n_heads=2, ffn_dim=64, n_edit_layers=1, n_peg_layers=1, n_cross_blocks=1,
+        context_fields=vocab.fields, context_vocab_sizes=vocab.sizes(), context_embed_dim=8,
+        outcome_head="simplex",
+    )
+    model = PERankFormer(cfg)
+    corpus = featurize(df, vocab)
+    ds = PEDataset(corpus)
+    batch = collate([ds[i] for i in range(6)])
+    out = model(batch)
+    assert out.shape == (6, 3)  # 3-way outcome logits
+    eff = model.efficiency_from_output(out)
+    assert eff.shape == (6,)
+    assert (eff >= 0).all() and (eff <= 1).all()
+    assert model.ranking_score(out).shape == (6,)
+
+
+def test_scalar_head_ranking_score_is_identity():
+    model, vocab = _tiny_model()
+    out = torch.randn(5)
+    assert torch.allclose(model.ranking_score(out), out)
