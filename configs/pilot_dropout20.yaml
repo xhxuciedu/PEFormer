@@ -1,0 +1,35 @@
+data:
+  corpus: data/processed/featurized_corpus.npz
+  test_fold: 0
+  train_folds:
+  - 2
+  - 3
+  - 4
+  val_fold: 1
+  vocab: data/processed/context_vocab.json
+loss:
+  huber_beta: 0.1
+  lambda_rank: 0.25
+  max_pairs_per_group: 4
+  min_pair_diff: 0.02
+model:
+  context_embed_dim: 32
+  d_model: 384
+  dropout: 0.2
+  ffn_dim: 1536
+  n_cross_blocks: 2
+  n_edit_layers: 6
+  n_heads: 6
+  n_peg_layers: 4
+optim:
+  grad_clip: 1.0
+  lr: 0.0003
+  warmup_frac: 0.05
+  weight_decay: 0.01
+seed: 20260812
+train:
+  batch_size: 512
+  early_stop_min_warmup_epochs: 3
+  early_stop_patience: 5
+  max_epochs: 30
+  precision: bf16
