@@ -22,6 +22,7 @@ import torch
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "src"))
 from pe_rankformer.data.context import ContextVocab  # noqa: E402
 from pe_rankformer.data.dataset import PEDataset, collate, load_featurized  # noqa: E402
+from pe_rankformer.evaluation.heldout_guard import require_heldout_permission  # noqa: E402
 from pe_rankformer.evaluation.metrics import (  # noqa: E402
     global_metrics,
     ndcg_at_k,
@@ -66,11 +67,21 @@ def main() -> None:
     ap.add_argument("--full-df", default="data/processed/optiprime_full_297962.parquet",
                     help="row-aligned parquet the featurized corpus was built from")
     ap.add_argument(
-        "--split", choices=["val", "test"], default="test",
+        "--split", choices=["val", "test"], default="val",
         help="Evaluate on the validation fold (for choosing ensemble composition) or the "
-             "locked test fold (final report number only).",
+             "locked test fold (final report number only, requires --allow-heldout-evaluation).",
+    )
+    ap.add_argument(
+        "--allow-heldout-evaluation", action="store_true",
+        help="Required in addition to --split test. See heldout_guard.py.",
     )
     args = ap.parse_args()
+
+    if args.split == "test":
+        require_heldout_permission(
+            args.allow_heldout_evaluation, script="evaluate_ensemble.py",
+            reason=f"model-name={args.model_name}", n_rows=-1,
+        )
 
     device = torch.device("cuda")
     vocab = ContextVocab.load(args.vocab)

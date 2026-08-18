@@ -19,6 +19,7 @@ import torch
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "src"))
 from pe_rankformer.data.context import ContextVocab  # noqa: E402
 from pe_rankformer.data.dataset import PEDataset, collate, load_featurized  # noqa: E402
+from pe_rankformer.evaluation.heldout_guard import require_heldout_permission  # noqa: E402
 from pe_rankformer.evaluation.metrics import (  # noqa: E402
     global_metrics,
     ndcg_at_k,
@@ -53,7 +54,16 @@ def main() -> None:
     ap.add_argument("--checkpoint", type=Path, required=True)
     ap.add_argument("--model-name", type=str, required=True)
     ap.add_argument("--out-dir", type=Path, required=True)
+    ap.add_argument(
+        "--allow-heldout-evaluation", action="store_true",
+        help="Required: this script always evaluates on the locked test fold. See heldout_guard.py.",
+    )
     args = ap.parse_args()
+
+    require_heldout_permission(
+        args.allow_heldout_evaluation, script="evaluate_pe_rankformer.py",
+        reason=f"model-name={args.model_name} checkpoint={args.checkpoint}", n_rows=-1,
+    )
 
     device = torch.device("cuda")
     vocab = ContextVocab.load("data/processed/context_vocab.json")
