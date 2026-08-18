@@ -169,3 +169,29 @@ combined) now. Since layerwise context won, also launch the conditional MoE
 extension from §8 (context-gated experts, built on the layerwise-context
 model). Both launched in parallel (GPU 6: Family D, GPU 2: MoE-on-layerwise),
 same dev split/seed/epoch budget.
+
+---
+
+## 2026-08-18 — Family D (A+C combined) does not beat either component alone
+
+Final result, same dev split/seed, 30 epochs:
+
+| Model | best epoch | val Spearman |
+|---|---|---|
+| Family C (feature branch) alone | 22 | 0.9220 |
+| Family A (layerwise context) alone | 23 | 0.9214 |
+| **Family D (A+C combined)** | 21 | **0.9202** |
+| Baseline | 24 | 0.9192 |
+
+Family D beats baseline (+0.0010) but underperforms *both* individual
+components (-0.0012 vs. Family A alone, -0.0018 vs. Family C alone). The two
+gains do not stack -- consistent with them capturing overlapping signal (both
+are, in different ways, giving the model more information about experimental
+context / sequence composition that correlates with efficiency) rather than
+complementary signal. Mid-training the combined run briefly looked additive
+(epoch 15: 0.9180 vs. 0.9158/0.9159 for A/C alone) but that lead evaporated by
+the best epoch.
+
+**Decision**: do not carry Family D forward. Family C alone remains the
+Stage-A leader. Still waiting on MoE4-on-layerwise (§8's conditional
+extension) before finalizing the Stage-A ranking.
