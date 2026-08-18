@@ -538,3 +538,57 @@ mild multiple-comparisons exposure and is stated in the report rather than hidde
 `results/paired_bootstrap_vs_optiprime.json`, `results/hsu_benchmark_table.csv`,
 regenerated figures, `reports/pilot_results.md` §0 headline + §5.1 simplex head +
 §14.0 sweep. 90/90 tests passing.
+
+## 2026-08-18 — OptiPrime authors supplied the real training data; earlier result retracted
+
+The authors sent their actual training mix (58 CSVs, `data/optiprime_train_mix/`):
+the exact training rows, their 5 CV splits, a held-out test set, and a read-depth
+`weight` column. Their note: "The 297,962 training corpus number comes from the
+number of data points used for training, and does not include the held-out rows for
+our final test set."
+
+**That one sentence resolved the project's longest-running open question.** Reading
+the files: 297,962 training rows (exact match) + 20,509 held-out = 318,471. Liu is
+65,594 train + 9,175 test = 74,769. The 9,175-row "excess" we could never explain
+with any QC filter *was their test set*. No filter ever existed. Every negative
+result in that search — biomni's hypothesis elimination, the code-level audit of
+OptiPrime's loader, the read-depth recovery attempt, the Source Data hunt — was
+individually correct; the framing was wrong.
+
+The files also contain `Schwank_K562_LibDiverse_PE4.csv` (20,378 rows), the
+partition absent from every public release and from all four cited BioProjects.
+
+**Rebuilt** `scripts/data/build_optiprime_official.py` → 318,471 rows, asserting the
+297,962 training count. Metadata inferred from filenames mirroring OptiPrime's own
+`pe_datasets.py`. Their files lowercase the appended U6 `g`; ours uppercase it —
+the only difference between their Liu designs and our independent extraction, which
+agree on 19,908/19,908 designs once case-normalised. Our extraction was correct.
+
+**indel is missing for 42.5% of the official corpus** (all Kim rows, Schwank diverse
+libraries). Extended `simplex_loss` to marginalise the indel class out for those rows
+rather than impute zero, which would assert an unobserved measurement. Three
+regression tests added, including one asserting marginalising ≠ imputing.
+
+**Ran OptiPrime on its own held-out test set.** No padding needed — all 9,175 rows
+already place the protospacer at PS20_OFFSET=4. Result: **Spearman 0.8365**, versus
+the 0.7242 it scored on our padded reconstruction.
+
+**RETRACTION.** That 0.11 ρ gap is the padding artifact, and it is ~70× the size of
+the model difference we were measuring. The previously reported +0.083 and +0.070
+margins over OptiPrime are withdrawn. The earlier padding control (comparing padded
+vs unpadded subsets) was too weak: it compared different rows, not the same rows both
+ways, which was impossible without the data we didn't have.
+
+**Matched-protocol head-to-head.** First attempt used 3 seeds on splits 2-5 (80% of
+training data vs OptiPrime's effective 100% across its 5 CV checkpoints) → 0.8245,
+a −0.0120 deficit. Replicating their protocol exactly (5 CV models, model k holding
+out split k, ensembled) → **0.8349 vs OptiPrime's 0.8365, Δ = −0.0016, 95% CI
+[−0.0249, +0.0218], p = 0.94, wins 47.1% of resamples.** Statistically
+indistinguishable. PE-RankFormer better on MAE/RMSE, worse on Pearson/Spearman.
+
+Note the protocol asymmetry alone (−0.0120) was 7× the final model difference.
+
+**Conclusion:** a minimally-mechanistic Transformer *matches* a strongly mechanistic
+model on matched data with no leakage. Weaker than the claim this project set out to
+make, and better supported. Report and PDF rewritten around the corrected result,
+including a full section on the retraction.

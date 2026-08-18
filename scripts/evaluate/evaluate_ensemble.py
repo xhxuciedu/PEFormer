@@ -61,6 +61,10 @@ def main() -> None:
     ap.add_argument("--checkpoints", nargs="+", type=Path, required=True)
     ap.add_argument("--model-name", type=str, required=True)
     ap.add_argument("--out-dir", type=Path, default=Path("results/runs/eval_test_fold"))
+    ap.add_argument("--corpus", default="data/processed/featurized_corpus.npz")
+    ap.add_argument("--vocab", default="data/processed/context_vocab.json")
+    ap.add_argument("--full-df", default="data/processed/optiprime_full_297962.parquet",
+                    help="row-aligned parquet the featurized corpus was built from")
     ap.add_argument(
         "--split", choices=["val", "test"], default="test",
         help="Evaluate on the validation fold (for choosing ensemble composition) or the "
@@ -69,9 +73,9 @@ def main() -> None:
     args = ap.parse_args()
 
     device = torch.device("cuda")
-    vocab = ContextVocab.load("data/processed/context_vocab.json")
-    corpus = load_featurized("data/processed/featurized_corpus.npz", vocab)
-    full_df = pd.read_parquet("data/processed/optiprime_full_297962.parquet")
+    vocab = ContextVocab.load(args.vocab)
+    corpus = load_featurized(args.corpus, vocab)
+    full_df = pd.read_parquet(args.full_df)
 
     first = torch.load(args.checkpoints[0], map_location="cpu", weights_only=False)
     fold_key = "test_fold" if args.split == "test" else "val_fold"

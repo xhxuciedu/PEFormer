@@ -5,7 +5,13 @@ from __future__ import annotations
 import pytest
 import torch
 
-from pe_rankformer.training.losses import LossWeights, ranking_loss, regression_loss, total_loss
+from pe_rankformer.training.losses import (
+    LossWeights,
+    ranking_loss,
+    regression_loss,
+    simplex_loss,
+    total_loss,
+)
 
 
 def test_regression_loss_zero_for_perfect_prediction():
@@ -101,3 +107,40 @@ def test_simplex_loss_handles_edited_plus_indel_above_one():
     # clipped/renormalized rather than producing a negative 'unedited' class
     loss = simplex_loss(torch.zeros(1, 3), torch.tensor([0.8]), torch.tensor([0.5]))
     assert torch.isfinite(loss)
+
+
+def test_simplex_loss_marginalises_unobserved_indel():
+    """OptiPrime's official mix leaves indel unmeasured for 42.5% of rows; those must
+    still contribute a well-defined gradient rather than being imputed to indel=0."""
+    import math
+
+    torch.manual_seed(0)
+    logits = torch.randn(5, 3, requires_grad=True)
+    edited = torch.tensor([0.3, 0.5, 0.2, 0.4, 0.1])
+    indel = torch.tensor([0.1, math.nan, 0.05, math.nan, 0.2])
+
+    loss = simplex_loss(logits, edited, indel)
+    loss.backward()
+    assert torch.isfinite(loss)
+    assert torch.isfinite(logits.grad).all()
+
+
+def test_simplex_loss_all_indel_unobserved_still_trains():
+    torch.manual_seed(0)
+    logits = torch.randn(4, 3, requires_grad=True)
+    edited = torch.tensor([0.3, 0.5, 0.2, 0.4])
+    loss = simplex_loss(logits, edited, torch.full((4,), float("nan")))
+    loss.backward()
+    assert torch.isfinite(loss)
+    assert torch.isfinite(logits.grad).all()
+    assert (logits.grad.abs().sum() > 0).item()
+
+
+def test_imputing_zero_indel_differs_from_marginalising():
+    """Guards the distinction the masking exists to preserve."""
+    torch.manual_seed(0)
+    logits = torch.randn(3, 3)
+    edited = torch.tensor([0.3, 0.5, 0.2])
+    marginalised = simplex_loss(logits, edited, torch.full((3,), float("nan")))
+    imputed = simplex_loss(logits, edited, torch.zeros(3))
+    assert not torch.isclose(marginalised, imputed)

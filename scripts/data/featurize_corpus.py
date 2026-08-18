@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import argparse
 import logging
 import sys
 from pathlib import Path
@@ -18,16 +19,22 @@ logger = logging.getLogger("featurize_corpus")
 
 
 def main() -> None:
-    df = pd.read_parquet("data/processed/optiprime_full_297962.parquet")
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--corpus", default="data/processed/optiprime_full_297962.parquet")
+    ap.add_argument("--out", default="data/processed/featurized_corpus.npz")
+    ap.add_argument("--vocab", default="data/processed/context_vocab.json")
+    args = ap.parse_args()
+
+    df = pd.read_parquet(args.corpus)
     logger.info("loaded %d rows", len(df))
 
     vocab = ContextVocab.fit(df)
     logger.info("context vocab sizes: %s", vocab.sizes())
     Path("data/processed").mkdir(parents=True, exist_ok=True)
-    vocab.save(Path("data/processed/context_vocab.json"))
+    vocab.save(Path(args.vocab))
 
     corpus = featurize(df, vocab)
-    out = Path("data/processed/featurized_corpus.npz")
+    out = Path(args.out)
     np.savez_compressed(
         out,
         edit_ids=corpus.edit_ids,

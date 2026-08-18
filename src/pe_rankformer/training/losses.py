@@ -66,14 +66,33 @@ def simplex_loss(logits: torch.Tensor, edited: torch.Tensor, indel: torch.Tensor
     proportion data and supervises on the indel channel that a scalar efficiency head
     discards entirely (indel is nonzero for 60% of the corpus and only weakly correlated
     with editing, r=0.25, so it carries genuinely independent signal).
+
+    Rows whose indel is unobserved (NaN) are still usable: for those we marginalise the
+    indel class out and score the remaining binary unedited-vs-edited decision, which is
+    the correct likelihood under "indel unknown" rather than the wrong one implied by
+    imputing indel=0. OptiPrime's official training mix leaves indel unmeasured for the
+    Kim rows and the Schwank diverse libraries (42.5% of the corpus), so this matters.
     """
     edited = edited.clamp(0, 1)
-    indel = indel.clamp(0, 1)
-    unedited = (1.0 - edited - indel).clamp(min=0.0)
-    y = torch.stack([unedited, edited, indel], dim=-1)
-    y = y / y.sum(dim=-1, keepdim=True).clamp(min=1e-6)
+    observed = ~torch.isnan(indel)
+    indel_f = torch.nan_to_num(indel, nan=0.0).clamp(0, 1)
+    unedited = (1.0 - edited - indel_f).clamp(min=0.0)
+
     log_p = torch.log_softmax(logits, dim=-1)
-    return -(y * log_p).sum(dim=-1).mean()
+
+    # 3-way soft cross-entropy where indel was measured.
+    y = torch.stack([unedited, edited, indel_f], dim=-1)
+    y = y / y.sum(dim=-1, keepdim=True).clamp(min=1e-6)
+    loss_full = -(y * log_p).sum(dim=-1)
+
+    # Where it was not, renormalise over {unedited, edited} only.
+    log_p2 = torch.log_softmax(logits[..., :2], dim=-1)
+    un2 = (1.0 - edited).clamp(min=0.0)
+    y2 = torch.stack([un2, edited], dim=-1)
+    y2 = y2 / y2.sum(dim=-1, keepdim=True).clamp(min=1e-6)
+    loss_marg = -(y2 * log_p2).sum(dim=-1)
+
+    return torch.where(observed, loss_full, loss_marg).mean()
 
 
 @dataclass

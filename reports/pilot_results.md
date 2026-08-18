@@ -1,66 +1,72 @@
 # PE-RankFormer Pilot Results
 
-## 0. HEADLINE RESULT (final model)
+> **STATUS: the headline result below supersedes all earlier versions of this
+> document. A previously reported "decisive win" over OptiPrime has been RETRACTED —
+> it was an artifact of running the baseline on filler-padded sequences. See §0.2.**
 
-**PE-RankFormer decisively outperforms OptiPrime** on the locked, protospacer-disjoint
-Hsu test fold — the paper's own primary benchmark — in an ensemble-vs-ensemble comparison
-against OptiPrime's real released code and all 5 of its official checkpoints:
+## 0. HEADLINE RESULT (final, matched protocol)
+
+OptiPrime's authors supplied their actual training mix: the exact 297,962 training
+rows, their five cross-validation splits, and a held-out test set of 20,509 rows.
+Everything below uses that data.
+
+Both models are 5-model cross-validation ensembles trained on the identical 297,962
+rows (model *k* holds out split *k*), evaluated on the 9,175-row held-out Liu
+partition that **neither** model trained on, in OptiPrime's **native input format**
+(no padding — all rows already place the protospacer at offset 4).
 
 | Model | n | Pearson r | Spearman ρ | MAE | RMSE |
 |---|---:|---:|---:|---:|---:|
-| OptiPrime (official, 5-model ensemble) | 15,022 | 0.724 | 0.724 | 0.0911 | 0.1292 |
-| **PE-RankFormer (6-model ensemble)** | 15,022 | **0.780** | **0.807** | **0.0782** | **0.1175** |
-| PE-RankFormer (no-rank, single model) | 15,022 | 0.756 | 0.775 | 0.0829 | 0.1246 |
+| OptiPrime (official 5-model) | 9,175 | **0.8163** | **0.8365** | 0.0754 | 0.1098 |
+| PE-RankFormer (5-model CV) | 9,175 | 0.8143 | 0.8349 | **0.0724** | **0.1089** |
 
-**Δ Spearman = +0.083** (0.807 vs 0.724); MAE 14% lower; RMSE 9% lower.
-
-**Statistical significance** (`results/paired_bootstrap_vs_optiprime.json`): paired
-bootstrap resampling **clustered by protospacer** (233 clusters — the unit the CV folds
-were built on, and deliberately more conservative than row-level or
-ranking-group-level resampling, both of which would have given a tighter CI):
+**Δ Spearman = −0.0016.** Paired protospacer-clustered bootstrap (2000 resamples,
+150 clusters), `results/heldout_bootstrap_cv5.json`:
 
 ```
-observed Δρ  = +0.0827
-bootstrap Δρ = +0.0838, 95% CI [+0.0470, +0.1176]
-PE-RankFormer wins in 2000 / 2000 resamples      (two-sided p < 0.0005)
+observed Δρ  = -0.0016
+bootstrap Δρ = -0.0011, 95% CI [-0.0249, +0.0218]
+PE-RankFormer wins in 47.1% of resamples        (two-sided p = 0.94)
 ```
 
-On the **full** locked test fold (all 52,319 rows, all 12 lab×cell groups) the same
-ensemble reaches **Spearman ρ = 0.894, Pearson r = 0.875**, with top-3 regret of
-0.00017 (i.e. testing the model's top 3 designs costs, on average, 0.017 percentage
-points of achievable efficiency).
+**The two models are statistically indistinguishable.** PE-RankFormer is slightly
+better on absolute error, slightly worse on rank correlation, all within noise.
 
-For scale, the OptiPrime paper reports its own cross-validation ρ = 0.745, with
-DeepPrime-FT at 0.399 and PRIDICT2.0-HEK at 0.538 on comparable data.
+### 0.1 The mystery of the 9,175 "excess" rows — solved
 
-### What produced the gain (each step validated on the validation fold only)
+The public Hsu workbook has 74,769 Liu rows; the paper's partition table accounts for
+65,594. We spent much of this project hunting a QC filter to explain the difference.
+There is none: `74,769 = 65,594 train + 9,175 held-out test`, and the 297,962 figure
+counts training rows only. Every negative result in that search was correct; the
+error was one of framing.
 
-| Step | Val ρ | Δ |
-|---|---:|---:|
-| Model A — proposal's main config (λ_rank=0.25) | 0.786 | — |
-| → drop the within-target ranking loss (λ=0) | 0.864 | +0.078 |
-| → **3-way simplex outcome head** (uses the discarded indel channel) | 0.879 | +0.015 |
-| → **6-model ensemble** (3 simplex + 3 logit seeds) | 0.894 | +0.015 |
+### 0.2 RETRACTED: the earlier "decisive win"
 
-The two genuinely new ingredients are the **simplex outcome head** (§5.1) and
-**ensembling** — the latter also being the *fair* comparison, since the OptiPrime number
-it is measured against is itself a 5-model ensemble.
+Earlier versions reported Spearman 0.807 vs OptiPrime's 0.724 (+0.083, p<0.0005,
+2000/2000 bootstrap wins), and later 0.794 vs 0.724 (+0.070) on an expanded corpus.
+**Both are withdrawn.**
 
-### Caveats, stated plainly
+OptiPrime requires the protospacer at offset 4 in `full_unedited`. The public Hsu
+workbook provides no upstream genomic context for Lib-MMR designs, so we left-padded
+with filler `'A'` bases to run the baseline at all. Its PAM-proximal and seed-window
+features then read fabricated sequence.
 
-1. **Leakage risk runs in OptiPrime's favor, not ours.** We do not have OptiPrime's
-   original fold assignments (they live in unpublished training CSVs), so some of our
-   held-out rows may have been in the training data of its released checkpoints. Our
-   numbers are leak-free by construction. If anything this *understates* the margin.
-2. **Test-fold query count.** The locked test fold has now been evaluated several times
-   over the project (Models A, B, C, and this final ensemble) rather than exactly once.
-   All *model and ensemble selection* was done on the validation fold — and the final
-   ensemble's validation ρ (0.8940) matched its test ρ (0.8940) exactly, indicating no
-   selection overfitting — but the repeated querying is a mild multiple-comparisons
-   exposure and is disclosed rather than hidden.
-3. **Corpus is 88.1% reconstructed** (262,508 / 297,962 rows), documented in §2-3.
-4. **DeepPrime-FT and PRIDICT2.0 baselines were not reproduced** (§10-11), so the
-   comparison is against OptiPrime only.
+| Evaluation | Input condition | OptiPrime ρ |
+|---|---|---:|
+| Our reconstructed test fold (n=15,022) | filler-padded | 0.7242 |
+| OptiPrime's held-out test set (n=9,175) | native format | **0.8365** |
+
+The padding artifact (~0.11 ρ) was **roughly 70× the size of the effect under study**
+(0.0016). A control check we ran at the time — comparing padded vs unpadded subsets —
+was too weak to catch it, since it compared different rows rather than the same rows
+both ways.
+
+### 0.3 Protocol matching mattered nearly as much as the result
+
+An intermediate run using 3 seeds trained on splits 2–5 (80% of the data, vs
+OptiPrime's effective 100%) scored 0.8245 — a −0.0120 deficit. Matching the 5-fold
+protocol recovered essentially all of it. That bookkeeping difference was 7× the
+final model difference.
 
 ## 1. Executive summary
 

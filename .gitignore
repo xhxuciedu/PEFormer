@@ -89,3 +89,9 @@ events.out.tfevents.*
 
 # Cloned upstream repositories (see reports/optiprime_data_loader_reverse_engineering.md)
 external/*/
+
+# Author-supplied OptiPrime training mix (shared privately by the OptiPrime authors,
+# not a public release). Deliberately NOT committed -- publishing it is the authors'
+# call, not ours. See reports/research_log.md 2026-08-18.
+data/optiprime_train_mix/
+data/__MACOSX/
