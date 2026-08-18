@@ -51,6 +51,12 @@ class FeaturizedCorpus:
     group_key: np.ndarray  # (N,) int64
     fold: np.ndarray  # (N,) int8
     record_id: np.ndarray  # (N,) object (str)
+    # Round-2 Family C (§9): attached post-hoc by the training script, not by
+    # `featurize()`/`load_featurized()`, since normalization must be fit from
+    # training-split rows only -- a concern the corpus cache has no notion of.
+    # See scripts/train/attach_family_c_features.py.
+    features: np.ndarray | None = None  # (N, F) float32, normalized + NaN-imputed
+    features_missing: np.ndarray | None = None  # (N, F) float32, 1.0 where imputed
 
     def __len__(self) -> int:
         return len(self.target)
@@ -135,6 +141,9 @@ class PEDataset(Dataset):
             "target_indel": torch.tensor(c.target_indel[j], dtype=torch.float32),
             "group_key": torch.tensor(c.group_key[j], dtype=torch.int64),
         }
+        if c.features is not None:
+            item["features"] = torch.from_numpy(c.features[j].astype(np.float32))
+            item["features_missing"] = torch.from_numpy(c.features_missing[j].astype(np.float32))
         for f_, arr in c.context_ids.items():
             item[f"ctx_{f_}"] = torch.tensor(int(arr[j]), dtype=torch.int64)
         return item

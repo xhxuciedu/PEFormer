@@ -40,10 +40,22 @@ class PERankFormerConfig:
     context_embed_dim: int = 32
     use_context: bool = True  # False = Model C ablation (no FiLM conditioning)
     outcome_head: str = "scalar"  # "scalar" | "simplex" (3-way outcome distribution)
+    context_strategy: str = "late"  # "late" (single FiLM after pooling) | "layerwise" (round-2
+    # Family A: FiLM applied at every edit/pegRNA encoder layer and every cross-attention
+    # block, so context modulates sequence representation throughout the network rather
+    # than only at the end -- see claude_code_round2_pe_rankformer_model_search.md §7).
+    n_features: int = 0  # round-2 Family C (§9): 0 disables the feature branch; else the
+    # number of continuous input features (missingness indicators are handled internally
+    # and do not need to be counted here).
+    feature_hidden_dim: int = 64
+
+    def __post_init__(self) -> None:
+        if self.context_strategy == "layerwise" and not self.use_context:
+            raise ValueError("context_strategy='layerwise' requires use_context=True")
 
 
-def _encoder_stack(d_model: int, n_heads: int, ffn_dim: int, dropout: float, n_layers: int) -> nn.TransformerEncoder:
-    layer = nn.TransformerEncoderLayer(
+def _encoder_layer(d_model: int, n_heads: int, ffn_dim: int, dropout: float) -> nn.TransformerEncoderLayer:
+    return nn.TransformerEncoderLayer(
         d_model=d_model,
         nhead=n_heads,
         dim_feedforward=ffn_dim,
@@ -52,6 +64,10 @@ def _encoder_stack(d_model: int, n_heads: int, ffn_dim: int, dropout: float, n_l
         batch_first=True,
         norm_first=True,
     )
+
+
+def _encoder_stack(d_model: int, n_heads: int, ffn_dim: int, dropout: float, n_layers: int) -> nn.TransformerEncoder:
+    layer = _encoder_layer(d_model, n_heads, ffn_dim, dropout)
     # norm_first (pre-LN) encoder layers can't use PyTorch's nested-tensor fast path;
     # disabling it explicitly avoids a benign warning at every model construction.
     return nn.TransformerEncoder(layer, num_layers=n_layers, enable_nested_tensor=False)
@@ -126,7 +142,12 @@ class ContextEncoder(nn.Module):
 
 
 class FiLM(nn.Module):
-    """context_vector -> (gamma, beta) applied to a pooled representation."""
+    """context_vector -> (gamma, beta) applied to a representation.
+
+    Handles both a pooled representation `h` of shape (B, feature_dim) (round-1 "late"
+    strategy) and a per-token representation of shape (B, L, feature_dim) (round-2
+    "layerwise" strategy, where gamma/beta are broadcast over the sequence dim).
+    """
 
     def __init__(self, context_dim: int, feature_dim: int, hidden_dim: int = 128):
         super().__init__()
@@ -139,7 +160,37 @@ class FiLM(nn.Module):
 
     def forward(self, h: torch.Tensor, context_vector: torch.Tensor) -> torch.Tensor:
         gamma, beta = self.net(context_vector).chunk(2, dim=-1)
+        if h.dim() == 3:
+            gamma = gamma.unsqueeze(1)
+            beta = beta.unsqueeze(1)
         return (1 + gamma) * h + beta
+
+
+class FeatureBranch(nn.Module):
+    """Round-2 Family C (§9): a small MLP over externally-computed continuous features
+    (PBS/RTT length & GC, Tm, MFE, RuleSet3 activity, edit geometry -- see
+    scripts/data/compute_family_c_features.py), concatenated onto the pooled sequence
+    representation. Missingness is tracked, not silently imputed away: the caller
+    passes already-imputed values (train-set mean) plus a parallel 0/1 mask, and the
+    mask is concatenated into the MLP input so the model can learn to discount
+    imputed entries rather than treat them as observed zeros.
+    """
+
+    def __init__(self, n_features: int, hidden_dim: int, dropout: float):
+        super().__init__()
+        self.norm = nn.LayerNorm(n_features)
+        self.net = nn.Sequential(
+            nn.Linear(2 * n_features, hidden_dim),  # features ++ missingness mask
+            nn.GELU(),
+            nn.Dropout(dropout),
+            nn.Linear(hidden_dim, hidden_dim),
+        )
+        self.out_dim = hidden_dim
+
+    def forward(self, features: torch.Tensor, missing_mask: torch.Tensor) -> torch.Tensor:
+        x = self.norm(features)
+        x = torch.cat([x, missing_mask], dim=-1)
+        return self.net(x)
 
 
 class PERankFormer(nn.Module):
@@ -150,12 +201,10 @@ class PERankFormer(nn.Module):
 
         self.edit_token_embed = nn.Embedding(EDIT_VOCAB_SIZE, d, padding_idx=EDIT_PAD_ID)
         self.edit_pos_embed = nn.Embedding(config.edit_seq_len, d)
-        self.edit_encoder = _encoder_stack(d, config.n_heads, config.ffn_dim, config.dropout, config.n_edit_layers)
 
         self.peg_nuc_embed = nn.Embedding(NUC_VOCAB_SIZE, d, padding_idx=NUC_PAD_ID)
         self.peg_seg_embed = nn.Embedding(N_SEGMENTS, d)
         self.peg_pos_embed = nn.Embedding(config.peg_seq_len, d)
-        self.peg_encoder = _encoder_stack(d, config.n_heads, config.ffn_dim, config.dropout, config.n_peg_layers)
 
         self.cross_blocks = nn.ModuleList(
             [
@@ -172,10 +221,37 @@ class PERankFormer(nn.Module):
             self.context_encoder = ContextEncoder(
                 config.context_fields, config.context_vocab_sizes, config.context_embed_dim
             )
-            self.film = FiLM(self.context_encoder.out_dim, pooled_dim)
         else:
             self.context_encoder = None
+
+        self.layerwise = config.context_strategy == "layerwise"
+        if self.layerwise:
+            # Family A (round-2 §7): FiLM at every block instead of once after pooling.
+            # nn.TransformerEncoder is a black-box container that runs all its layers
+            # internally, so per-layer conditioning needs the individual encoder layers
+            # exposed directly rather than wrapped.
+            ctx_dim = self.context_encoder.out_dim
+            self.edit_layers = nn.ModuleList(
+                [_encoder_layer(d, config.n_heads, config.ffn_dim, config.dropout) for _ in range(config.n_edit_layers)]
+            )
+            self.edit_films = nn.ModuleList([FiLM(ctx_dim, d) for _ in range(config.n_edit_layers)])
+            self.peg_layers = nn.ModuleList(
+                [_encoder_layer(d, config.n_heads, config.ffn_dim, config.dropout) for _ in range(config.n_peg_layers)]
+            )
+            self.peg_films = nn.ModuleList([FiLM(ctx_dim, d) for _ in range(config.n_peg_layers)])
+            self.cross_edit_films = nn.ModuleList([FiLM(ctx_dim, d) for _ in range(config.n_cross_blocks)])
+            self.cross_peg_films = nn.ModuleList([FiLM(ctx_dim, d) for _ in range(config.n_cross_blocks)])
             self.film = None
+        else:
+            self.edit_encoder = _encoder_stack(d, config.n_heads, config.ffn_dim, config.dropout, config.n_edit_layers)
+            self.peg_encoder = _encoder_stack(d, config.n_heads, config.ffn_dim, config.dropout, config.n_peg_layers)
+            self.film = FiLM(self.context_encoder.out_dim, pooled_dim) if config.use_context else None
+
+        if config.n_features > 0:
+            self.feature_branch = FeatureBranch(config.n_features, config.feature_hidden_dim, config.dropout)
+            pooled_dim += self.feature_branch.out_dim
+        else:
+            self.feature_branch = None
 
         # "simplex": every edited locus ends in exactly one of {unedited, correctly
         # edited, indel}, and the measured values are the proportions of each. Predicting
@@ -213,26 +289,44 @@ class PERankFormer(nn.Module):
         edit_pad_mask = edit_ids == EDIT_PAD_ID
         peg_pad_mask = peg_ids == NUC_PAD_ID
 
+        context_vector = self.context_encoder(batch) if self.config.use_context else None
+
         edit_pos = torch.arange(edit_ids.size(1), device=edit_ids.device)
         edit_h = self.edit_token_embed(edit_ids) + self.edit_pos_embed(edit_pos)[None]
-        edit_h = self.edit_encoder(edit_h, src_key_padding_mask=edit_pad_mask)
 
         peg_pos = torch.arange(peg_ids.size(1), device=peg_ids.device)
         peg_h = (
             self.peg_nuc_embed(peg_ids) + self.peg_seg_embed(peg_seg) + self.peg_pos_embed(peg_pos)[None]
         )
-        peg_h = self.peg_encoder(peg_h, src_key_padding_mask=peg_pad_mask)
 
-        for block in self.cross_blocks:
-            edit_h, peg_h = block(edit_h, peg_h, edit_pad_mask, peg_pad_mask)
+        if self.layerwise:
+            # Family A (round-2 §7): h'_l = (1+gamma_l(c)) * h_l + beta_l(c); h_{l+1} = block_l(h'_l).
+            for film, layer in zip(self.edit_films, self.edit_layers):
+                edit_h = film(edit_h, context_vector)
+                edit_h = layer(edit_h, src_key_padding_mask=edit_pad_mask)
+            for film, layer in zip(self.peg_films, self.peg_layers):
+                peg_h = film(peg_h, context_vector)
+                peg_h = layer(peg_h, src_key_padding_mask=peg_pad_mask)
+            for i, block in enumerate(self.cross_blocks):
+                edit_h = self.cross_edit_films[i](edit_h, context_vector)
+                peg_h = self.cross_peg_films[i](peg_h, context_vector)
+                edit_h, peg_h = block(edit_h, peg_h, edit_pad_mask, peg_pad_mask)
+        else:
+            edit_h = self.edit_encoder(edit_h, src_key_padding_mask=edit_pad_mask)
+            peg_h = self.peg_encoder(peg_h, src_key_padding_mask=peg_pad_mask)
+            for block in self.cross_blocks:
+                edit_h, peg_h = block(edit_h, peg_h, edit_pad_mask, peg_pad_mask)
 
         edit_pooled = self.edit_pool(edit_h, edit_pad_mask)
         peg_pooled = self.peg_pool(peg_h, peg_pad_mask)
         pooled = torch.cat([edit_pooled, peg_pooled], dim=-1)
 
-        if self.config.use_context:
-            context_vector = self.context_encoder(batch)
+        if self.film is not None:
             pooled = self.film(pooled, context_vector)
+
+        if self.feature_branch is not None:
+            z_f = self.feature_branch(batch["features"], batch["features_missing"])
+            pooled = torch.cat([pooled, z_f], dim=-1)
 
         out = self.head(pooled)
         if self.config.outcome_head == "simplex":

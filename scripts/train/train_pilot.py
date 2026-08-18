@@ -87,6 +87,18 @@ def main() -> None:
         "--regression-space", choices=["raw", "logit"], default=None,
         help="regression loss space (task spec §19 comparison)",
     )
+    ap.add_argument(
+        "--context-strategy", choices=["late", "layerwise"], default=None,
+        help="round-2 Family A: FiLM once after pooling (late) vs at every block (layerwise)",
+    )
+    ap.add_argument(
+        "--feature-branch", action="store_true",
+        help="round-2 Family C: add the continuous-feature MLP branch (§9)",
+    )
+    ap.add_argument(
+        "--features-path", type=str, default="data/processed/family_c_features.parquet",
+        help="parquet from scripts/data/compute_family_c_features.py",
+    )
     args = ap.parse_args()
 
     cfg = yaml.safe_load(args.config.read_text())
@@ -105,6 +117,8 @@ def main() -> None:
     if args.simplex_head:
         cfg["model"]["outcome_head"] = "simplex"
         cfg["loss"]["outcome_head"] = "simplex"
+    if args.context_strategy is not None:
+        cfg["model"]["context_strategy"] = args.context_strategy
 
     set_seed(cfg["seed"])
     device = torch.device("cuda")
@@ -121,6 +135,16 @@ def main() -> None:
     val_idx = np.where(fold == cfg["data"]["val_fold"])[0]
     train_idx = np.where(np.isin(fold, cfg["data"]["train_folds"]))[0]
     logger.info("train=%d val=%d test=%d (test fold locked, not touched)", len(train_idx), len(val_idx), len(test_idx))
+
+    if args.feature_branch:
+        from pe_rankformer.data.family_c_features import FEATURE_COLS, attach_family_c_features
+
+        corpus = attach_family_c_features(corpus, args.features_path, train_idx)
+        cfg["model"]["n_features"] = len(FEATURE_COLS)
+        logger.info(
+            "attached %d Family-C features from %s (normalized on %d training rows)",
+            len(FEATURE_COLS), args.features_path, len(train_idx),
+        )
 
     model_cfg = PERankFormerConfig(
         context_fields=vocab.fields, context_vocab_sizes=vocab.sizes(), **cfg["model"]

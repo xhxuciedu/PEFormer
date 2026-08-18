@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import pandas as pd
+import pytest
 import torch
 
 from pe_rankformer.data.context import ContextVocab
@@ -174,3 +175,85 @@ def test_scalar_head_ranking_score_is_identity():
     model, vocab = _tiny_model()
     out = torch.randn(5)
     assert torch.allclose(model.ranking_score(out), out)
+
+
+def test_layerwise_context_forward_and_gradients():
+    """Round-2 Family A: FiLM at every block instead of once after pooling."""
+    df = _toy_corpus()
+    vocab = ContextVocab.fit(df)
+    cfg = PERankFormerConfig(
+        d_model=32, n_heads=2, ffn_dim=64, n_edit_layers=2, n_peg_layers=2, n_cross_blocks=2,
+        context_fields=vocab.fields, context_vocab_sizes=vocab.sizes(), context_embed_dim=8,
+        context_strategy="layerwise", outcome_head="simplex",
+    )
+    model = PERankFormer(cfg)
+    assert model.film is None
+    assert len(model.edit_films) == 2 and len(model.peg_films) == 2
+    assert len(model.cross_edit_films) == 2 and len(model.cross_peg_films) == 2
+
+    corpus = featurize(df, vocab)
+    ds = PEDataset(corpus)
+    batch = collate([ds[i] for i in range(6)])
+    out = model(batch)
+    assert out.shape == (6, 3)
+    out.sum().backward()
+    assert model.edit_token_embed.weight.grad is not None
+    assert model.edit_films[0].net[0].weight.grad is not None
+    assert model.cross_edit_films[0].net[0].weight.grad is not None
+    assert model.peg_films[-1].net[0].weight.grad is not None
+
+
+def test_layerwise_context_requires_use_context():
+    vocab = ContextVocab.fit(_toy_corpus())
+    with pytest.raises(ValueError):
+        PERankFormerConfig(
+            context_fields=vocab.fields, context_vocab_sizes=vocab.sizes(),
+            context_strategy="layerwise", use_context=False,
+        )
+
+
+def test_layerwise_and_late_strategies_differ_in_param_count():
+    vocab = ContextVocab.fit(_toy_corpus())
+    late = PERankFormer(PERankFormerConfig(
+        d_model=32, n_heads=2, ffn_dim=64, n_edit_layers=2, n_peg_layers=2, n_cross_blocks=2,
+        context_fields=vocab.fields, context_vocab_sizes=vocab.sizes(), context_embed_dim=8,
+        context_strategy="late",
+    ))
+    layerwise = PERankFormer(PERankFormerConfig(
+        d_model=32, n_heads=2, ffn_dim=64, n_edit_layers=2, n_peg_layers=2, n_cross_blocks=2,
+        context_fields=vocab.fields, context_vocab_sizes=vocab.sizes(), context_embed_dim=8,
+        context_strategy="layerwise",
+    ))
+    assert layerwise.num_parameters() > late.num_parameters()
+
+
+def test_feature_branch_forward_and_gradients():
+    """Round-2 Family C: continuous-feature MLP branch concatenated onto pooled repr."""
+    df = _toy_corpus()
+    vocab = ContextVocab.fit(df)
+    n_feat = 5
+    cfg = PERankFormerConfig(
+        d_model=32, n_heads=2, ffn_dim=64, n_edit_layers=1, n_peg_layers=1, n_cross_blocks=1,
+        context_fields=vocab.fields, context_vocab_sizes=vocab.sizes(), context_embed_dim=8,
+        n_features=n_feat, feature_hidden_dim=16, outcome_head="simplex",
+    )
+    model = PERankFormer(cfg)
+    assert model.feature_branch is not None
+
+    corpus = featurize(df, vocab)
+    ds = PEDataset(corpus)
+    batch = collate([ds[i] for i in range(6)])
+    batch["features"] = torch.randn(6, n_feat)
+    batch["features_missing"] = torch.zeros(6, n_feat)
+
+    out = model(batch)
+    assert out.shape == (6, 3)
+    out.sum().backward()
+    assert model.feature_branch.net[0].weight.grad is not None
+
+
+def test_feature_branch_disabled_by_default():
+    vocab = ContextVocab.fit(_toy_corpus())
+    cfg = PERankFormerConfig(context_fields=vocab.fields, context_vocab_sizes=vocab.sizes())
+    model = PERankFormer(cfg)
+    assert model.feature_branch is None
