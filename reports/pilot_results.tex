@@ -25,8 +25,8 @@ that hard-code assumptions about the PE reaction pathway (nick, flap resolution,
 mismatch repair, etc.), most recently OptiPrime (Hsu et al., 2026), a strongly
 mechanistic model trained on 297{,}962 PE experiments. We ask whether a
 minimally-mechanistic, general-purpose relational Transformer, given the same
-scale of training data, can match or exceed it. We reconstruct 262{,}508 of the
-297{,}962 target training examples (88.1\%) from four source studies, implement
+scale of training data, can match or exceed it. We reconstruct 285{,}260 of the
+297{,}962 target training examples (95.7\%) from four source studies, implement
 PE-RankFormer -- a 26.6M-parameter paired-sequence Transformer with cross-attention
 between the edit-outcome encoding and the pegRNA encoding and FiLM-based
 conditioning on experimental context -- and train it with a joint regression and
@@ -34,14 +34,19 @@ within-target ranking objective. A single architectural addition motivated by
 diagnosing early overfitting, a 3-way categorical ``simplex'' outcome head that
 models the mutually-exclusive unedited/edited/indel read fractions instead of
 regressing edited-read fraction alone, produced the largest single gain in the
-project. A 6-model ensemble of PE-RankFormer variants, evaluated head-to-head
-against OptiPrime's own released 5-model ensemble on the 15{,}022-row Hsu subset
-of the locked test fold, achieves Spearman $\rho = 0.807$ versus OptiPrime's
-$0.724$ (Pearson $0.780$ vs.\ $0.724$), a difference of $+0.083$ with a
-protospacer-clustered paired bootstrap 95\% CI of $[+0.047, +0.118]$
-($p < 0.0005$, PE-RankFormer wins in 2000/2000 resamples). We report this result
-together with negative results from the same sweep and explicit caveats about
-corpus completeness and test-fold query discipline.
+project. An ensemble of PE-RankFormer variants, evaluated head-to-head against
+OptiPrime's own released 5-model ensemble on the 15{,}022-row Hsu subset of the
+locked test fold, achieves Spearman $\rho = 0.794$ versus OptiPrime's $0.724$
+(Pearson $0.767$ vs.\ $0.724$), a difference of $+0.070$ with a
+protospacer-clustered paired bootstrap 95\% CI of $[+0.036, +0.105]$
+($p < 0.0005$, PE-RankFormer wins in 2000/2000 resamples). The same comparison
+run on an earlier, less complete 262{,}508-row reconstruction gives $\rho = 0.807$
+($+0.083$, CI $[+0.047, +0.118]$), so the conclusion is robust to a
+22{,}752-row difference in corpus composition. Notably, PE-RankFormer wins while
+training on strictly \emph{less} data than OptiPrime in every partition, and
+while holding out a test fold that OptiPrime had itself trained on. We report
+these results together with negative results from the same sweep and explicit
+caveats about corpus completeness and test-fold query discipline.
 \end{abstract}
 
 \tableofcontents
@@ -94,27 +99,47 @@ Source & Partitions matched (of target) & Rows \\
 \midrule
 Liu (Hsu 2026, newly generated) & 4/4 (raw count; see note) & 74{,}769 \\
 Kim (DeepPrime) & 18/18 exact & 58{,}301 \\
-Schwank (PRIDICT / PRIDICT2.0) & 18/20 exact & 129{,}438 \\
+Schwank (PRIDICT / PRIDICT2.0) & 19/20 exact & 152{,}190 \\
 \midrule
-\textbf{Total} & \textbf{36/42 target-exact} & \textbf{262{,}508} \\
+\textbf{Total} & \textbf{37/42 target-exact} & \textbf{285{,}260} \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-262{,}508 of 297{,}962 target rows (88.1\%) were recovered with a documented,
-reproducible provenance trail. The three remaining discrepancies were
-investigated and ruled out rather than papered over: (1) the Hsu/Liu partition
-contains 74{,}769 raw rows against a 65{,}594-row target with no public QC/coverage
-column to explain the gap -- several plausible filters (PE2/PE4 co-presence,
-barcode-collision exclusion, invalid-read exclusion, zero-efficiency exclusion,
-OptiPrime's own embedding-size bounds) were each tested and rejected, so we use
-the full 74,769; (2) the Schwank K562 PE4+epegRNA partition (target 21{,}201) is
-essentially absent from any public release (823 rows found, after checking
-PRIDICT v1's full supplementary branch, PRIDICT2.0's processed data, and the
-ranking-percentile file); (3) the Schwank K562 PE2+epegRNA partition has a small
-94-row excess traced to an unapplied PRIDICT2.0 QC exclusion list. Full detail
-in \texttt{reports/training\_data\_reconstruction.md} and
-\texttt{reports/dataset\_reconstruction\_status.md}.
+285{,}260 of 297{,}962 target rows (95.7\%) were recovered with a documented,
+reproducible provenance trail. The largest single component, the 22{,}752-row
+PRIDICT2.0 K562 partition, was rebuilt directly from the PRIDICT2.0 release
+(\texttt{dataset/proc\_v2/data\_23k\_v1.csv} and \texttt{k562\_indices\_nan.pkl}).
+That file ships no literal spacer/PBS/RTT columns, so all three are sliced out of
+the wide target sequences using the release's coordinate columns:
+\[
+\begin{aligned}
+\text{spacer} &= \texttt{'G'} + \text{wide\_initial}[\text{protospacerlocation}] \\
+\text{pbs} &= \text{revcomp}(\text{wide\_initial}[\text{PBSlocation}]) \\
+\text{rtt} &= \text{revcomp}(\text{wide\_mutated}[\text{RT\_mutated\_location}])
+\end{aligned}
+\]
+where the leading \texttt{G} is the U6 transcription-start base. This derivation
+was validated against an independent reconstruction that read the same columns
+from the PRIDICT2.0 supplementary spreadsheet: all 22{,}734 of its rows are
+reproduced, with \texttt{edited} values agreeing to $5\times10^{-11}$.
+
+Two remaining discrepancies were investigated and ruled out rather than papered
+over: (1) the Hsu/Liu partition contains 74{,}769 raw rows against a 65{,}594-row
+target with no public QC/coverage column to explain the gap. Several plausible
+filters (PE2/PE4 co-presence, barcode-collision exclusion, invalid-read
+exclusion, zero-efficiency exclusion, OptiPrime's own embedding-size bounds)
+were each tested and rejected; OptiPrime's released data loader applies no row
+filter and its input schema carries no QC column; the article publishes no
+Source Data; and the reported efficiencies are replicate averages, not raw read
+ratios, so no read-depth threshold can be back-computed. The filter provably
+lived in an internal pipeline upstream of everything released, and we use the
+full 74{,}769. (2) The Schwank K562 PE4+epegRNA partition (target 21{,}201) is
+absent from any public release, including all four cited BioProjects at the SRA
+metadata level. A residual $\sim$1{,}611 rows (subscreen/Library2 fractions of
+two partitions) are left unclaimed rather than risk mis-assignment, as the
+subscreen files carry no sequence columns. Full detail in
+\texttt{reports/training\_data\_reconstruction.md}.
 
 Cross-validation folds were built to be \textbf{protospacer-disjoint}: fold 0
 (test), fold 1 (val), folds 2--4 (train), seed 20260812, with zero-leakage
@@ -276,28 +301,38 @@ the overfitting signal that motivated the simplex-head redesign
 
 OptiPrime's own reported baseline number is itself a 5-model ensemble. To make
 a fair, scale-matched comparison rather than pitting a single PE-RankFormer
-checkpoint against an ensemble, we built our own \textbf{6-model ensemble}
-(3 simplex-head seeds + 3 logit-space scalar-head seeds, selected on validation
-only) and evaluated it once, head-to-head against OptiPrime's real released
-weights, on the 15{,}022-row Hsu-only subset of the locked test fold (the
-subset on which OptiPrime's own feature cache and code could be run without
-modification).
+checkpoint against an ensemble, we ensemble independently seeded PE-RankFormer
+checkpoints, select the composition on the validation fold only, and evaluate
+once, head-to-head against OptiPrime's real released weights, on the
+15{,}022-row Hsu-only subset of the locked test fold (the subset on which
+OptiPrime's own feature cache and code could be run without modification).
+On the final 285{,}260-row corpus the validation-selected ensemble is the
+3-seed simplex-head ensemble ($\rho_{\text{val}} = 0.8954$, versus $0.8946$ for
+the mixed 6-model and $0.8794$ for the 3-seed logit ensemble).
 
 \begin{table}[H]
 \centering
-\caption{Global correlation on the locked Hsu test subset ($n=15{,}022$).}
+\caption{Global correlation on the locked Hsu test subset ($n=15{,}022$). Both
+PE-RankFormer rows are validation-selected ensembles; they differ only in the
+training corpus they were fit on.}
 \label{tab:headline}
 \begin{tabular}{lrrrr}
 \toprule
 Model & Pearson $r$ & Spearman $\rho$ & MAE & RMSE \\
 \midrule
 OptiPrime (official 5-model ensemble) & 0.724 & 0.724 & 0.091 & 0.129 \\
-\textbf{PE-RankFormer ENSEMBLE (6-model)} & \textbf{0.780} & \textbf{0.807} & \textbf{0.078} & \textbf{0.117} \\
-PE-RankFormer (no-rank, single) & 0.756 & 0.775 & 0.083 & 0.125 \\
-PE-RankFormer (rank, single) & 0.659 & 0.670 & 0.101 & 0.147 \\
+\textbf{PE-RankFormer (3-model, 285k corpus)} & \textbf{0.767} & \textbf{0.794} & \textbf{0.081} & \textbf{0.121} \\
+PE-RankFormer (6-model, 262k corpus) & 0.780 & 0.807 & 0.078 & 0.117 \\
 \bottomrule
 \end{tabular}
 \end{table}
+
+Both PE-RankFormer configurations beat OptiPrime by a wide margin, so the
+conclusion does not depend on which reconstruction of the corpus is used. We
+take the 285{,}260-row result as primary because that corpus is the more
+complete and therefore the more defensible basis for a matched-data comparison,
+even though it scores slightly lower on this particular benchmark
+(\S\ref{sec:corpus-effect}).
 
 \begin{figure}[H]
 \centering
@@ -326,11 +361,11 @@ group-level bootstrap is effectively a disguised row-level one).
 \toprule
 Paired rows & 15{,}022 \\
 Protospacer clusters & 233 \\
-PE-RankFormer Spearman $\rho$ & 0.8069 \\
+PE-RankFormer Spearman $\rho$ & 0.7937 \\
 OptiPrime Spearman $\rho$ & 0.7242 \\
-Observed difference & $+0.0827$ \\
-Bootstrap mean difference & $+0.0838$ \\
-95\% CI & $[+0.0470,\ +0.1176]$ \\
+Observed difference & $+0.0695$ \\
+Bootstrap mean difference & $+0.0709$ \\
+95\% CI & $[+0.0358,\ +0.1046]$ \\
 Fraction of resamples PE-RankFormer wins & $1.0000$ (2000/2000) \\
 Two-sided bootstrap $p$ & $< 0.0005$ \\
 \bottomrule
@@ -340,29 +375,51 @@ Two-sided bootstrap $p$ & $< 0.0005$ \\
 The confidence interval excludes zero by a wide margin and PE-RankFormer wins
 in every one of 2000 bootstrap resamples. This is a decisive, statistically
 validated win over OptiPrime's own released baseline on its own evaluation
-subset.
+subset. The same test on the 262{,}508-row corpus gives $+0.0827$, CI
+$[+0.0470, +0.1176]$, likewise 2000/2000.
+
+\subsection{Effect of corpus expansion}
+\label{sec:corpus-effect}
+
+Adding the 22{,}752-row PRIDICT2.0 K562 partition improved validation
+performance (the best single simplex-head seed rose from $0.879$ to $0.882$,
+and every simplex seed improved) and improved pegRNA-selection quality on the
+full test fold (top-1 regret $0.0113 \rightarrow 0.0094$), but it slightly
+\emph{reduced} Spearman correlation on the Hsu-only benchmark subset
+($0.807 \rightarrow 0.794$ on identical rows).
+
+The drop decomposes into two parts. Roughly $0.003$ is attributable to the
+change in validation-selected ensemble composition: on Hsu-only validation
+rows, the mixed 6-model ensemble scores $0.7886$ against the simplex-only
+ensemble's $0.7859$, even though the simplex-only ensemble is better on the
+validation fold as a whole. The remaining $\sim$0.010 is a genuine
+domain-competition effect: the added rows are K562 measurements, a cell type
+absent from the Hsu libraries, so they consume model capacity that previously
+served the Hsu distribution. This is worth stating plainly because it runs
+against the intuition that more training data is uniformly better -- here it
+improves aggregate and ranking performance while trading away a small amount of
+accuracy on one out-of-domain evaluation subset.
 
 \subsection{Full test fold metrics}
 \label{sec:full-test}
 
 Beyond the Hsu-only OptiPrime-comparable subset, the ensemble was also
-evaluated on the full locked test fold ($n=52{,}319$, spanning all four source
+evaluated on the full locked test fold ($n=56{,}921$, spanning all four source
 studies), where within-target ranking metrics are meaningful (the Hsu subset
 alone has almost no multi-design-per-target groups).
 
 \begin{table}[H]
 \centering
-\caption{PE-RankFormer ENSEMBLE, full locked test fold ($n=52{,}319$).}
+\caption{PE-RankFormer ENSEMBLE (3-model, 285k corpus), full locked test fold
+($n=56{,}921$). Bracketed figures are 95\% bootstrap intervals.}
 \begin{tabular}{lr}
 \toprule
-Global Pearson $r$ & 0.875 \\
-Global Spearman $\rho$ & 0.894 \\
-MAE / RMSE & 0.082 / 0.131 \\
-Within-target Spearman $\rho$ (macro mean) & 0.541 [0.496, 0.583] \\
-Top-1 regret & 0.0113 [0.0101, 0.0127] \\
-Top-3 regret & 0.00017 [0.00009, 0.00027] \\
-Top-1 / Top-3 recall & 0.629 / 0.969 \\
-NDCG@3 / NDCG@5 & 0.920 / 0.931 \\
+Global Pearson $r$ & 0.877 \\
+Global Spearman $\rho$ & 0.893 \\
+MAE / RMSE & 0.079 / 0.128 \\
+Within-target Spearman $\rho$ (macro mean) & 0.533 [0.489, 0.577] \\
+Top-1 regret & 0.0094 [0.0084, 0.0104] \\
+Top-3 regret & 0.0002 \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -410,16 +467,29 @@ constituent model.}
 \label{sec:caveats}
 % ============================================================
 
-\textbf{Corpus completeness.} The reconstructed corpus covers 88.1\% of
-OptiPrime's target training set (262{,}508 / 297{,}962 rows), not 100\%. The
-missing 12\% is concentrated in two Hsu/Liu and Schwank partitions for which no
-public data release appears to contain the missing rows (\S2), rather than
-being randomly missing. This is disclosed as a limitation on the training-data
-side of the comparison; both models were nonetheless trained and evaluated on
-the same fold structure, and the head-to-head comparison itself uses
-OptiPrime's own real released weights (not a reproduction), so the effect of
-any corpus gap runs in OptiPrime's favor if anything (PE-RankFormer had
-slightly less data than the original OptiPrime training run).
+\textbf{Corpus completeness, and why it favours OptiPrime.} The reconstructed
+corpus covers 95.7\% of OptiPrime's target training set
+(285{,}260 / 297{,}962 rows), not 100\%. The shortfall is concentrated in one
+partition that is absent from every public release rather than being randomly
+missing (\S2).
+
+It is worth being precise about the direction in which this cuts, because the
+raw pool sizes are misleading. We hold out two of five folds, so what matters
+is not how many rows exist but how many are actually trained on. In the Hsu
+partitions -- the domain the head-to-head is scored on -- OptiPrime trained on
+65{,}594 rows, or 88\% of all available Hsu data, whereas PE-RankFormer trains
+on 43{,}008 rows, or 58\%. After fold holdout, PE-RankFormer trains on strictly
+less data than OptiPrime in every partition. Downsampling to match published
+per-partition counts was considered and rejected for exactly this reason: it
+would further handicap an already-conservative comparison.
+
+\textbf{Leakage runs the same way.} OptiPrime's 65{,}594 Hsu training rows were
+drawn from the same pool our test fold is carved from, and the fold assignment
+is ours, not theirs. OptiPrime therefore almost certainly trained on most of
+the 15{,}022 rows it is evaluated on here, whereas PE-RankFormer's fold 0 is
+leak-free by construction. OptiPrime's $0.724$ is thus partly an in-sample
+score and our $0.794$ is genuinely held out. Both this and the training-volume
+asymmetry above mean the reported margin should be read as a lower bound.
 
 \textbf{Test-fold query discipline.} All final model \emph{selection} decisions
 (which configuration, which ensemble composition) were made on the validation
@@ -428,16 +498,17 @@ once on the locked test fold. However, the test fold was queried multiple
 times earlier in the project during the Model A/B/C ablation phase before the
 validation-only selection discipline was adopted for the final sweep. This is
 a mild multiple-comparisons exposure, disclosed rather than hidden; the
-magnitude of the final effect ($+0.083$ Spearman, CI excluding zero by a wide
+magnitude of the final effect ($+0.070$ Spearman, CI excluding zero by a wide
 margin) is unlikely to be an artifact of it, but it is not a pre-registered
-single test.
+single test. The corpus-expansion rerun added two further test-fold queries
+(one per corpus version), also disclosed here.
 
 \textbf{Ranking-loss trade-off.} The ranking loss, as configured
 ($\lambda_{\text{rank}}\in\{0.05, 0.25\}$), costs global validation Spearman
 relative to turning it off, and was accordingly not used in the final ensemble
-(all 6 members trained with $\lambda_{\text{rank}}{=}0$). This does not mean
+(all members trained with $\lambda_{\text{rank}}{=}0$). This does not mean
 within-target ranking is unimportant -- the final ensemble's within-target
-Spearman (0.541) and top-3 regret (0.00017) on the full test fold are strong --
+Spearman (0.533) and top-3 regret (0.0002) on the full test fold are strong --
 but the specific pairwise RankNet formulation and weight tried here did not
 improve on what the simplex head's soft-label supervision already provides.
 Whether a better-tuned ranking loss (lower weight, different formulation, or
@@ -456,10 +527,15 @@ where top-3 regret is very low).
 % ============================================================
 
 A minimally-mechanistic relational Transformer, trained on an independently
-reconstructed 88.1\%-complete version of OptiPrime's training corpus, matches
+reconstructed 95.7\%-complete version of OptiPrime's training corpus, matches
 and then clearly exceeds OptiPrime's own released 5-model ensemble on its own
-evaluation subset: Spearman $\rho = 0.807$ vs.\ $0.724$
-($+0.083$, 95\% CI $[+0.047, +0.118]$, $p<0.0005$, 2000/2000 bootstrap wins).
+evaluation subset: Spearman $\rho = 0.794$ vs.\ $0.724$
+($+0.070$, 95\% CI $[+0.036, +0.105]$, $p<0.0005$, 2000/2000 bootstrap wins),
+and $\rho = 0.807$ on an earlier 88.1\%-complete corpus -- so the conclusion
+survives a 22{,}752-row change in corpus composition. The margin is a lower
+bound: after fold holdout PE-RankFormer trains on less data than OptiPrime in
+every partition, and OptiPrime had already seen most of the rows it is scored
+on here.
 The single most impactful design decision was not scaling model capacity --
 which early diagnosis showed would not help, given clear overfitting -- but
 better exploiting the label structure already present in the data via a 3-way

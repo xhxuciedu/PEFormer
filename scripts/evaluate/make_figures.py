@@ -74,6 +74,8 @@ def fig_pred_vs_observed(df: pd.DataFrame):
 def fig_global_correlation_comparison(table: pd.DataFrame):
     short = {
         "OptiPrime (official 5-model ensemble)": "OptiPrime\n(official 5-model)",
+        "PE-RankFormer v2 ENSEMBLE (3-model, 285k corpus)": "PE-RankFormer v2\n(285k corpus)",
+        "PE-RankFormer v1 ENSEMBLE (6-model, 262k corpus)": "PE-RankFormer v1\n(262k corpus)",
         "PE-RankFormer ENSEMBLE (6-model)": "PE-RankFormer\nENSEMBLE (6-model)",
         "PE-RankFormer (no-rank, single)": "PE-RankFormer\n(no-rank, single)",
         "PE-RankFormer (rank, single)": "PE-RankFormer\n(rank, single)",
@@ -212,7 +214,7 @@ def fig_ablation(metrics_paths: dict[str, Path]):
 
 def main() -> None:
     eval_dir = Path("results/runs/eval_test_fold")
-    ens = eval_dir / "predictions_pe_rankformer_ens6.parquet"
+    ens = eval_dir / "predictions_pe_rankformer_v2_ens3.parquet"
     a = pd.read_parquet(ens if ens.exists() else eval_dir / "predictions_model_a_rank.parquet")
 
     fig_pred_vs_observed(a)
@@ -230,7 +232,7 @@ def main() -> None:
         "PE-RankFormer (rank)": eval_dir / "metrics_model_a_rank.json",
         "PE-RankFormer (no-rank)": eval_dir / "metrics_model_b_norank.json",
         "PE-RankFormer (no-context)": eval_dir / "metrics_model_c_nocontext.json",
-        "PE-RankFormer ENSEMBLE": eval_dir / "metrics_pe_rankformer_ens6.json",
+        "PE-RankFormer v2 ENS": eval_dir / "metrics_pe_rankformer_v2_ens3.json",
     }
     fig_topk_regret(model_metrics_paths)
     fig_ablation(model_metrics_paths)

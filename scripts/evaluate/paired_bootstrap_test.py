@@ -31,7 +31,7 @@ def main() -> None:
     joined = pd.read_csv(pdir / "joined_df.csv", index_col=0).reset_index(drop=True)
     op = pd.DataFrame({"record_id": joined["record_id"], "optiprime": preds["mean_pred"]})
 
-    ours = pd.read_parquet("results/runs/eval_test_fold/predictions_pe_rankformer_ens6.parquet")
+    ours = pd.read_parquet("results/runs/eval_test_fold/predictions_pe_rankformer_v2_ens3.parquet")
     ours = ours[ours.source_study == "hsu2026"]
     df = ours.merge(op, on="record_id", how="inner")
 
@@ -90,8 +90,8 @@ def main() -> None:
         "n_bootstrap": N_BOOT,
         "seed": SEED,
     }
-    Path("results/paired_bootstrap_vs_optiprime.json").write_text(json.dumps(out, indent=2))
-    logger.info("wrote results/paired_bootstrap_vs_optiprime.json")
+    Path("results/paired_bootstrap_vs_optiprime_v2.json").write_text(json.dumps(out, indent=2))
+    logger.info("wrote results/paired_bootstrap_vs_optiprime_v2.json")
 
 
 if __name__ == "__main__":
