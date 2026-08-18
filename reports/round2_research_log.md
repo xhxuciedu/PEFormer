@@ -195,3 +195,39 @@ the best epoch.
 **Decision**: do not carry Family D forward. Family C alone remains the
 Stage-A leader. Still waiting on MoE4-on-layerwise (§8's conditional
 extension) before finalizing the Stage-A ranking.
+
+---
+
+## 2026-08-18 — MoE4-on-layerwise: negative result, extending layerwise context hurts
+
+Final Stage-A ranking, all models on the identical dev split (val_fold=1,
+train_folds=[2,3,4,5]), 30-epoch budget, seed 20260812:
+
+| Model | best epoch | val Spearman | Δ vs baseline |
+|---|---|---|---|
+| **Family C (feature branch)** | 22 | **0.9220** | **+0.0028** |
+| Family A (layerwise context) | 23 | 0.9214 | +0.0022 |
+| Family D (A+C combined) | 21 | 0.9202 | +0.0010 |
+| Baseline (round-1) | 24 | 0.9192 | -- |
+| MoE4-on-layerwise (A+B) | 23 | 0.9181 | -0.0011 |
+| β=0.025 correlation loss | 24 | 0.9158 | -0.0034 |
+
+MoE4 (4 context-gated experts added to Family A's layerwise-context model,
++2.9M params over Family A alone) underperforms even the plain baseline.
+Adding a second, unrelated form of context-conditioning on top of an
+already-improved context pathway did not help -- consistent with the Family D
+result (A+C didn't stack either): once one context-aware improvement is in
+place, a second one competing for the same signal tends to add capacity and
+optimization difficulty without adding information. Per spec §35 ("once the
+winning family is known, modest tuning is acceptable" -- not "keep stacking
+architectural ideas"), this closes out Phase 1's MoE branch.
+
+**Final Stage-A verdict: Family C (feature branch) is the clear winner.**
+Every attempt to combine it with something else (layerwise context, MoE)
+made results worse, not better. Stage B (5-fold CV confirmation of Family C
+alone) is already running (folds 2-5 on GPU 6; fold 1 = `r2_familyC_features`
+already complete at 0.9220).
+
+**GPU 2 is now free.** Next: use it to accelerate Stage B by running one of
+the remaining Family C CV folds there in parallel with GPU 6, cutting Stage-B
+wall time roughly in half.
