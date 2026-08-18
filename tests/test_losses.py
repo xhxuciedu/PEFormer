@@ -7,6 +7,7 @@ import torch
 
 from pe_rankformer.training.losses import (
     LossWeights,
+    correlation_loss,
     ranking_loss,
     regression_loss,
     simplex_loss,
@@ -144,3 +145,51 @@ def test_imputing_zero_indel_differs_from_marginalising():
     marginalised = simplex_loss(logits, edited, torch.full((3,), float("nan")))
     imputed = simplex_loss(logits, edited, torch.zeros(3))
     assert not torch.isclose(marginalised, imputed)
+
+
+def test_correlation_loss_zero_for_perfectly_correlated_score():
+    target = torch.tensor([0.1, 0.5, 0.9, 0.3, 0.7])
+    score = 3.0 * target + 10.0  # any positive affine transform: Pearson r = 1
+    loss = correlation_loss(score, target)
+    assert loss.item() == pytest.approx(0.0, abs=1e-5)
+
+
+def test_correlation_loss_two_for_perfectly_anticorrelated_score():
+    target = torch.tensor([0.1, 0.5, 0.9, 0.3, 0.7])
+    score = -target
+    loss = correlation_loss(score, target)
+    assert loss.item() == pytest.approx(2.0, abs=1e-5)
+
+
+def test_correlation_loss_gradient_flows():
+    target = torch.tensor([0.1, 0.5, 0.9, 0.3, 0.7])
+    score = torch.randn(5, requires_grad=True)
+    loss = correlation_loss(score, target)
+    loss.backward()
+    assert score.grad is not None
+    assert torch.isfinite(score.grad).all()
+
+
+def test_correlation_loss_disabled_by_default_in_total_loss():
+    """beta_corr=0.0 (LossWeights default) must exactly zero the corr term."""
+    score = torch.randn(6, requires_grad=True)
+    target = torch.rand(6)
+    pairs_i = torch.tensor([0, 1])
+    pairs_j = torch.tensor([2, 3])
+    weights = LossWeights(lambda_rank=0.0, outcome_head="scalar")
+    assert weights.beta_corr == 0.0
+    _, parts = total_loss(score, target, pairs_i, pairs_j, weights)
+    assert parts["corr"] == 0.0
+
+
+def test_beta_corr_weight_changes_total_loss():
+    score = torch.randn(6, requires_grad=True)
+    target = torch.rand(6)
+    pairs_i = torch.tensor([0, 1])
+    pairs_j = torch.tensor([2, 3])
+    w_off = LossWeights(lambda_rank=0.0, beta_corr=0.0)
+    w_on = LossWeights(lambda_rank=0.0, beta_corr=0.05)
+    loss_off, _ = total_loss(score, target, pairs_i, pairs_j, w_off)
+    loss_on, parts_on = total_loss(score, target, pairs_i, pairs_j, w_on)
+    assert parts_on["corr"] != 0.0
+    assert loss_off.item() != loss_on.item()

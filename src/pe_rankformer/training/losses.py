@@ -95,6 +95,30 @@ def simplex_loss(logits: torch.Tensor, edited: torch.Tensor, indel: torch.Tensor
     return torch.where(observed, loss_full, loss_marg).mean()
 
 
+def correlation_loss(score: torch.Tensor, target: torch.Tensor, eps: float = 1e-8) -> torch.Tensor:
+    """1 - batch Pearson correlation between `score` and `target`.
+
+    Round-2 (claude_code_round2_pe_rankformer_model_search.md §13): round 1 found the
+    pairwise RankNet loss costs global Spearman at every weight tried. This is a weak,
+    batch-level global-correlation-aware alternative: cheap, has no pair-sampling
+    machinery, and directly targets the correlation metrics being optimized for rather
+    than a proxy pairwise objective.
+
+    Operates on `score` (any head's `ranking_score(out)` -- raw logit for the scalar
+    head, edited-vs-unedited log-odds for the simplex head), not on predicted
+    efficiency, so the gradient doesn't get flattened by sigmoid/softmax saturation at
+    high-confidence predictions. Pearson correlation is invariant to `score`'s affine
+    scale, so this doesn't require the score to be calibrated in any particular range.
+    """
+    if score.numel() < 2:
+        return score.new_zeros(())
+    s = score - score.mean()
+    t = target - target.mean()
+    num = (s * t).sum()
+    den = torch.sqrt((s.pow(2).sum() * t.pow(2).sum()).clamp(min=eps))
+    return 1 - num / den
+
+
 @dataclass
 class LossWeights:
     lambda_rank: float = 0.25
@@ -102,6 +126,7 @@ class LossWeights:
     min_pair_diff: float = 0.02
     regression_space: str = "raw"  # "raw" or "logit" (task spec §19 comparison)
     outcome_head: str = "scalar"  # "scalar" or "simplex"
+    beta_corr: float = 0.0  # round-2 §13: weight on `correlation_loss`
 
 
 def total_loss(
@@ -125,5 +150,6 @@ def total_loss(
         )
     rs = score if rank_score is None else rank_score
     l_rank = ranking_loss(rs, target, pairs_i, pairs_j, min_diff=weights.min_pair_diff)
-    loss = l_reg + weights.lambda_rank * l_rank
-    return loss, {"loss": loss.item(), "reg": l_reg.item(), "rank": l_rank.item()}
+    l_corr = correlation_loss(rs, target) if weights.beta_corr > 0 else rs.new_zeros(())
+    loss = l_reg + weights.lambda_rank * l_rank + weights.beta_corr * l_corr
+    return loss, {"loss": loss.item(), "reg": l_reg.item(), "rank": l_rank.item(), "corr": l_corr.item()}

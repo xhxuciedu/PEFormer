@@ -99,6 +99,10 @@ def main() -> None:
         "--features-path", type=str, default="data/processed/family_c_features.parquet",
         help="parquet from scripts/data/compute_family_c_features.py",
     )
+    ap.add_argument(
+        "--beta-corr", type=float, default=None,
+        help="round-2 §13: weight on the batch Pearson-correlation loss (0 disables it)",
+    )
     args = ap.parse_args()
 
     cfg = yaml.safe_load(args.config.read_text())
@@ -119,6 +123,8 @@ def main() -> None:
         cfg["loss"]["outcome_head"] = "simplex"
     if args.context_strategy is not None:
         cfg["model"]["context_strategy"] = args.context_strategy
+    if args.beta_corr is not None:
+        cfg["loss"]["beta_corr"] = args.beta_corr
 
     set_seed(cfg["seed"])
     device = torch.device("cuda")
@@ -158,6 +164,7 @@ def main() -> None:
         min_pair_diff=cfg["loss"]["min_pair_diff"],
         regression_space=cfg["loss"].get("regression_space", "raw"),
         outcome_head=cfg["loss"].get("outcome_head", "scalar"),
+        beta_corr=cfg["loss"].get("beta_corr", 0.0),
     )
     max_pairs_per_group = cfg["loss"]["max_pairs_per_group"]
 
@@ -187,7 +194,7 @@ def main() -> None:
         sampler.set_epoch(epoch)
         model.train()
         epoch_t0 = time.time()
-        running = {"loss": 0.0, "reg": 0.0, "rank": 0.0, "n_pairs": 0}
+        running = {"loss": 0.0, "reg": 0.0, "rank": 0.0, "corr": 0.0, "n_pairs": 0}
         n_batches = 0
         for local_batch in sampler:
             global_idx = train_idx[local_batch]
@@ -212,7 +219,7 @@ def main() -> None:
             opt.step()
             sched.step()
 
-            for k in ("loss", "reg", "rank"):
+            for k in ("loss", "reg", "rank", "corr"):
                 running[k] += parts[k]
             running["n_pairs"] += pi.numel()
             n_batches += 1
