@@ -135,3 +135,37 @@ independent Stage-A screens rather than serialize them).
 **Decision**: let both run in parallel; compare against baseline and each other
 once complete, then decide on Family D (A+C combined) per §10's rule of only
 combining components that individually improved validation performance.
+
+---
+
+## 2026-08-18 — Stage A results: Family A and Family C both beat baseline; correlation loss does not
+
+All three finished (30 epochs each, same dev split val_fold=1/train_folds=[2,3,4,5],
+seed 20260812):
+
+| Model | best epoch | val Spearman | Δ vs baseline |
+|---|---|---|---|
+| **Family C (feature branch)** | 22 | **0.9220** | **+0.0028** |
+| **Family A (layerwise context)** | 23 | **0.9214** | **+0.0022** |
+| Baseline (round-1, `cv1_simplex`) | 24 | 0.9192 | — |
+| β=0.025 correlation loss | 24 | 0.9158 | −0.0034 |
+
+Both gains are real but modest -- an order of magnitude smaller than round-1's
+simplex-head win. Family A's mid-training lead (as large as +0.013 around epoch
+5) compressed considerably by the best epoch; Family C started slower but
+overtook Family A by the end. Neither result should be oversold.
+
+**Correlation loss is a negative result.** β=0.025 underperforms baseline by
+-0.0034, consistent with round 1's finding that anything touching the ranking/
+correlation objective beyond the simplex head's own supervision tends to cost
+global Spearman rather than help it. Not pursuing the rest of the {0.01, 0.05}
+sweep -- the direction is already clear and matches a now twice-replicated
+pattern, and further points would just better-resolve a negative slope, not
+change the conclusion.
+
+**Decision (§10):** since Family A and Family C both individually improved
+validation Spearman, build Family D (layerwise context + feature branch
+combined) now. Since layerwise context won, also launch the conditional MoE
+extension from §8 (context-gated experts, built on the layerwise-context
+model). Both launched in parallel (GPU 6: Family D, GPU 2: MoE-on-layerwise),
+same dev split/seed/epoch budget.
