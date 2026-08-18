@@ -103,6 +103,10 @@ def main() -> None:
         "--beta-corr", type=float, default=None,
         help="round-2 §13: weight on the batch Pearson-correlation loss (0 disables it)",
     )
+    ap.add_argument(
+        "--moe-experts", type=int, default=None,
+        help="round-2 Family B (§8): number of context-gated experts in the head (0 disables)",
+    )
     args = ap.parse_args()
 
     cfg = yaml.safe_load(args.config.read_text())
@@ -125,6 +129,8 @@ def main() -> None:
         cfg["model"]["context_strategy"] = args.context_strategy
     if args.beta_corr is not None:
         cfg["loss"]["beta_corr"] = args.beta_corr
+    if args.moe_experts is not None:
+        cfg["model"]["moe_experts"] = args.moe_experts
 
     set_seed(cfg["seed"])
     device = torch.device("cuda")

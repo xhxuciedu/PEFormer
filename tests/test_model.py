@@ -8,7 +8,12 @@ import torch
 
 from pe_rankformer.data.context import ContextVocab
 from pe_rankformer.data.dataset import PEDataset, collate, featurize
-from pe_rankformer.models.pe_rankformer import PERankFormer, PERankFormerConfig
+from pe_rankformer.models.pe_rankformer import (
+    PERankFormer,
+    PERankFormerConfig,
+    expert_utilization_stats,
+    moe_load_balance_loss,
+)
 
 
 def _toy_corpus(n=12):
@@ -257,3 +262,76 @@ def test_feature_branch_disabled_by_default():
     cfg = PERankFormerConfig(context_fields=vocab.fields, context_vocab_sizes=vocab.sizes())
     model = PERankFormer(cfg)
     assert model.feature_branch is None
+
+
+def test_moe_head_forward_and_gradients():
+    """Round-2 Family B: context-gated mixture of experts in the head."""
+    df = _toy_corpus()
+    vocab = ContextVocab.fit(df)
+    cfg = PERankFormerConfig(
+        d_model=32, n_heads=2, ffn_dim=64, n_edit_layers=1, n_peg_layers=1, n_cross_blocks=1,
+        context_fields=vocab.fields, context_vocab_sizes=vocab.sizes(), context_embed_dim=8,
+        moe_experts=4, outcome_head="simplex",
+    )
+    model = PERankFormer(cfg)
+    assert model.head is None
+    assert model.head_hidden.n_experts == 4
+
+    corpus = featurize(df, vocab)
+    ds = PEDataset(corpus)
+    batch = collate([ds[i] for i in range(6)])
+    out = model(batch)
+    assert out.shape == (6, 3)
+    out.sum().backward()
+    assert model.head_hidden.experts[0][0].weight.grad is not None
+    assert model.head_hidden.gate.weight.grad is not None
+
+    gate_probs = model.head_hidden.last_gate_probs
+    assert gate_probs.shape == (6, 4)
+    assert torch.allclose(gate_probs.sum(dim=-1), torch.ones(6), atol=1e-5)
+
+
+def test_moe_requires_use_context():
+    vocab = ContextVocab.fit(_toy_corpus())
+    with pytest.raises(ValueError):
+        PERankFormerConfig(
+            context_fields=vocab.fields, context_vocab_sizes=vocab.sizes(),
+            moe_experts=4, use_context=False,
+        )
+
+
+def test_moe_disabled_preserves_backward_compatible_head_keys():
+    """Non-MoE models must keep the pre-round-2 `head.{0,1,4}.*` state_dict keys so
+    every already-trained round-1 checkpoint keeps loading unmodified."""
+    vocab = ContextVocab.fit(_toy_corpus())
+    cfg = PERankFormerConfig(context_fields=vocab.fields, context_vocab_sizes=vocab.sizes())
+    model = PERankFormer(cfg)
+    keys = set(model.state_dict().keys())
+    assert any(k.startswith("head.0.") for k in keys)  # LayerNorm
+    assert any(k.startswith("head.1.") for k in keys)  # first Linear
+    assert any(k.startswith("head.4.") for k in keys)  # final Linear
+    assert not any(k.startswith("head_hidden.") for k in keys)
+
+
+def test_moe_load_balance_loss_zero_when_uniform():
+    uniform = torch.full((8, 4), 0.25)
+    loss = moe_load_balance_loss(uniform)
+    assert loss.item() == pytest.approx(0.0, abs=1e-6)
+
+
+def test_moe_load_balance_loss_positive_under_collapse():
+    collapsed = torch.zeros(8, 4)
+    collapsed[:, 0] = 1.0  # every example routed to expert 0
+    loss = moe_load_balance_loss(collapsed)
+    assert loss.item() > 0.0
+
+
+def test_expert_utilization_stats_entropy_range():
+    uniform = torch.full((8, 4), 0.25)
+    stats = expert_utilization_stats(uniform)
+    assert stats["entropy"] == pytest.approx(torch.log(torch.tensor(4.0)).item(), abs=1e-4)
+
+    collapsed = torch.zeros(8, 4)
+    collapsed[:, 0] = 1.0
+    stats2 = expert_utilization_stats(collapsed)
+    assert stats2["entropy"] == pytest.approx(0.0, abs=1e-4)

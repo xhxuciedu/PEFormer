@@ -48,10 +48,14 @@ class PERankFormerConfig:
     # number of continuous input features (missingness indicators are handled internally
     # and do not need to be counted here).
     feature_hidden_dim: int = 64
+    moe_experts: int = 0  # round-2 Family B (§8): 0 disables MoE; else K in {4, 8},
+    # replacing the head's hidden expansion with K context-gated experts.
 
     def __post_init__(self) -> None:
         if self.context_strategy == "layerwise" and not self.use_context:
             raise ValueError("context_strategy='layerwise' requires use_context=True")
+        if self.moe_experts > 0 and not self.use_context:
+            raise ValueError("moe_experts>0 requires use_context=True (the gate is context-conditioned)")
 
 
 def _encoder_layer(d_model: int, n_heads: int, ffn_dim: int, dropout: float) -> nn.TransformerEncoderLayer:
@@ -193,6 +197,58 @@ class FeatureBranch(nn.Module):
         return self.net(x)
 
 
+class MoEHead(nn.Module):
+    """Round-2 Family B (§8): context-gated mixture of experts, replacing the head's
+    single hidden-expansion FFN. `K` experts each map the pooled representation to a
+    hidden vector; a context+representation-conditioned softmax gate combines them:
+
+        g(c, h) = softmax(W[c; h]),   h_out = sum_k g_k * f_k(h)
+
+    Applied only in the head (the model's single "final FFN block" in the round-2
+    spec's terms), keeping the sequence encoders and cross-attention fully shared.
+    Gate probabilities from the most recent forward pass are cached on
+    `self.last_gate_probs` (B, K) for utilization/entropy tracking -- not returned
+    from `forward`, so callers that just want `h_out` are unaffected.
+    """
+
+    def __init__(self, pooled_dim: int, hidden_dim: int, context_dim: int, n_experts: int, dropout: float):
+        super().__init__()
+        self.experts = nn.ModuleList(
+            [nn.Sequential(nn.Linear(pooled_dim, hidden_dim), nn.GELU(), nn.Dropout(dropout))
+             for _ in range(n_experts)]
+        )
+        self.gate = nn.Linear(context_dim + pooled_dim, n_experts)
+        self.n_experts = n_experts
+        self.last_gate_probs: torch.Tensor | None = None
+
+    def forward(self, h: torch.Tensor, context_vector: torch.Tensor) -> torch.Tensor:
+        gate_in = torch.cat([context_vector, h], dim=-1)
+        g = torch.softmax(self.gate(gate_in), dim=-1)  # (B, K)
+        self.last_gate_probs = g.detach()
+        expert_out = torch.stack([e(h) for e in self.experts], dim=1)  # (B, K, hidden)
+        return (g.unsqueeze(-1) * expert_out).sum(dim=1)  # (B, hidden)
+
+
+def moe_load_balance_loss(gate_probs: torch.Tensor) -> torch.Tensor:
+    """Encourages uniform expert utilization: squared coefficient of variation of the
+    batch-mean gate probability per expert. Zero when every expert gets equal traffic.
+    Not wired into training by default -- round-2 §8 says to use it only "if expert
+    collapse occurs"; call this explicitly and add its weighted value to the loss if
+    `MoEHead.last_gate_probs` shows collapse (see also `expert_utilization_stats`)."""
+    usage = gate_probs.mean(dim=0)  # (K,)
+    return (usage.var(unbiased=False) / (usage.mean() ** 2 + 1e-8))
+
+
+def expert_utilization_stats(gate_probs: torch.Tensor) -> dict[str, float]:
+    """Per-expert mean utilization and the entropy of the mean gate distribution
+    (log(K) = maximally uniform; 0 = total collapse onto one expert). Round-2 §8:
+    "Track expert utilization; entropy of gating; expert-by-context preferences" --
+    diagnostic only, not used to steer training automatically."""
+    usage = gate_probs.mean(dim=0)
+    entropy = -(usage.clamp_min(1e-12) * usage.clamp_min(1e-12).log()).sum()
+    return {"entropy": entropy.item(), **{f"expert_{i}_usage": u.item() for i, u in enumerate(usage)}}
+
+
 class PERankFormer(nn.Module):
     def __init__(self, config: PERankFormerConfig):
         super().__init__()
@@ -260,13 +316,25 @@ class PERankFormer(nn.Module):
         # biochemical reaction graph (task spec §11 forbids that, but the mutual
         # exclusivity of measured outcomes is a property of the assay, not a mechanism).
         n_out = 3 if config.outcome_head == "simplex" else 1
-        self.head = nn.Sequential(
-            nn.LayerNorm(pooled_dim),
-            nn.Linear(pooled_dim, d),
-            nn.GELU(),
-            nn.Dropout(config.dropout),
-            nn.Linear(d, n_out),
-        )
+        if config.moe_experts > 0:
+            # Disaggregated head, only used for MoE (round-2 Family B, §8) -- kept as a
+            # separate code path rather than the default so every pre-round-2 checkpoint
+            # (whose state_dict keys are `head.0/1/4.*`) keeps loading unmodified below.
+            self.head = None
+            self.head_norm = nn.LayerNorm(pooled_dim)
+            self.head_hidden = MoEHead(
+                pooled_dim, d, self.context_encoder.out_dim, config.moe_experts, config.dropout
+            )
+            self.head_out = nn.Linear(d, n_out)
+        else:
+            self.head = nn.Sequential(
+                nn.LayerNorm(pooled_dim),
+                nn.Linear(pooled_dim, d),
+                nn.GELU(),
+                nn.Dropout(config.dropout),
+                nn.Linear(d, n_out),
+            )
+            self.head_norm = self.head_hidden = self.head_out = None
 
         self.apply(self._init_weights)
 
@@ -328,7 +396,12 @@ class PERankFormer(nn.Module):
             z_f = self.feature_branch(batch["features"], batch["features_missing"])
             pooled = torch.cat([pooled, z_f], dim=-1)
 
-        out = self.head(pooled)
+        if self.config.moe_experts > 0:
+            pooled = self.head_norm(pooled)
+            hidden = self.head_hidden(pooled, context_vector)
+            out = self.head_out(hidden)
+        else:
+            out = self.head(pooled)
         if self.config.outcome_head == "simplex":
             return out  # (B, 3) logits over [unedited, edited, indel]
         return out.squeeze(-1)  # (B,) raw score
