@@ -592,3 +592,72 @@ Note the protocol asymmetry alone (−0.0120) was 7× the final model difference
 model on matched data with no leakage. Weaker than the claim this project set out to
 make, and better supported. Report and PDF rewritten around the corrected result,
 including a full section on the retraction.
+
+## 2026-08-18 (cont.) — Full 20,509-row held-out evaluation; result is more nuanced than the Liu-only dead heat
+
+User asked two questions: (1) is the full 20,509-row held-out set actually being
+used (it wasn't — only the 9,175 Liu rows were), and (2) does our OptiPrime
+reproduction match the paper's own reported numbers.
+
+**Reproduction check.** Paper states, for its held-out test: "mean r=0.723,
+rho=0.775" across the four Liu conditions. Our reproduction (same per-condition-mean
+convention): r=0.752, rho=0.805 -- ~0.03 above published on both metrics. Checked
+every aggregation convention we could construct (per-model mean, ensemble mean,
+pooled, read-depth weighted, grouped by library instead of cell type) -- none
+reproduces (0.723, 0.775) exactly. No evaluation script is released, and neither
+main text nor Supplementary Text 1 specifies whether the published figure uses the
+5-model ensemble, a single "final" model, or a sampled subset of held-out rows. The
+offset favors OptiPrime (we score it higher than its own paper), so the baseline
+isn't handicapped, but it sets a ~0.03 floor on reproduction precision -- about 20x
+the Liu-only model difference and 2x the eventual full-set difference. This is
+disclosed as an explicit limitation in the report rather than treated as exact.
+
+**Building the full held-out set.** Extended `build_optiprime_heldout_full.py` to
+add the 11,334 Kim rows (previously skipped out of caution). Two things had to be
+fixed, both traced to a wrong assumption in the earlier padding check:
+
+1. The lowercase `g` in Kim spacers is a *substitution* of the first protospacer
+   base, not an added base like in Liu -- so Kim rows were already in native
+   format (protospacer at offset 4) and never needed padding. Confirmed by
+   locating spacer[1:] at offset 5, not spacer at offset -1.
+2. `RuleSet3Score`'s cache key is `spacer_hash = deterministic_hash(spacer)`
+   computed on the *case-preserving* spacer (`format_pe_df` only does T->U, no
+   uppercasing) -- but the RuleSet3 precompute script uppercased first, so every
+   Kim hash missed. Liu worked by coincidence (our Liu extraction is already
+   uppercase). Fixed by caching both case variants. The stub canary (raises if
+   `rs3.seq.predict_seq` is called directly, meaning a cache miss) caught this
+   correctly rather than silently falling back -- worth keeping that safeguard.
+
+Also found `proto30` (used for the RuleSet3 30nt window) differs from
+`full_unedited[:30]` for 151 Kim rows where `full_unedited` is under 30nt --
+the release's own `proto30` column carries context those truncated rows lack.
+Used it preferentially.
+
+**Result.** Full 20,509-row held-out set, both models 5-model CV ensembles:
+
+```
+PE-RankFormer rho=0.8865  OptiPrime rho=0.8690
+diff +0.0175, 95% CI [+0.0068, +0.0279], p=0.001, wins 100.0% of 2000 resamples
+```
+
+PE-RankFormer is ahead, outside chance. But this is NOT uniform:
+
+| study | n | OptiPrime rho | PE-RankFormer rho |
+|---|---|---|---|
+| Liu | 9,175 | 0.8365 | 0.8349 (dead heat, as before) |
+| Kim | 11,334 | 0.7320 | 0.7751 |
+
+The entire advantage sits in Kim: 16/18 individual conditions favor
+PE-RankFormer by 0.02-0.09, no single condition driving it (mean per-condition
+rho 0.760 vs 0.728). Ruled out a metadata bug: Kim files run through OptiPrime's
+own unmodified `pe_datasets.py`, and its NRCH/PAM filename inference fires
+correctly on exactly the 4/18 conditions needing it (cross-checked against the
+corpus's own NRCH flag). Kim spans 7 cell lines and multiple PE systems absent
+from Liu -- offered as a plausible (not proven) explanation grounded in
+PE-RankFormer's explicit FiLM context conditioning, which the ablation sweep
+(on the earlier public-data corpus) showed costs 0.08 Spearman to remove.
+
+**Report rewritten**: abstract, headline (§0 in md / §6 in tex) restructured
+around full-set result + Liu/Kim breakdown + reproduction-uncertainty caveat;
+new figures 13-15 (by-study bars, full-set metrics, full-set bootstrap
+distribution). PDF rebuilt, 12 pages, clean compile.

@@ -33,7 +33,7 @@ def save(fig, name):
     logger.info("wrote %s", name)
 
 
-def fig_metrics(table: pd.DataFrame):
+def fig_metrics(table: pd.DataFrame, name: str, n_label: str):
     """Grouped bars over all four metrics. Correlations: higher is better; errors: lower."""
     t = table[~table.model.str.contains("80%")].copy()
     short = ["OptiPrime\n(5-model)", "PE-RankFormer\n(5-model CV)"]
@@ -49,19 +49,19 @@ def fig_metrics(table: pd.DataFrame):
         ax.set_ylim(0, t[col].max() * 1.25)
         plt.setp(ax.get_xticklabels(), fontsize=8)
     fig.suptitle(
-        "Matched-protocol head-to-head on OptiPrime's own held-out test set (n=9,175)",
+        f"Matched-protocol head-to-head on OptiPrime's own held-out test set ({n_label})",
         fontsize=11,
     )
     fig.tight_layout(rect=(0, 0, 1, 0.90))
-    fig.savefig(OUT / "10_heldout_metrics.png")
-    fig.savefig(OUT / "10_heldout_metrics.pdf")
+    fig.savefig(OUT / f"{name}.png")
+    fig.savefig(OUT / f"{name}.pdf")
     plt.close(fig)
-    logger.info("wrote 10_heldout_metrics")
+    logger.info("wrote %s", name)
 
 
-def fig_bootstrap(boot: dict):
-    """The paired bootstrap distribution -- the honest summary: it straddles zero."""
-    diffs = np.load("results/heldout_bootstrap_diffs.npy")
+def fig_bootstrap(boot: dict, diffs_path: str, name: str, verdict: str):
+    """The paired bootstrap distribution."""
+    diffs = np.load(diffs_path)
     lo, hi = boot["ci95"]
     fig, ax = plt.subplots(figsize=(5.8, 3.8))
     ax.hist(diffs, bins=50, color=PR_COLOR, alpha=0.75, edgecolor="white", linewidth=0.4)
@@ -72,12 +72,39 @@ def fig_bootstrap(boot: dict):
     ax.set_xlabel("Spearman ρ difference (PE-RankFormer − OptiPrime)")
     ax.set_ylabel("Bootstrap resamples")
     ax.set_title(
-        f"Paired protospacer-clustered bootstrap (2000 resamples)\n"
-        f"p = {boot['two_sided_p']:.2f} — the two models are statistically indistinguishable",
+        f"Paired protospacer-clustered bootstrap (2000 resamples, {boot['n_clusters']} clusters)\n"
+        f"p = {boot['two_sided_p']:.3f} — {verdict}",
         fontsize=10,
     )
     ax.legend(fontsize=8, loc="upper left", framealpha=0.95)
-    save(fig, "11_heldout_bootstrap")
+    save(fig, name)
+
+
+def fig_by_study(df: pd.DataFrame):
+    """Per-source-study breakdown on the full held-out set: where does the difference live?"""
+    from scipy.stats import spearmanr
+
+    rows = []
+    for src, g in df.groupby("source_study"):
+        rows.append({
+            "study": {"hsu2026": "Liu (n=9,175)", "deepprime": "Kim (n=11,334)"}.get(src, src),
+            "OptiPrime": spearmanr(g.true_efficiency, g.op).statistic,
+            "PE-RankFormer": spearmanr(g.true_efficiency, g.predicted_efficiency).statistic,
+        })
+    t = pd.DataFrame(rows)
+    fig, ax = plt.subplots(figsize=(5.5, 4))
+    x = np.arange(len(t))
+    b1 = ax.bar(x - 0.2, t["OptiPrime"], width=0.4, color=OP_COLOR, label="OptiPrime")
+    b2 = ax.bar(x + 0.2, t["PE-RankFormer"], width=0.4, color=PR_COLOR, label="PE-RankFormer")
+    for bars in (b1, b2):
+        ax.bar_label(bars, fmt="%.3f", fontsize=8, padding=2)
+    ax.set_xticks(x)
+    ax.set_xticklabels(t.study, fontsize=9)
+    ax.set_ylabel("Spearman ρ")
+    ax.set_ylim(0, 1.0)
+    ax.set_title("Held-out performance by source study\n(both models: 5-model CV ensembles)", fontsize=10)
+    ax.legend(fontsize=8)
+    save(fig, "13_heldout_by_study")
 
 
 def fig_scatter(df: pd.DataFrame):
@@ -99,13 +126,27 @@ def fig_scatter(df: pd.DataFrame):
 def main() -> None:
     import json
 
+    # Liu-only (n=9,175): the original matched-protocol comparison, statistical dead heat.
     table = pd.read_csv("results/heldout_benchmark_table.csv")
-    fig_metrics(table)
-    fig_bootstrap(json.loads(Path("results/heldout_bootstrap_cv5.json").read_text()))
-
+    fig_metrics(table, "10_heldout_metrics", "Liu partition, n=9,175")
+    fig_bootstrap(
+        json.loads(Path("results/heldout_bootstrap_cv5.json").read_text()),
+        "results/heldout_bootstrap_diffs.npy", "11_heldout_bootstrap",
+        "statistically indistinguishable",
+    )
     ours = pd.read_parquet("results/runs/eval_test_fold/predictions_cv5_ens.parquet")
     op = pd.read_parquet("results/optiprime_heldout_predictions.parquet")
     fig_scatter(ours.merge(op, on="record_id"))
+
+    # Full held-out set (n=20,509, Liu + Kim): PE-RankFormer ahead, significant.
+    full = pd.read_csv("results/heldout_full_benchmark_table.csv")
+    fig_metrics(full, "14_heldout_full_metrics", "FULL set, n=20,509")
+    fig_bootstrap(
+        json.loads(Path("results/heldout_full_bootstrap.json").read_text()),
+        "results/heldout_full_bootstrap_diffs.npy", "15_heldout_full_bootstrap",
+        "PE-RankFormer ahead",
+    )
+    fig_by_study(pd.read_parquet("results/heldout_full_head_to_head.parquet"))
 
 
 if __name__ == "__main__":
