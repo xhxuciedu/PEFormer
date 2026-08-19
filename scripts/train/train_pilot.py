@@ -131,6 +131,13 @@ def main() -> None:
         help="round-3 §9: keep this fraction of the Schwank training rows when "
              "--train-sources restricts to Liu+Kim (e.g. 0.10 for 10%% replay)",
     )
+    ap.add_argument(
+        "--val-sources", nargs="+", default=None,
+        choices=["hsu2026", "deepprime", "pridict_pridict2"],
+        help="round-3 §7: restrict VALIDATION rows to these sources, so checkpoint "
+             "selection/early-stopping targets the Liu+Kim benchmark rather than the "
+             "Schwank-dominated official fold",
+    )
     ap.add_argument("--lr", type=float, default=None, help="override optim.lr (fine-tuning uses a small LR)")
     args = ap.parse_args()
     if args.dev_folds_file and not args.dev_fold_col:
@@ -190,13 +197,23 @@ def main() -> None:
     else:
         val_idx = np.where(fold == cfg["data"]["val_fold"])[0]
         train_idx = np.where(np.isin(fold, cfg["data"]["train_folds"]))[0]
-    if args.train_sources is not None:
-        # Round-3 §8-10: restrict TRAINING rows by source study. Validation is never
-        # filtered -- the matched dev fold's Liu+Kim validation set is the selection
-        # target regardless of what the model trains on.
+    pos_to_source = None
+    if args.train_sources is not None or args.val_sources is not None:
         src = pd.read_parquet(cfg["data"].get("source_df", "data/processed/optiprime_official_318471.parquet"),
                               columns=["record_id", "source_study"])
         pos_to_source = src.set_index("record_id").source_study.reindex(corpus.record_id).to_numpy()
+
+    if args.val_sources is not None:
+        # Round-3 §7: the selection target is Liu+Kim Spearman, not the Schwank-heavy
+        # official fold. Filtering validation makes early stopping / best-checkpoint
+        # selection optimise the benchmark we actually care about.
+        val_source = pos_to_source[val_idx]
+        n_before = len(val_idx)
+        val_idx = val_idx[np.isin(val_source, args.val_sources)]
+        logger.info("val-source filter %s: %d -> %d rows", args.val_sources, n_before, len(val_idx))
+
+    if args.train_sources is not None:
+        # Round-3 §8-10: restrict TRAINING rows by source study.
         train_source = pos_to_source[train_idx]
         keep = np.isin(train_source, args.train_sources)
 
@@ -383,6 +400,7 @@ def main() -> None:
         "dev_fold_col": args.dev_fold_col,
         "init_from": args.init_from,
         "train_sources": args.train_sources,
+        "val_sources": args.val_sources,
         "schwank_replay_frac": args.schwank_replay_frac,
         "lr": cfg["optim"]["lr"],
         "n_train_rows": int(len(train_idx)),

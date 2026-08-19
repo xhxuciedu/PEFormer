@@ -189,3 +189,88 @@ before any held-out query.
 
 **Next experiment**: Phase 1 domain adaptation (global models finishing now),
 then Family A official folds 2-5 to add a third diverse ensemble member.
+
+---
+
+## 2026-08-18 — Phase 1 domain adaptation (§8): works, but is redundant with its parent
+
+**Hypothesis** (§8): fine-tuning on Liu+Kim only should specialise the model to the
+target distribution (58% of training is Schwank, 0% of the target).
+
+**Exact change**: new `--init-from`, `--train-sources`, `--val-sources`, `--lr`.
+Design chosen over the spec's literal instruction for a reason: rather than train
+fresh global models per dev fold and fine-tune those, I fine-tuned the **existing
+round-1 official-fold checkpoints**. Checkpoint k was trained on official folds
+{1..5}\{k}; the fine-tune uses the same fold restriction, so fold k is unseen in
+both stages and OOF dev evaluation stays clean -- and the 5 resulting checkpoints
+are *directly usable* as a final ensemble member. The spec's version would have
+required a separate retraining pass on official folds to produce the deliverable.
+Validation restricted to Liu+Kim (`--val-sources`) so checkpoint selection targets
+the benchmark.
+
+**Result -- standalone (vs. each checkpoint's own pre-fine-tune control on the
+Liu+Kim rows of its held-out fold):**
+
+| Fold | pre | DAPT (lr 3e-5) | Δ |
+|---|---:|---:|---:|
+| 1 | 0.8798 | 0.8825 | +0.0027 |
+| 2 | 0.8764 | 0.8775 | +0.0011 |
+| 3 | 0.8801 | 0.8812 | +0.0011 |
+| 4 | 0.8756 | 0.8778 | +0.0022 |
+| 5 | 0.8835 | 0.8841 | +0.0006 |
+| **mean** | | | **+0.0015** |
+
+Positive on all 5 folds -- so a real effect, unlike the sign-flipping noise of the
+Stage-0 comparison -- but small, right at the resolution floor. OOF dev: 0.8820
+vs round-1's 0.8798.
+
+**Hypothesis supported**: yes, weakly. Domain adaptation helps, but not enough to
+matter on its own.
+
+**The more useful finding -- why it doesn't help the ensemble.** Rank-prediction
+correlations on dev fold 1:
+
+| | round-1 | Family C | DAPT |
+|---|---:|---:|---:|
+| round-1 | 1.0000 | 0.9550 | **0.9970** |
+| Family C | 0.9550 | 1.0000 | 0.9551 |
+| DAPT | **0.9970** | 0.9551 | 1.0000 |
+
+DAPT is **0.997-correlated with its parent** -- 10 epochs at lr 3e-5 barely moved
+the function. So it is not a new ensemble member, it is a slightly better round-1.
+Ensemble search confirms this exactly:
+
+| Ensemble (rank-avg) | per-fold | mean |
+|---|---|---:|
+| Family C + DAPT | 0.8910 / 0.8936 / 0.8911 | **0.8919** |
+| round-1 + Family C | 0.8899 / 0.8926 / 0.8903 | 0.8909 |
+| round-1 + Family C + DAPT | 0.8887 / 0.8922 / 0.8905 | 0.8905 |
+| round-1 + DAPT | 0.8781 / 0.8837 / 0.8830 | 0.8816 |
+
+Adding DAPT *on top of* round-1 makes the 3-way blend **worse** than the best
+2-way, and round-1+DAPT alone barely beats its members (fails the all-folds-win
+test). Fitted weights independently confirm it: fitting on each fold drives
+round-1's weight to 0.20, 0.00, 0.01 -- the optimiser discards round-1 whenever
+DAPT is present. **DAPT is a replacement for round-1 in the ensemble, not an
+addition.** Best blend so far: Family C + DAPT, 0.8919, better than
+round-1+Family C on all 3 folds.
+
+**Decision**: the operative variable is architectural decorrelation, and
+fine-tuning does not produce it (0.997). To extend the ensemble further I need
+genuinely different *architectures*, not further variations on round-1. Launched
+Family A (layerwise context conditioning -- FiLM at every block rather than once
+after pooling, trained from scratch) on official folds 2-5; fold 1 already exists
+from round-2. Expect it to decorrelate like Family C (~0.955) rather than like
+DAPT (~0.997).
+
+Also killed the lr 1e-5 DAPT arm: at lr 3e-5 the model already stays 0.997-
+correlated with its parent, so a smaller LR can only be more redundant. Kept the
+5-fold lr 3e-5 set.
+
+**Negative result recorded**: fitted ensemble weights do not beat equal weights
+(0.8907 vs 0.8909 on the 2-member set; 0.8916 vs 0.8919 on the 3-member set), and
+the fitted optimum is unstable across folds. Equal-weight rank-averaging is the
+selection rule for this round -- one fewer thing to overfit.
+
+**Next experiment**: Family A folds 2-5 (running), then a 3-way ensemble search
+over {Family C, DAPT, Family A}.
