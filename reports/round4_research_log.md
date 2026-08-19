@@ -70,3 +70,76 @@ should.
 
 **Next**: implement PE-SSM and R4-Medium-AdaLN; screen both on one dev fold
 before committing 5-fold compute (§19 successive halving).
+
+---
+
+## 2026-08-19 — Context-gated ensembling (§9) and nonlinear stacking (§10): both negative
+
+**Hypothesis** (§9): round 3 showed *global* fitted weights were unstable and never
+beat equal weighting. Context-*dependent* weights are a narrower, better-posed
+question -- maybe Family C is the right member to upweight on Kim rows and Family A
+on Liu rows, even if no single global weighting helps. (§10): a nonlinear stacker
+over OOF member predictions plus context might capture interactions that a linear
+rank average cannot.
+
+**Why these might be complementary**: neither requires new training -- both reuse the
+existing OOF predictions -- so they are the cheapest possible sources of gain.
+
+**Implementation**: `scripts/evaluate/context_gated_ensemble.py`. Gates map one-hot
+(source, cell type, PE system) to simplex weights, initialised at exactly equal
+weights so any departure has to be earned, and regularised by
+lambda * sum_k (w_k - 1/K)^2. Stackers are ridge and histogram-GBM over
+[member ranks ++ context dummies]. Evaluated by rotating: fit on two dev folds,
+score on the third.
+
+**A leakage bug in my own first run, caught and fixed.** The initial version
+reported GBM stacking at **0.9012 (+0.0030)** -- above the 0.90 target and above the
+§6 promotion threshold. Before acting on it I checked whether the "nested" split was
+really nested. It was not: the three round-3 dev folds are *repeated random
+subsamples*, not a partition, and **57-60% of each fold's rows also appear in the
+other two**. The stacker was fitting on the majority of its own test rows. Refitting
+with the fitting set filtered to exclude every row whose **protospacer** occurs in
+the scoring fold (protospacer-level, since rows sharing a protospacer are strongly
+correlated) drops the fit set from ~58.5k to ~38.1k rows and gives the honest
+numbers below.
+
+**Result (nested, protospacer-disjoint):**
+
+| Method | mean | per-fold | vs equal-rank |
+|---|---:|---|---:|
+| stack_gbm | 0.8995 | 0.8998 / 0.9012 / 0.8977 | +0.0013 |
+| stack_ridge | 0.8990 | 0.8995 / 0.9006 / 0.8971 | +0.0008 |
+| **equal_rank (frozen rule)** | **0.8982** | 0.8979 / 0.8997 / 0.8969 | — |
+| gate_mlp | 0.8982 | 0.8980 / 0.8998 / 0.8970 | +0.0000 |
+| gate_linear | 0.8982 | 0.8980 / 0.8998 / 0.8969 | +0.0000 |
+| source_weights | 0.8980 | 0.8977 / 0.9000 / 0.8963 | −0.0002 |
+| equal_score | 0.8960 | 0.8956 / 0.8974 / 0.8949 | −0.0022 |
+
+**Hypothesis supported: no, for both.**
+
+- **Context gating is a clean null** (+0.0000). Both the linear and MLP gates,
+  initialised at equal weights and free to move, essentially stay there. Source-
+  specific fixed weights are also null (−0.0002). This now extends round 3's
+  finding: it is not just that *global* weight fitting is unstable -- there is no
+  recoverable signal saying "member k is better in context c" at all. The members
+  differ in *which rows* they get wrong, not in *which contexts* they are good at.
+  That is a genuinely useful negative: it means diversity here is row-level, and
+  ensembling can only exploit it by averaging, not by routing.
+- **Stacking is positive but below threshold** (+0.0013 GBM, +0.0008 ridge; below
+  §6's +0.003 bar and below the ~0.005 resolution floor established in round 3),
+  though positive on all 3 folds. Not promoted now; worth one re-test if new
+  members materially change the ensemble, since a stacker's value should grow with
+  member count.
+- **equal_score is −0.0022 vs equal_rank**, independently reconfirming the frozen
+  rank-average rule.
+
+**Decision**: keep equal-weight rank averaging. Do not pursue gating further.
+Re-test GBM stacking once (and only if) PE-SSM or the medium model joins the
+ensemble.
+
+**Independent observation worth recording**: the 57-60% dev-fold overlap is a
+latent hazard for *any* round-4 experiment that fits something on dev-fold
+predictions (stacking, gating, calibration, residual learning). The dev folds were
+built in round 3 as repeated holdouts for *evaluating* models, where overlap is
+harmless; they are not a partition and must not be used as one. Any future fitting
+on these folds must apply the same protospacer-disjoint filter.
