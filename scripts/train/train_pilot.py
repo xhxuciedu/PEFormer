@@ -107,7 +107,18 @@ def main() -> None:
         "--moe-experts", type=int, default=None,
         help="round-2 Family B (§8): number of context-gated experts in the head (0 disables)",
     )
+    ap.add_argument(
+        "--dev-folds-file", type=str, default=None,
+        help="round-3 §5: parquet from build_round3_dev_folds.py, overrides "
+             "val_fold/train_folds with a Liu+Kim-matched split when set",
+    )
+    ap.add_argument(
+        "--dev-fold-col", type=str, default=None,
+        help="column in --dev-folds-file to use, e.g. round3_dev_fold_0 (values 'train'/'val')",
+    )
     args = ap.parse_args()
+    if args.dev_folds_file and not args.dev_fold_col:
+        ap.error("--dev-folds-file requires --dev-fold-col")
 
     cfg = yaml.safe_load(args.config.read_text())
     if args.lambda_rank is not None:
@@ -144,8 +155,23 @@ def main() -> None:
 
     fold = corpus.fold
     test_idx = np.where(fold == cfg["data"]["test_fold"])[0]
-    val_idx = np.where(fold == cfg["data"]["val_fold"])[0]
-    train_idx = np.where(np.isin(fold, cfg["data"]["train_folds"]))[0]
+
+    if args.dev_folds_file:
+        # Round-3 §5: Liu+Kim-matched development split, replacing the official
+        # (Schwank-heavy) val_fold/train_folds for model *selection* purposes. The
+        # held-out test_idx above is untouched either way.
+        dev = pd.read_parquet(args.dev_folds_file, columns=["record_id", args.dev_fold_col])
+        record_id_to_pos = {rid: i for i, rid in enumerate(corpus.record_id)}
+        dev_pos = dev["record_id"].map(record_id_to_pos)
+        assert dev_pos.notna().all(), "dev-folds-file has record_ids not present in this corpus"
+        dev_pos = dev_pos.to_numpy(dtype=np.int64)
+        is_val = (dev[args.dev_fold_col] == "val").to_numpy()
+        val_idx = dev_pos[is_val]
+        train_idx = dev_pos[~is_val]
+        logger.info("using round-3 dev fold: %s (col=%s)", args.dev_folds_file, args.dev_fold_col)
+    else:
+        val_idx = np.where(fold == cfg["data"]["val_fold"])[0]
+        train_idx = np.where(np.isin(fold, cfg["data"]["train_folds"]))[0]
     logger.info("train=%d val=%d test=%d (test fold locked, not touched)", len(train_idx), len(val_idx), len(test_idx))
 
     if args.feature_branch:
@@ -295,6 +321,8 @@ def main() -> None:
         "total_train_time_s": total_time,
         "checkpoint_best": str(ckpt_dir / "best.pt"),
         "checkpoint_final": str(ckpt_dir / "final.pt"),
+        "dev_folds_file": args.dev_folds_file,
+        "dev_fold_col": args.dev_fold_col,
     }
     (run_dir / "run_info.json").write_text(json.dumps(run_info, indent=2))
     logger.info("done: %s", json.dumps(run_info, indent=2))

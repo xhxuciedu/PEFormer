@@ -1,0 +1,70 @@
+# FROZEN round-1 baseline config (round-3 spec §3). Do not edit.
+#
+# Reproduces the round-1 final model exactly (identical to
+# configs/round2/baseline_round1.yaml, copied here per round-3 spec §3's explicit
+# instruction to create a round-3-local frozen baseline). OptiPrime's official
+# training mix, their 5-fold CV split structure, simplex outcome head, no ranking
+# loss, no round-2 additions (context_strategy defaults to "late", n_features and
+# moe_experts default to 0).
+#
+# Verified reproduction: five runs at this config (one per val_fold in {1..5}),
+# tagged cv1_simplex .. cv5_simplex, git commit 04a6dbc (tag: round1-final), gave
+# best-epoch validation Spearman:
+#   fold 1: 0.9192   fold 2: 0.9173   fold 3: 0.9161   fold 4: 0.9174   fold 5: 0.9202
+# 5-model ensemble on the complete 20,509-row official held-out set:
+#   full: Spearman 0.8865 | Liu-only: 0.8349 | Kim-only: 0.7751
+# (vs. OptiPrime: full 0.8690 | Liu 0.8365 | Kim 0.7320)
+#
+# Round-2 result for reference (see reports/round2_results.md): Family C (feature
+# branch) improved this same 5-fold CV protocol's *old* (Schwank-heavy) validation
+# Spearman from 0.9192 to 0.9202 mean, but the official held-out score moved from
+# 0.8865 to 0.8831 -- a validation-selection mismatch, not a modelling win. That
+# mismatch, and fixing it via Liu+Kim-matched development folds
+# (data/processed/round3_dev_assignments.parquet), is round 3's starting point.
+#
+# To reproduce fold k of the OFFICIAL 5-fold split: copy this file, set val_fold: k
+# and train_folds to the other four members of {1,2,3,4,5}.
+# To evaluate against a round-3 Liu+Kim-matched DEV fold instead (spec §5-7): use
+# data/processed/round3_dev_assignments.parquet's round3_dev_fold_{0,1,2} columns,
+# not this file's val_fold/train_folds (those remain the official 5-fold split).
+
+seed: 20260812
+
+data:
+  corpus: data/processed/featurized_official.npz
+  vocab: data/processed/context_vocab_official.json
+  test_fold: 0  # the 20,509-row official held-out set -- LOCKED, do not touch during search
+  val_fold: 1   # official-fold placeholder; round-3 Stage-A screening uses the
+                # Liu+Kim-matched dev folds instead (see header note above)
+  train_folds: [2, 3, 4, 5]
+
+model:
+  d_model: 384
+  n_heads: 6
+  ffn_dim: 1536
+  dropout: 0.10
+  n_edit_layers: 6
+  n_peg_layers: 4
+  n_cross_blocks: 2
+  context_embed_dim: 32
+  outcome_head: simplex
+
+loss:
+  lambda_rank: 0.0
+  huber_beta: 0.1
+  min_pair_diff: 0.02
+  max_pairs_per_group: 4
+  outcome_head: simplex
+
+optim:
+  lr: 3.0e-4
+  weight_decay: 0.01
+  warmup_frac: 0.05
+  grad_clip: 1.0
+
+train:
+  batch_size: 512
+  max_epochs: 30
+  early_stop_patience: 30
+  early_stop_min_warmup_epochs: 3
+  precision: bf16
