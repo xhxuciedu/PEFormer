@@ -90,6 +90,13 @@ def main() -> None:
     )
     ap.add_argument("--ordinal-bins", type=int, default=20, help="K for --ordinal-head")
     ap.add_argument(
+        "--bag-frac", type=float, default=1.0,
+        help="round-4: train on this fraction of training PROTOSPACERS (bagging). "
+             "Subsampling is by protospacer, not by row, because rows sharing a "
+             "protospacer are strongly correlated and row-level bagging would leave "
+             "every protospacer represented and barely decorrelate anything.",
+    )
+    ap.add_argument(
         "--regression-space", choices=["raw", "logit"], default=None,
         help="regression loss space (task spec §19 comparison)",
     )
@@ -250,6 +257,28 @@ def main() -> None:
             "train-source filter %s: %d -> %d rows (%s)",
             args.train_sources, n_before, len(train_idx),
             {s: int((train_source[keep] == s).sum()) for s in np.unique(train_source[keep])},
+        )
+
+    if args.bag_frac < 1.0:
+        # Classical bagging, the one decorrelation mechanism that does not depend on a
+        # new architecture: each member sees a different protospacer sample, so members
+        # are wrong about different loci. Seeded by the run seed, so seed variants give
+        # genuinely different bags rather than the same bag twice.
+        bag_src = pd.read_parquet(
+            cfg["data"].get("source_df", "data/processed/optiprime_official_318471.parquet"),
+            columns=["record_id", "spacer"],
+        )
+        pos_to_spacer = bag_src.set_index("record_id").spacer.reindex(corpus.record_id).to_numpy()
+        train_spacers = np.unique(pos_to_spacer[train_idx])
+        rng = np.random.default_rng(cfg["seed"])
+        keep_spacers = rng.choice(
+            train_spacers, size=int(round(args.bag_frac * len(train_spacers))), replace=False
+        )
+        n_before = len(train_idx)
+        train_idx = train_idx[np.isin(pos_to_spacer[train_idx], keep_spacers)]
+        logger.info(
+            "bagging: kept %d/%d training protospacers (frac=%.2f), rows %d -> %d",
+            len(keep_spacers), len(train_spacers), args.bag_frac, n_before, len(train_idx),
         )
 
     logger.info("train=%d val=%d test=%d (test fold locked, not touched)", len(train_idx), len(val_idx), len(test_idx))
