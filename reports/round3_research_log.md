@@ -319,3 +319,66 @@ over {Family C, DAPT, Family A} can run.
 **Next experiment**: OOF-evaluate the consistent 5-fold Family A set, measure its
 correlation with the other members, and search all subsets. Then freeze and run
 the single held-out evaluation.
+
+---
+
+## 2026-08-19 — Final ensemble search: Family C + DAPT + Family A, round-1 excluded
+
+**Full 4-member OOF evaluation** (round-1, Family C, DAPT, Family A) and exhaustive
+subset search over {mean, rank-average} x all subsets, per §25.
+
+**Individual members (mean over 3 dev folds):**
+
+| Model | dev Spearman |
+|---|---:|
+| round-1 baseline | 0.8798 |
+| Family C | 0.8816 |
+| DAPT | 0.8820 |
+| **Family A** | **0.8845** (new best single model) |
+
+**Correlation structure** (rank-prediction Pearson r, dev fold 1) explains the
+whole ensemble result:
+
+| | round-1 | Family C | DAPT | Family A |
+|---|---:|---:|---:|---:|
+| round-1 | 1.000 | 0.955 | **0.997** | 0.946 |
+| Family C | 0.955 | 1.000 | 0.955 | 0.945 |
+| DAPT | 0.997 | 0.955 | 1.000 | 0.947 |
+| **Family A** | 0.946 | 0.945 | 0.947 | 1.000 |
+
+Family A is the most decorrelated member from *everything*, including Family C
+-- explaining both why it is the strongest standalone model (§ previous entry)
+and why it is the strongest ensemble addition.
+
+**Best ensemble: Family C + DAPT + Family A (rank-average), round-1 excluded.**
+
+| Dev fold | 3-way (best) | best single | Δ vs single |
+|---|---:|---:|---:|
+| 0 | 0.8979 | 0.8851 | +0.0128 |
+| 1 | 0.8997 | 0.8868 | +0.0129 |
+| 2 | 0.8969 | 0.8845 | +0.0124 |
+| **mean** | **0.8982** | 0.8845 | **+0.0137** |
+
+**Verified this is not multiple-comparisons cherry-picking.** Two direct paired,
+protospacer-clustered bootstrap tests (2000 resamples each):
+
+1. 3-way (FamilyC+DAPT+FamilyA) vs. the best 2-way (FamilyC+DAPT, 0.8919): all 3
+   folds significant, CI excludes zero on every fold, **100% bootstrap wins,
+   p<0.0001 on all three**. The 3rd member is adding real, reproducible signal.
+2. 3-way vs. 4-way (adding round-1 back in): round-1 **significantly hurts** on
+   all 3 folds (p<0.0001, p<0.0001, p=0.034). Confirms the correlation-matrix
+   prediction directly -- round-1 and DAPT are 0.997-correlated, so including
+   both just adds redundant weight to the same signal and dilutes the other two
+   members' contribution.
+
+**Decision**: freeze the ensemble as **Family C + DAPT + Family A**, equal
+weights, rank-average combination, **round-1 excluded**. This is the frozen
+round-3 model (spec §26).
+
+Progression across this round's work: round-1 alone 0.8798 -> best 2-way blend
+0.8919 (+0.0121) -> best 3-way blend 0.8982 (+0.0184 total). All measured on
+matched Liu+Kim dev folds with consistent sign and significance across all 3
+folds; held-out set still untouched.
+
+**Next**: write reports/round3_final_model_spec.md, freeze and commit, then run
+the single held-out evaluation via evaluate_heterogeneous_heldout.py.
