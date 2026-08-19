@@ -274,3 +274,48 @@ selection rule for this round -- one fewer thing to overfit.
 
 **Next experiment**: Family A folds 2-5 (running), then a 3-way ensemble search
 over {Family C, DAPT, Family A}.
+
+---
+
+## 2026-08-19 — Family A (layerwise context) re-evaluated under matched validation (§11)
+
+**Hypothesis** (§11): round 2 found layerwise context conditioning helped its
+(Schwank-heavy) validation but never took it to a held-out evaluation. Under the
+corrected Liu+Kim-matched benchmark it should still help -- and, more importantly
+given the decorrelation finding, it should be *architecturally* distinct enough to
+extend the ensemble in a way domain adaptation could not.
+
+**Exact change**: trained Family A (`--context-strategy layerwise`) on official
+folds 2-5 with `--val-sources hsu2026 deepprime`, so checkpoint selection targets
+the benchmark. Fold 1 already existed from round-2 Stage A.
+
+**Result -- standalone, vs. each fold's round-1 control on the same Liu+Kim rows:**
+
+| Fold | round-1 | Family A | Δ |
+|---|---:|---:|---:|
+| 2 | 0.8764 | 0.8812 | +0.0048 |
+| 3 | 0.8801 | 0.8838 | +0.0037 |
+| 4 | 0.8756 | 0.8839 | +0.0083 |
+| 5 | 0.8835 | 0.8831 | −0.0004 |
+| **mean** | | | **+0.0041** |
+
+Positive on 3 of 4, mean +0.0041 -- nearly 3x domain adaptation's +0.0015 and the
+largest single-model effect measured in rounds 2-3. Consistent with round 2's
+finding that layerwise conditioning helps; the difference is that round 2 measured
+it on the wrong distribution and then discarded it for failing to stack with
+Family C.
+
+**A consistency problem caught before it propagated**: the fold-1 Family A
+checkpoint from round 2 was selected on Schwank-inclusive validation (its reported
+0.9214 is on a different validation set entirely and is not comparable to the
+0.881-0.884 above). Mixing it into a 5-fold ensemble would mean one member chosen
+by a different, known-mismatched criterion. Retraining fold 1 with
+`--val-sources` for consistency rather than reusing it.
+
+**Hypothesis supported**: yes on the standalone question. The decorrelation
+question is pending the fold-1 retrain, after which the full OOF ensemble search
+over {Family C, DAPT, Family A} can run.
+
+**Next experiment**: OOF-evaluate the consistent 5-fold Family A set, measure its
+correlation with the other members, and search all subsets. Then freeze and run
+the single held-out evaluation.
