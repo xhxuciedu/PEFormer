@@ -50,12 +50,27 @@ class PERankFormerConfig:
     feature_hidden_dim: int = 64
     moe_experts: int = 0  # round-2 Family B (§8): 0 disables MoE; else K in {4, 8},
     # replacing the head's hidden expansion with K context-gated experts.
+    sequence_mixer: str = "attention"  # round-4 §8: "attention" (Transformer self-
+    # attention, all prior rounds) | "ssm" (bidirectional diagonal state-space mixing).
+    # Only the intra-sequence mixing changes; cross-attention, pooling, context
+    # conditioning and head are identical, so a comparison isolates inductive bias.
+    ssm_state_dim: int = 64
 
     def __post_init__(self) -> None:
         if self.context_strategy == "layerwise" and not self.use_context:
             raise ValueError("context_strategy='layerwise' requires use_context=True")
         if self.moe_experts > 0 and not self.use_context:
             raise ValueError("moe_experts>0 requires use_context=True (the gate is context-conditioned)")
+        if self.sequence_mixer not in ("attention", "ssm"):
+            raise ValueError(f"unknown sequence_mixer: {self.sequence_mixer!r}")
+        if self.sequence_mixer == "ssm" and self.context_strategy == "layerwise":
+            # The layerwise path interleaves FiLM between individually-exposed encoder
+            # layers; the SSM stack is not currently decomposed that way. Fail loudly
+            # rather than silently ignoring one of the two settings.
+            raise ValueError(
+                "sequence_mixer='ssm' with context_strategy='layerwise' is not implemented; "
+                "use context_strategy='late' for SSM runs"
+            )
 
 
 def _encoder_layer(d_model: int, n_heads: int, ffn_dim: int, dropout: float) -> nn.TransformerEncoderLayer:
@@ -70,7 +85,14 @@ def _encoder_layer(d_model: int, n_heads: int, ffn_dim: int, dropout: float) -> 
     )
 
 
-def _encoder_stack(d_model: int, n_heads: int, ffn_dim: int, dropout: float, n_layers: int) -> nn.TransformerEncoder:
+def _encoder_stack(
+    d_model: int, n_heads: int, ffn_dim: int, dropout: float, n_layers: int,
+    mixer: str = "attention", ssm_state_dim: int = 64,
+) -> nn.Module:
+    if mixer == "ssm":
+        from .ssm import BiS4DStack
+
+        return BiS4DStack(d_model, ffn_dim, dropout, n_layers, ssm_state_dim)
     layer = _encoder_layer(d_model, n_heads, ffn_dim, dropout)
     # norm_first (pre-LN) encoder layers can't use PyTorch's nested-tensor fast path;
     # disabling it explicitly avoids a benign warning at every model construction.
@@ -299,8 +321,14 @@ class PERankFormer(nn.Module):
             self.cross_peg_films = nn.ModuleList([FiLM(ctx_dim, d) for _ in range(config.n_cross_blocks)])
             self.film = None
         else:
-            self.edit_encoder = _encoder_stack(d, config.n_heads, config.ffn_dim, config.dropout, config.n_edit_layers)
-            self.peg_encoder = _encoder_stack(d, config.n_heads, config.ffn_dim, config.dropout, config.n_peg_layers)
+            self.edit_encoder = _encoder_stack(
+                d, config.n_heads, config.ffn_dim, config.dropout, config.n_edit_layers,
+                config.sequence_mixer, config.ssm_state_dim,
+            )
+            self.peg_encoder = _encoder_stack(
+                d, config.n_heads, config.ffn_dim, config.dropout, config.n_peg_layers,
+                config.sequence_mixer, config.ssm_state_dim,
+            )
             self.film = FiLM(self.context_encoder.out_dim, pooled_dim) if config.use_context else None
 
         if config.n_features > 0:

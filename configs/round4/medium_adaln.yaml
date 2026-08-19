@@ -1,0 +1,45 @@
+# Round-4 experiment A (spec §7): medium-scale layerwise-context model.
+# d_model 512 / 8 heads / 8 edit layers / 6 pegRNA layers / 2 cross blocks / FFN 2048,
+# targeting 45-60M params. Layerwise FiLM conditioning (the round-3 Family A mechanism,
+# which was the most decorrelated member), simplex head, no ranking or correlation loss.
+# LR lowered from 3e-4 to 1.5e-4 per spec §17's guidance for larger models.
+seed: 20260812
+
+data:
+  corpus: data/processed/featurized_official.npz
+  vocab: data/processed/context_vocab_official.json
+  test_fold: 0
+  val_fold: 1
+  train_folds: [2, 3, 4, 5]
+
+model:
+  d_model: 512
+  n_heads: 8
+  ffn_dim: 2048
+  dropout: 0.10
+  n_edit_layers: 7
+  n_peg_layers: 6
+  n_cross_blocks: 2
+  context_embed_dim: 32
+  outcome_head: simplex
+  context_strategy: layerwise
+
+loss:
+  lambda_rank: 0.0
+  huber_beta: 0.1
+  min_pair_diff: 0.02
+  max_pairs_per_group: 4
+  outcome_head: simplex
+
+optim:
+  lr: 1.5e-4
+  weight_decay: 0.01
+  warmup_frac: 0.05
+  grad_clip: 1.0
+
+train:
+  batch_size: 512
+  max_epochs: 30
+  early_stop_patience: 30
+  early_stop_min_warmup_epochs: 3
+  precision: bf16

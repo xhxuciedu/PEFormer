@@ -138,6 +138,10 @@ def main() -> None:
              "selection/early-stopping targets the Liu+Kim benchmark rather than the "
              "Schwank-dominated official fold",
     )
+    ap.add_argument(
+        "--sequence-mixer", choices=["attention", "ssm"], default=None,
+        help="round-4 §8: intra-sequence mixing -- Transformer attention or bidirectional SSM",
+    )
     ap.add_argument("--lr", type=float, default=None, help="override optim.lr (fine-tuning uses a small LR)")
     args = ap.parse_args()
     if args.dev_folds_file and not args.dev_fold_col:
@@ -165,6 +169,8 @@ def main() -> None:
         cfg["loss"]["beta_corr"] = args.beta_corr
     if args.moe_experts is not None:
         cfg["model"]["moe_experts"] = args.moe_experts
+    if args.sequence_mixer is not None:
+        cfg["model"]["sequence_mixer"] = args.sequence_mixer
     if args.lr is not None:
         cfg["optim"]["lr"] = args.lr
 
