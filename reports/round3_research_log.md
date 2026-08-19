@@ -120,3 +120,72 @@ evaluated cleanly: train a global model *per dev fold* (so the dev fold's
 validation rows are never in any training stage), then fine-tune on that fold's
 Liu+Kim rows only. Requires new `--init-from` and `--train-sources` support in
 the training script.
+
+---
+
+## 2026-08-18 — Ensemble DIVERSITY beats architectural improvement (unplanned, decisive)
+
+**Hypothesis** (not in the round-3 spec's plan; came from the Stage-0 diagnosis):
+if round-1 and round-2 Family C are statistically indistinguishable *individually*
+(true Δ ~0.003, unresolvable), they may still make **different errors** -- in which
+case blending them is worth far more than the difference between them. Round 2
+treated them as competitors and picked one; that may have been the wrong frame.
+
+**Exact change**: none to any model. Blended the already-computed OOF dev
+predictions of the round-1 5-model ensemble and the Family C 5-model ensemble,
+via simple mean and via rank-average.
+
+**Matched-dev result (OOF, all 3 folds):**
+
+| Dev fold | round-1 | Family C | mean blend | **rank-avg blend** |
+|---|---:|---:|---:|---:|
+| 0 | 0.8759 | 0.8831 | 0.8885 | **0.8899** |
+| 1 | 0.8820 | 0.8834 | 0.8911 | **0.8926** |
+| 2 | 0.8814 | 0.8783 | 0.8893 | **0.8903** |
+| **mean** | 0.8798 | 0.8816 | 0.8896 | **0.8909** |
+
+Rank-average blend gains **+0.0093 over the best single model**, and beats mean
+blending on every fold. Paired protospacer-clustered bootstrap vs. the better
+single model, per fold:
+
+| Dev fold | observed Δ | 95% CI | bootstrap wins | p |
+|---|---:|---|---:|---:|
+| 0 | +0.0068 | [+0.0033, +0.0103] | 100% | <0.0001 |
+| 1 | +0.0092 | [+0.0061, +0.0124] | 100% | <0.0001 |
+| 2 | +0.0088 | [+0.0057, +0.0123] | 100% | <0.0001 |
+
+**Hypothesis supported: emphatically yes.** Consistent in sign and magnitude
+across all 3 folds, CI excludes zero everywhere, 100% bootstrap wins. Compare to
+the round-1-vs-FamilyC difference this same machinery could *not* resolve
+(p=0.03/0.66/0.35, signs disagreeing): the blend effect is ~3x larger and
+qualitatively different in reliability. Inter-model prediction correlation is
+0.909 -- correlated enough to be individually similar, decorrelated enough that
+averaging cancels error.
+
+**Why this matters more than the planned experiments**: round 2 spent an entire
+round trying to find a *better single architecture* and moved the needle by an
+unmeasurable ~0.003. Ten minutes of blending two *already-trained* models moved
+it by a reliably-measurable ~0.009. The dominant axis of improvement here is
+error decorrelation, not model quality.
+
+**Decision -- reprioritise round 3.** Ensemble diversity becomes the primary
+strategy (spec §25, promoted from last to first). Concretely:
+1. Round-1 + Family C rank-average is already a validated finalist requiring
+   zero new training -- both 5-checkpoint sets exist.
+2. Add more *architecturally distinct* members trained across all 5 official
+   folds, to extend the effect: Family A (layerwise context) currently has only
+   its val_fold=1 checkpoint from round-2 Stage A; folds 2-5 are worth training.
+3. Domain-adapted models (Phase 1, in flight) are valuable both on their own
+   merits *and* as a further-decorrelated ensemble member -- a
+   Liu+Kim-specialised model should make systematically different errors from a
+   Schwank-heavy-trained one.
+
+Extrapolating (with appropriate caution -- ensemble gains saturate): if a
+2-architecture blend gives +0.009 over its best member, a 3-4 architecture blend
+plausibly lands round-1's 0.8865 held-out near 0.895-0.90, which would clear the
+spec's "Strong" bar vs OptiPrime (Δρ ≥ 0.025 vs the current +0.0175) and
+approach "Excellent" (ρ_full ≥ 0.90). Not assumed -- to be measured on dev folds
+before any held-out query.
+
+**Next experiment**: Phase 1 domain adaptation (global models finishing now),
+then Family A official folds 2-5 to add a third diverse ensemble member.
