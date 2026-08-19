@@ -382,3 +382,48 @@ folds; held-out set still untouched.
 
 **Next**: write reports/round3_final_model_spec.md, freeze and commit, then run
 the single held-out evaluation via evaluate_heterogeneous_heldout.py.
+
+---
+
+## 2026-08-19 — Final held-out evaluation: significant win over round-1 AND OptiPrime
+
+User authorized the held-out evaluation. Ran the frozen Family C + DAPT +
+Family A ensemble (rank-average, round-1 excluded) via
+`evaluate_heterogeneous_heldout.py` on all 20,509 held-out rows (see
+`logs/heldout_evaluations.log`).
+
+**Result: 0.8933 full-set Spearman**, vs. round-1's 0.8865, round-2's 0.8831,
+OptiPrime's 0.8690. Improves on every prior round on every scope (full/Liu/Kim)
+-- the first time across all three rounds a change hasn't traded one off
+against another.
+
+| Scope | OptiPrime | round-1 | round-2 | round-3 |
+|---|---:|---:|---:|---:|
+| Full | 0.8690 | 0.8865 | 0.8831 | **0.8933** |
+| Liu | 0.8365 | 0.8349 | 0.8298 | **0.8462** |
+| Kim | 0.7320 | 0.7751 | 0.7727 | **0.7836** |
+
+**Statistical significance** (paired protospacer-clustered bootstrap, 5000
+resamples): round-3 vs round-1 full +0.0068 [+0.0042,+0.0094] p<0.0001; vs
+OptiPrime full +0.0243 [+0.0142,+0.0345] p<0.0001. Both partitions individually
+significant vs round-1 too (Liu p=0.01, Kim p<0.0001) -- round 3 is the first
+round to beat round-1 significantly on Liu specifically. Kim vs OptiPrime:
++0.0515, p<0.0001, and round-3 wins **10/10** individual Kim conditions
+(n>=50 each).
+
+Liu vs OptiPrime remains non-significant (+0.0098, p=0.33) -- statistically
+tied, same qualitative conclusion as round 1, but no longer trending negative
+the way round-2's single-architecture change did.
+
+**Success criteria** (spec §29): "Useful" clearly met (+0.0068 vs round-1,
+p<0.0001). "Strong" (Δρ_OptiPrime>=0.025) narrowly missed at 0.0243. "Excellent"
+(ρ_full>=0.90) not met at 0.8933. Reported honestly rather than rounded up.
+
+Wrote `reports/round3_results.md` (full spec-§33 writeup) documenting every
+phase actually run, every phase skipped and why, and the central methodological
+finding: at this project's measurement resolution (~750-800 protospacer
+clusters), ensemble diversity is an order of magnitude more valuable than
+further single-architecture search, and the two are easy to conflate because a
+diversity-driving change (Family A, Family C) also happens to look like a small
+standalone improvement -- but the standalone improvement is not where most of
+the value comes from.
