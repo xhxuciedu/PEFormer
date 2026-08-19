@@ -116,6 +116,22 @@ def main() -> None:
         "--dev-fold-col", type=str, default=None,
         help="column in --dev-folds-file to use, e.g. round3_dev_fold_0 (values 'train'/'val')",
     )
+    ap.add_argument(
+        "--init-from", type=str, default=None,
+        help="round-3 §8: initialise weights from this checkpoint (domain-adaptive fine-tuning)",
+    )
+    ap.add_argument(
+        "--train-sources", nargs="+", default=None,
+        choices=["hsu2026", "deepprime", "pridict_pridict2"],
+        help="round-3 §8-10: restrict TRAINING rows to these source studies "
+             "(validation is unaffected). Liu=hsu2026, Kim=deepprime, Schwank=pridict_pridict2",
+    )
+    ap.add_argument(
+        "--schwank-replay-frac", type=float, default=None,
+        help="round-3 §9: keep this fraction of the Schwank training rows when "
+             "--train-sources restricts to Liu+Kim (e.g. 0.10 for 10%% replay)",
+    )
+    ap.add_argument("--lr", type=float, default=None, help="override optim.lr (fine-tuning uses a small LR)")
     args = ap.parse_args()
     if args.dev_folds_file and not args.dev_fold_col:
         ap.error("--dev-folds-file requires --dev-fold-col")
@@ -142,6 +158,8 @@ def main() -> None:
         cfg["loss"]["beta_corr"] = args.beta_corr
     if args.moe_experts is not None:
         cfg["model"]["moe_experts"] = args.moe_experts
+    if args.lr is not None:
+        cfg["optim"]["lr"] = args.lr
 
     set_seed(cfg["seed"])
     device = torch.device("cuda")
@@ -172,6 +190,34 @@ def main() -> None:
     else:
         val_idx = np.where(fold == cfg["data"]["val_fold"])[0]
         train_idx = np.where(np.isin(fold, cfg["data"]["train_folds"]))[0]
+    if args.train_sources is not None:
+        # Round-3 §8-10: restrict TRAINING rows by source study. Validation is never
+        # filtered -- the matched dev fold's Liu+Kim validation set is the selection
+        # target regardless of what the model trains on.
+        src = pd.read_parquet(cfg["data"].get("source_df", "data/processed/optiprime_official_318471.parquet"),
+                              columns=["record_id", "source_study"])
+        pos_to_source = src.set_index("record_id").source_study.reindex(corpus.record_id).to_numpy()
+        train_source = pos_to_source[train_idx]
+        keep = np.isin(train_source, args.train_sources)
+
+        if args.schwank_replay_frac:
+            # §9: keep a random subset of otherwise-excluded Schwank rows, so late-stage
+            # optimization is Liu+Kim-dominated without fully discarding Schwank signal.
+            excluded_schwank = np.where((train_source == "pridict_pridict2") & ~keep)[0]
+            rng = np.random.default_rng(cfg["seed"])
+            n_keep = int(round(args.schwank_replay_frac * len(excluded_schwank)))
+            keep[rng.choice(excluded_schwank, size=n_keep, replace=False)] = True
+            logger.info("Schwank replay: added %d of %d excluded Schwank rows (%.0f%%)",
+                        n_keep, len(excluded_schwank), 100 * args.schwank_replay_frac)
+
+        n_before = len(train_idx)
+        train_idx = train_idx[keep]
+        logger.info(
+            "train-source filter %s: %d -> %d rows (%s)",
+            args.train_sources, n_before, len(train_idx),
+            {s: int((train_source[keep] == s).sum()) for s in np.unique(train_source[keep])},
+        )
+
     logger.info("train=%d val=%d test=%d (test fold locked, not touched)", len(train_idx), len(val_idx), len(test_idx))
 
     if args.feature_branch:
@@ -189,6 +235,18 @@ def main() -> None:
     )
     model = PERankFormer(model_cfg).to(device)
     logger.info("model: %.1fM params", model.num_parameters() / 1e6)
+
+    if args.init_from:
+        # Round-3 §8: domain-adaptive fine-tuning. Strict load -- an architecture
+        # mismatch between the pretrained checkpoint and this run's config should be a
+        # hard error, not silently-random weights for the mismatched submodules.
+        init_ckpt = torch.load(args.init_from, map_location=device, weights_only=False)
+        model.load_state_dict(init_ckpt["model_state_dict"])
+        logger.info(
+            "initialised from %s (its best epoch %s, val_spearman %.4f)",
+            args.init_from, init_ckpt.get("epoch"),
+            init_ckpt.get("config", {}).get("_best_val_spearman", float("nan")),
+        )
 
     weights = LossWeights(
         lambda_rank=cfg["loss"]["lambda_rank"],
@@ -323,6 +381,12 @@ def main() -> None:
         "checkpoint_final": str(ckpt_dir / "final.pt"),
         "dev_folds_file": args.dev_folds_file,
         "dev_fold_col": args.dev_fold_col,
+        "init_from": args.init_from,
+        "train_sources": args.train_sources,
+        "schwank_replay_frac": args.schwank_replay_frac,
+        "lr": cfg["optim"]["lr"],
+        "n_train_rows": int(len(train_idx)),
+        "n_val_rows": int(len(val_idx)),
     }
     (run_dir / "run_info.json").write_text(json.dumps(run_info, indent=2))
     logger.info("done: %s", json.dumps(run_info, indent=2))
