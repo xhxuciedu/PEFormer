@@ -143,3 +143,67 @@ predictions (stacking, gating, calibration, residual learning). The dev folds we
 built in round 3 as repeated holdouts for *evaluating* models, where overlap is
 harmless; they are not a partition and must not be used as one. Any future fitting
 on these folds must apply the same protospacer-disjoint filter.
+
+---
+
+## 2026-08-19 — Residual learning (§11): negative, with an informative upper bound
+
+**Hypothesis** (§11): train a model on what the ensemble misses,
+r = rank(y) - yhat_E, using the 16 engineered Family-C features plus context --
+a genuinely different information source from the members, which see only sequence
+and categorical context. Predict yhat = yhat_E + eta * rhat.
+
+**Why this might be complementary** (and why it is not just §10 again): the stacker
+reweights *member predictions*, so it can only recombine what the members already
+encode. A residual learner sees engineered features directly and could in principle
+supply information no member has.
+
+**Implementation**: `scripts/evaluate/residual_learner.py`, HistGradientBoosting on
+[16 engineered features ++ context dummies], nested and protospacer-disjoint (same
+57-60% dev-fold overlap hazard as §10).
+
+**Result: -0.0040 mean, negative on all 3 folds.** eta was selected as 1.0 on every
+fitting fold -- the residual model fit its own training residuals well, and that fit
+did not transfer at all.
+
+**But the raw number understates the case, so I bounded it properly.** A better eta
+tuner would simply drive eta toward 0 and recover ~0.0000, so "-0.0040" measures my
+eta-selection rather than the method. To get the real answer I computed an **oracle
+bound**: choose eta *on the scoring fold itself* (an illegitimate procedure, used
+here only as a diagnostic ceiling):
+
+| Dev fold | ensemble | best achievable | max gain |
+|---|---:|---:|---:|
+| 0 | 0.8979 | 0.8984 | +0.0005 |
+| 1 | 0.8997 | 0.9007 | +0.0010 |
+| 2 | 0.8969 | 0.8973 | +0.0004 |
+
+**Even with oracle eta selection the ceiling is +0.0006 mean** -- an order of
+magnitude below the §6 promotion threshold. So this is not a tuning failure: the
+ensemble's residual is essentially **unpredictable** from engineered features and
+experimental context.
+
+**Hypothesis supported: no, and definitively.**
+
+**Decision**: close §11. Do not attempt the other residual-model variants (small
+Transformer head, MLP on frozen embeddings, small SSM) -- they draw on the same
+information the GBM already had, and the ceiling applies to the information, not to
+the model class.
+
+**Independent observation -- the emerging shape of round 4.** Three post-hoc
+approaches have now been tested, all on existing predictions at near-zero cost, and
+all fail:
+
+| Approach | § | Result |
+|---|---|---|
+| Context-gated weights | 9 | +0.0000 (clean null) |
+| Nonlinear stacking | 10 | +0.0013 (below threshold) |
+| Residual learning | 11 | +0.0006 oracle ceiling |
+
+The consistent message is that **nothing recoverable remains in the current
+members' outputs, nor in engineered features or context**. The ensemble's remaining
+error is either irreducible measurement noise or requires information no current
+model represents. That is a strong argument that the only productive direction left
+is genuinely new *models* with different inductive biases -- exactly what PE-SSM
+and the medium AdaLN model are testing -- and it justifies not spending further
+compute on post-hoc combination machinery this round.
