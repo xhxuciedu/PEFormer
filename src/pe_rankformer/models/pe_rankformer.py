@@ -40,6 +40,18 @@ class PERankFormerConfig:
     context_embed_dim: int = 32
     use_context: bool = True  # False = Model C ablation (no FiLM conditioning)
     outcome_head: str = "scalar"  # "scalar" | "simplex" (3-way outcome distribution)
+    # | "ordinal" (round-4: CORAL-style cumulative-threshold head). The evaluation metric
+    # is Spearman, which depends only on order, so a head that directly estimates *which
+    # quantile* a row falls into is metric-matched in a way neither regression nor the
+    # simplex head is. It predicts K-1 independent cumulative indicators P(y > t_k) at
+    # fixed target quantiles t_k; the score is their mean, an estimate of the normalised
+    # rank. Chosen for round 4 mainly because its loss geometry (K-1 binary decisions on
+    # the target's marginal distribution) differs fundamentally from the simplex head's
+    # 3-way cross-entropy over outcome proportions, and error decorrelation -- not
+    # standalone accuracy -- is what the round-3 analysis showed the ensemble rewards.
+    ordinal_thresholds: tuple[float, ...] = ()  # required iff outcome_head == "ordinal";
+    # fixed quantiles of the *training* efficiency distribution, stored in the checkpoint
+    # so evaluation reproduces the exact same score mapping.
     context_strategy: str = "late"  # "late" (single FiLM after pooling) | "layerwise" (round-2
     # Family A: FiLM applied at every edit/pegRNA encoder layer and every cross-attention
     # block, so context modulates sequence representation throughout the network rather
@@ -63,6 +75,18 @@ class PERankFormerConfig:
             raise ValueError("moe_experts>0 requires use_context=True (the gate is context-conditioned)")
         if self.sequence_mixer not in ("attention", "ssm"):
             raise ValueError(f"unknown sequence_mixer: {self.sequence_mixer!r}")
+        if self.outcome_head not in ("scalar", "simplex", "ordinal"):
+            raise ValueError(f"unknown outcome_head: {self.outcome_head!r}")
+        if self.outcome_head == "ordinal":
+            t = self.ordinal_thresholds
+            if len(t) < 2:
+                raise ValueError("outcome_head='ordinal' requires >=2 ordinal_thresholds")
+            if any(b <= a for a, b in zip(t, t[1:])):
+                # Non-increasing thresholds would make the cumulative targets incoherent
+                # (P(y>t_k) must be non-increasing in k) and silently corrupt training.
+                raise ValueError(f"ordinal_thresholds must be strictly increasing, got {t}")
+        elif self.ordinal_thresholds:
+            raise ValueError("ordinal_thresholds set but outcome_head is not 'ordinal'")
         if self.sequence_mixer == "ssm" and self.context_strategy == "layerwise":
             # The layerwise path interleaves FiLM between individually-exposed encoder
             # layers; the SSM stack is not currently decomposed that way. Fail loudly
@@ -343,7 +367,12 @@ class PERankFormer(nn.Module):
         # the indel signal the scalar head throws away -- without importing any
         # biochemical reaction graph (task spec §11 forbids that, but the mutual
         # exclusivity of measured outcomes is a property of the assay, not a mechanism).
-        n_out = 3 if config.outcome_head == "simplex" else 1
+        if config.outcome_head == "simplex":
+            n_out = 3
+        elif config.outcome_head == "ordinal":
+            n_out = len(config.ordinal_thresholds)
+        else:
+            n_out = 1
         if config.moe_experts > 0:
             # Disaggregated head, only used for MoE (round-2 Family B, §8) -- kept as a
             # separate code path rather than the default so every pre-round-2 checkpoint
@@ -430,8 +459,8 @@ class PERankFormer(nn.Module):
             out = self.head_out(hidden)
         else:
             out = self.head(pooled)
-        if self.config.outcome_head == "simplex":
-            return out  # (B, 3) logits over [unedited, edited, indel]
+        if self.config.outcome_head in ("simplex", "ordinal"):
+            return out  # simplex: (B,3) outcome logits; ordinal: (B,K-1) threshold logits
         return out.squeeze(-1)  # (B,) raw score
 
     def ranking_score(self, out: torch.Tensor) -> torch.Tensor:
@@ -442,11 +471,20 @@ class PERankFormer(nn.Module):
         """
         if self.config.outcome_head == "simplex":
             return out[:, 1] - out[:, 0]
+        if self.config.outcome_head == "ordinal":
+            # Mean of the cumulative probabilities: monotone in the predicted quantile,
+            # and already the quantity the metric cares about.
+            return torch.sigmoid(out).mean(dim=-1)
         return out
 
     def efficiency_from_output(self, out: torch.Tensor) -> torch.Tensor:
         if self.config.outcome_head == "simplex":
             return torch.softmax(out, dim=-1)[:, 1]
+        if self.config.outcome_head == "ordinal":
+            # (1/(K-1)) * sum_k P(y > t_k) in [0,1]: an estimate of the row's normalised
+            # rank, not of its efficiency. Rank-correlation metrics are unaffected, but
+            # absolute-error metrics against raw efficiency are meaningless for this head.
+            return torch.sigmoid(out).mean(dim=-1)
         return torch.sigmoid(out)
 
     def predict_efficiency(self, batch: dict[str, torch.Tensor]) -> torch.Tensor:

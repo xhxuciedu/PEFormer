@@ -84,6 +84,12 @@ def main() -> None:
         help="3-way outcome distribution head over (unedited, edited, indel)",
     )
     ap.add_argument(
+        "--ordinal-head", action="store_true",
+        help="round-4 CORAL-style ordinal head: K-1 cumulative-threshold predictions at "
+             "quantiles of the training efficiency distribution (metric-matched to Spearman)",
+    )
+    ap.add_argument("--ordinal-bins", type=int, default=20, help="K for --ordinal-head")
+    ap.add_argument(
         "--regression-space", choices=["raw", "logit"], default=None,
         help="regression loss space (task spec §19 comparison)",
     )
@@ -163,6 +169,11 @@ def main() -> None:
     if args.simplex_head:
         cfg["model"]["outcome_head"] = "simplex"
         cfg["loss"]["outcome_head"] = "simplex"
+    if args.ordinal_head:
+        if args.simplex_head:
+            raise SystemExit("--ordinal-head and --simplex-head are mutually exclusive")
+        cfg["model"]["outcome_head"] = "ordinal"
+        cfg["loss"]["outcome_head"] = "ordinal"
     if args.context_strategy is not None:
         cfg["model"]["context_strategy"] = args.context_strategy
     if args.beta_corr is not None:
@@ -253,6 +264,19 @@ def main() -> None:
             len(FEATURE_COLS), args.features_path, len(train_idx),
         )
 
+    if cfg["model"].get("outcome_head") == "ordinal":
+        # Thresholds are quantiles of the TRAINING targets only -- deriving them from the
+        # full corpus would leak the validation/test target distribution into the model's
+        # output parameterisation. Duplicates are dropped so the thresholds stay strictly
+        # increasing (efficiency has heavy mass at 0, so low quantiles can coincide).
+        qs = np.linspace(0.0, 1.0, args.ordinal_bins + 1)[1:-1]
+        thr = np.unique(np.quantile(corpus.target[train_idx], qs)).astype(float)
+        cfg["model"]["ordinal_thresholds"] = tuple(thr.tolist())
+        logger.info(
+            "ordinal head: %d thresholds from %d training targets (range %.4f - %.4f)",
+            len(thr), len(train_idx), thr[0], thr[-1],
+        )
+
     model_cfg = PERankFormerConfig(
         context_fields=vocab.fields, context_vocab_sizes=vocab.sizes(), **cfg["model"]
     )
@@ -277,6 +301,10 @@ def main() -> None:
         min_pair_diff=cfg["loss"]["min_pair_diff"],
         regression_space=cfg["loss"].get("regression_space", "raw"),
         outcome_head=cfg["loss"].get("outcome_head", "scalar"),
+        ordinal_thresholds=(
+            torch.tensor(model_cfg.ordinal_thresholds, dtype=torch.float32)
+            if model_cfg.outcome_head == "ordinal" else None
+        ),
         beta_corr=cfg["loss"].get("beta_corr", 0.0),
     )
     max_pairs_per_group = cfg["loss"]["max_pairs_per_group"]

@@ -95,6 +95,30 @@ def simplex_loss(logits: torch.Tensor, edited: torch.Tensor, indel: torch.Tensor
     return torch.where(observed, loss_full, loss_marg).mean()
 
 
+
+def ordinal_loss(
+    logits: torch.Tensor, target: torch.Tensor, thresholds: torch.Tensor
+) -> torch.Tensor:
+    """CORAL-style cumulative-threshold loss (round 4).
+
+    `logits` is (B, K-1): logit k predicts the cumulative indicator 1[y > t_k] at fixed
+    target quantile t_k. Trained as K-1 independent binary problems with BCE; the
+    prediction head then reports their mean, which estimates the row's normalised rank.
+
+    Why this and not regression or the simplex head: Spearman depends only on order, so
+    supervising the *cumulative distribution* of the target is directly matched to the
+    metric, and it is robust to the heavy right skew of prime-editing efficiency (a
+    Huber/MSE objective spends most of its gradient on the few high-efficiency rows).
+
+    Unlike `simplex_loss` this head sees no indel signal at all. That is deliberate: it
+    is a different *view* of the same rows, and error decorrelation is the point.
+    """
+    # (B, K-1) binary targets; comparison is strict so a row exactly at a threshold
+    # counts as below it, consistently with how the thresholds were derived (quantiles).
+    y = (target.unsqueeze(-1) > thresholds.unsqueeze(0)).to(logits.dtype)
+    return F.binary_cross_entropy_with_logits(logits, y)
+
+
 def correlation_loss(score: torch.Tensor, target: torch.Tensor, eps: float = 1e-8) -> torch.Tensor:
     """1 - batch Pearson correlation between `score` and `target`.
 
@@ -125,7 +149,8 @@ class LossWeights:
     huber_beta: float = 0.1
     min_pair_diff: float = 0.02
     regression_space: str = "raw"  # "raw" or "logit" (task spec §19 comparison)
-    outcome_head: str = "scalar"  # "scalar" or "simplex"
+    outcome_head: str = "scalar"  # "scalar" | "simplex" | "ordinal"
+    ordinal_thresholds: torch.Tensor | None = None  # required for the ordinal head
     beta_corr: float = 0.0  # round-2 §13: weight on `correlation_loss`
 
 
@@ -144,6 +169,9 @@ def total_loss(
     if weights.outcome_head == "simplex":
         assert target_indel is not None, "simplex head requires target_indel"
         l_reg = simplex_loss(score, target, target_indel)
+    elif weights.outcome_head == "ordinal":
+        assert weights.ordinal_thresholds is not None, "ordinal head requires thresholds"
+        l_reg = ordinal_loss(score, target, weights.ordinal_thresholds.to(score.device))
     else:
         l_reg = regression_loss(
             score, target, huber_beta=weights.huber_beta, space=weights.regression_space
