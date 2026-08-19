@@ -231,3 +231,38 @@ already complete at 0.9220).
 **GPU 2 is now free.** Next: use it to accelerate Stage B by running one of
 the remaining Family C CV folds there in parallel with GPU 6, cutting Stage-B
 wall time roughly in half.
+
+---
+
+## 2026-08-18 — Final held-out evaluation: validation gain did not transfer
+
+User authorized the held-out evaluation. Wrote `evaluate_familyC_heldout.py`
+(evaluate_ensemble.py doesn't support the feature branch) and ran the frozen
+5-model Family C ensemble on all 20,509 held-out rows.
+
+**Result: 0.8831 full-set Spearman**, vs. round-1's 0.8865 and OptiPrime's
+0.8690. Round-2 vs round-1: -0.0034, 95% CI [-0.0084, +0.0014], p=0.18 (not
+significant, but leans negative -- round-2 loses 91% of bootstrap resamples).
+Round-2 vs OptiPrime: still significant, +0.0141, p=0.018.
+
+This does not match the +0.0028 validation gain, confirmed stable across all
+5 CV folds (std 0.0011). Diagnosed the likely cause rather than assume noise:
+Schwank contributes 174,067 of 297,962 training rows (58%) but **zero**
+held-out rows (no held-out split exists for Schwank in OptiPrime's own data).
+Every CV fold's validation set is drawn from the full training pool and is
+therefore majority-Schwank, while the actual held-out target is 100% Liu+Kim.
+Verified this is a real distributional gap (not a bug): PBS length, RTT
+length, PBS GC%, and edit-position-from-nick each differ meaningfully in mean
+and spread between the training-fold pool and the held-out fold. Feature
+coverage also differs (RuleSet3 missing 3.84% of train-fold rows vs 0.85% of
+held-out rows).
+
+One genuine positive: within-target/selection metrics improved (within-target
+Spearman 0.5939 vs 0.5814, top-1 regret 0.0057 vs 0.0060, top-1 recall 0.733
+vs 0.720), though CIs overlap too much to call this established.
+
+Wrote `reports/round2_results.md` (full spec-section-38 writeup) and
+`reports/round2_final_model_spec.md`'s companion result. Central
+recommendation for any future round: fix the validation-scheme composition
+mismatch (§16/§19 of round2_results.md) before trusting further Stage A/B
+signal.
