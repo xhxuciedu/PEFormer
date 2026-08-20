@@ -207,3 +207,77 @@ model represents. That is a strong argument that the only productive direction l
 is genuinely new *models* with different inductive biases -- exactly what PE-SSM
 and the medium AdaLN model are testing -- and it justifies not spending further
 compute on post-hoc combination machinery this round.
+
+---
+
+## 2026-08-19 — Phase 1: 11-candidate screen. The ordinal head works.
+
+Trained 11 candidate members on dev fold 0 in parallel, all 30 epochs, no failures.
+Diversity metrics against the frozen round-3 ensemble (`round2_familyC_oof` +
+`r3_dapt_lr3e5_oof` + `r3_familyA_oof`, 0.8979 on this fold):
+
+| candidate | S1 solo | S2 corr | S2r resid | **S3 gain** | verdict |
+|---|---:|---:|---:|---:|---|
+| **ordinal + SSM** | **0.8972** | **0.9407** | **0.6863** | **+0.0092** | promote |
+| PE-SSM | 0.8879 | 0.9499 | 0.7564 | +0.0060 | promote |
+| ordinal + features | 0.8856 | 0.9462 | 0.7260 | +0.0054 | promote |
+| ordinal + layerwise | 0.8763 | 0.9379 | 0.6907 | +0.0042 | promote |
+| ordinal (base) | 0.8803 | 0.9443 | 0.7075 | +0.0040 | promote |
+| bagged + ordinal | 0.8696 | 0.9356 | 0.6856 | +0.0029 | borderline, hold |
+| medium AdaLN | 0.8724 | 0.9493 | 0.7649 | +0.0022 | reject |
+| Family A seed 2 | 0.8711 | 0.9479 | 0.7628 | +0.0022 | reject |
+| bagged x3 | 0.854-0.862 | ~0.947 | ~0.77 | +0.0002 / -0.0008 / -0.0022 | reject |
+
+**The ordinal-head hypothesis is confirmed, and confirmed by the right evidence.**
+The four lowest residual correlations in the table (0.6856-0.7075) all belong to
+ordinal-head models; every simplex-head candidate sits at 0.76-0.78. The prediction
+was specifically that a different *loss geometry* would produce different *errors*,
+and S2r is the direct measurement of exactly that. It is not a post-hoc story fitted
+to a good number.
+
+`ordinal + SSM` is the strongest single result of the project so far: it stacks the
+two independent axes (objective and sequence mixing) and lands at both the highest
+standalone score and the lowest correlation with the ensemble -- normally a trade-off.
+Its +0.0092 alone exceeds the +0.0067 needed to reach 0.90.
+
+**Bagging failed, and the reason is informative.** All four bagged members scored
+worst on S1 *and* failed to compensate on S3 (+0.0002 to -0.0022). Dropping 30% of
+protospacers cost more accuracy than the induced diversity was worth. With ~38k
+training protospacers the models are not in a variance-limited regime where bagging
+pays; they are limited by what the architecture and objective can express. This is
+consistent with everything else round 4 has found.
+
+**Sub-architecture scale changes are dead ends.** Medium AdaLN (+0.0022) and a
+reseeded Family A (+0.0022) both land below the bar -- more capacity and more seeds
+do not produce new errors. Only new *mechanisms* did.
+
+### The caveat that matters, stated before the numbers get quoted
+
+**These S1/S3 figures are optimistically biased and must not be compared against
+the incumbents' numbers.** Each candidate trained on dev fold 0's training split and
+had its best epoch chosen on that same fold's validation rows -- the rows it is then
+scored on. The incumbent members are out-of-fold on the official split and carry no
+such bias. Best-of-30-epochs selection on 35,649 rows is worth roughly +0.001-0.003,
+which is the same order as the effects being measured.
+
+So Phase 1 is a *screen*: it ranks candidates that all share the identical bias, and
+that ranking is trustworthy. It does not establish what any member is worth. The
+"positive on all folds" clause of the promotion rule is also vacuous here, since only
+one fold was run.
+
+For the same reason the round-4 lockbox **cannot** be used to check these
+checkpoints: its rows were excluded from every dev *validation* set, which means they
+sat in the dev *training* splits, so these models trained on them. The lockbox
+remains valid only for models trained on the official split.
+
+**Phase 2 (running): all five promoted members retrained on the official 5-fold
+split**, 25 runs, which puts them on exactly the same OOF footing as the incumbents
+and makes the Phase-3 comparison honest.
+
+### Process note
+
+The first Phase-2 scheduler assumed ~15GB per run and packed fixed slots; the SSM
+runs actually need ~22GB and 9 of 25 jobs OOM'd on launch. Replaced the guess with
+`queue_runs.sh`, which reads each GPU's real free memory and dispatches only when a
+card can hold the job. It skips runs whose checkpoint already exists, so the 17
+missing jobs were requeued without disturbing the 8 still training.
