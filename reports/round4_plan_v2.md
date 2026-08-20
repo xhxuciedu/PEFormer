@@ -114,3 +114,44 @@ re-selecting on the test set would not mean anything.
   guarantee.
 - **The ordinal head may simply be worse standalone.** That is acceptable if it
   decorrelates; it is only a failure if it is both worse *and* correlated.
+
+---
+
+## Pre-registered selection protocol for Phase 3
+
+Written **before** any ensemble-search results exist, because the failure mode here is
+choosing a rule after seeing which rule wins.
+
+**The hazard.** With 8 candidate members there are 255 non-empty subsets. Picking the
+best of 255 correlated candidates on three dev folds will overfit those folds; a
+plausible selection bias is +0.002-0.005, the same size as the effects being chased.
+The dev folds have also been used for selection repeatedly across rounds 3 and 4, so
+they are worn.
+
+**The rule, fixed in advance:**
+
+1. **Rank subsets on dev folds** using the frozen combination rule (equal-weight rank
+   average). Record the top 5, not just the winner.
+2. **Require unanimity**: a subset is only eligible if it beats the round-3 ensemble
+   on *every* dev fold, not on the mean. Round-3's Stage-0 diagnosis found fold-level
+   sign disagreement at the ~0.003 scale, so a mean-only win is not evidence.
+3. **Gate on the lockbox** (17,975 rows, 367 protospacers never used for selection),
+   scored OOF. This is the only fresh selection surface left.
+4. **Resolve disagreement conservatively.** If the dev winner is not also the lockbox
+   winner, take the candidate that is **better on the lockbox**, and among near-ties
+   on the lockbox (within 0.001) take the one with **fewer members**. Rationale: the
+   lockbox is unworn, and a smaller ensemble has fewer ways to have gotten lucky.
+5. **Freeze** the choice in `reports/round4_final_model_spec.md` before any held-out
+   evaluation.
+6. **Evaluate on the official held-out set exactly once**, with a 5000-resample
+   protospacer-clustered paired bootstrap against OptiPrime.
+
+**Committed in advance:** whatever step 6 returns is the reported result. If the
+final ensemble lands below 0.90, that is the finding. I will not re-open the search
+against the held-out set, because a number obtained by re-selecting on the test set
+does not mean anything -- and reporting it as though it did would be worse than
+missing the target.
+
+**Also committed:** the round-3 ensemble (0.8933) will be evaluated on the same
+held-out rows in the same run, so the round-3 -> round-4 delta is measured on
+identical data rather than quoted across runs.
