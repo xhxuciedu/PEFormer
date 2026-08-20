@@ -151,6 +151,9 @@ class LossWeights:
     regression_space: str = "raw"  # "raw" or "logit" (task spec §19 comparison)
     outcome_head: str = "scalar"  # "scalar" | "simplex" | "ordinal"
     ordinal_thresholds: torch.Tensor | None = None  # required for the ordinal head
+    head_segments: list | None = None  # round-5: the model's `head_segments` layout.
+    # Supplied by the model rather than reconstructed here, so the objective and the
+    # network cannot disagree about which logits mean what.
     beta_corr: float = 0.0  # round-2 §13: weight on `correlation_loss`
 
 
@@ -162,22 +165,60 @@ def total_loss(
     weights: LossWeights,
     rank_score: torch.Tensor | None = None,
     target_indel: torch.Tensor | None = None,
+    target_ctx_q: torch.Tensor | None = None,
 ) -> tuple[torch.Tensor, dict[str, float]]:
     """`score` is the model's raw head output: (B,) for the scalar head, (B,3) logits for
     the simplex head. `rank_score` is the monotone scalar used for ranking (supplied by
     the model, since it differs between head types)."""
+    # With round-5 auxiliary heads the output is wider than the primary segment, so the
+    # primary loss must be applied to its own slice rather than to the whole tensor.
+    primary = score
+    if weights.head_segments:
+        seg0 = weights.head_segments[0]
+        primary = score[..., seg0["start"]:seg0["end"]]
+
     if weights.outcome_head == "simplex":
         assert target_indel is not None, "simplex head requires target_indel"
-        l_reg = simplex_loss(score, target, target_indel)
+        l_reg = simplex_loss(primary, target, target_indel)
     elif weights.outcome_head == "ordinal":
         assert weights.ordinal_thresholds is not None, "ordinal head requires thresholds"
-        l_reg = ordinal_loss(score, target, weights.ordinal_thresholds.to(score.device))
+        l_reg = ordinal_loss(primary, target, weights.ordinal_thresholds.to(score.device))
     else:
         l_reg = regression_loss(
-            score, target, huber_beta=weights.huber_beta, space=weights.regression_space
+            primary, target, huber_beta=weights.huber_beta, space=weights.regression_space
         )
     rs = score if rank_score is None else rank_score
     l_rank = ranking_loss(rs, target, pairs_i, pairs_j, min_diff=weights.min_pair_diff)
     l_corr = correlation_loss(rs, target) if weights.beta_corr > 0 else rs.new_zeros(())
     loss = l_reg + weights.lambda_rank * l_rank + weights.beta_corr * l_corr
-    return loss, {"loss": loss.item(), "reg": l_reg.item(), "rank": l_rank.item(), "corr": l_corr.item()}
+    parts = {"loss": 0.0, "reg": l_reg.item(), "rank": l_rank.item(), "corr": l_corr.item()}
+
+    # --- round-5 auxiliary heads -----------------------------------------------------
+    # Each auxiliary segment is a separate supervised task on the same shared trunk. It
+    # contributes to the gradient but never to the prediction: the ranking score is
+    # sliced from the primary segment only (see PERankFormer.ranking_score).
+    if weights.head_segments is not None and len(weights.head_segments) > 1:
+        l_aux = score.new_zeros(())
+        for seg in weights.head_segments[1:]:
+            z = score[..., seg["start"]:seg["end"]]
+            if seg["kind"] == "simplex":
+                assert target_indel is not None, "aux simplex head requires target_indel"
+                l_s = simplex_loss(z, target, target_indel)
+            elif seg["kind"] == "ordinal":
+                thr = torch.as_tensor(seg["thresholds"], dtype=score.dtype, device=score.device)
+                l_s = ordinal_loss(z, target, thr)
+            elif seg["kind"] == "ordinal_ctx":
+                # Context-normalised ordinal: the target is already the row's quantile
+                # *within its experimental context*, so the thresholds are the uniform
+                # grid on [0,1] rather than quantiles of the global distribution.
+                assert target_ctx_q is not None, "aux context-ordinal head requires target_ctx_q"
+                k = seg["end"] - seg["start"]
+                thr = torch.linspace(0.0, 1.0, k + 2, device=score.device, dtype=score.dtype)[1:-1]
+                l_s = ordinal_loss(z, target_ctx_q, thr)
+            else:
+                raise ValueError(f"unknown auxiliary head kind: {seg['kind']!r}")
+            l_aux = l_aux + seg["weight"] * l_s
+            parts[f"aux_{seg['kind']}"] = l_s.item()
+        loss = loss + l_aux
+    parts["loss"] = loss.item()
+    return loss, parts

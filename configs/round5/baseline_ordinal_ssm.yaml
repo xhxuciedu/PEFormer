@@ -1,0 +1,61 @@
+# FROZEN round-5 baseline: Ordinal-SSM (round-5 spec §3). Do not edit.
+#
+# This is the round-4 `ordSSM` recipe, promoted to be the round-5 reference model.
+# It reproduces `r4p2_ordSSM_cv{1..5}` exactly: ordinal outcome head (K=20 requested,
+# 17-18 distinct thresholds after de-duplication) over a bidirectional diagonal
+# state-space sequence mixer, context conditioned late.
+#
+# Verified round-4 performance:
+#   OOF standalone, mean of 3 matched dev folds : 0.9082  (Liu 0.8444, Kim 0.7912)
+#   -- above the entire round-3 3-member ensemble (0.8982)
+#   OOF on the round-4 lockbox                  : 0.9040
+#   As a member of the frozen round-4 ensemble  : held-out 0.9079
+#
+# Use with --val-fold k to reproduce official fold k, or --dev-folds-file for the
+# matched Liu+Kim dev folds.
+#
+# Note on `context_strategy: late`: the layerwise FiLM path is not implemented for
+# the SSM stack and is guarded to raise rather than be silently ignored.
+
+seed: 20260812
+
+data:
+  corpus: data/processed/featurized_official.npz
+  vocab: data/processed/context_vocab_official.json
+  test_fold: 0  # official 20,509-row held-out set -- LOCKED
+  val_fold: 1
+  train_folds: [2, 3, 4, 5]
+
+model:
+  d_model: 384
+  n_heads: 6
+  ffn_dim: 1536
+  dropout: 0.10
+  n_edit_layers: 6
+  n_peg_layers: 4
+  n_cross_blocks: 2
+  context_embed_dim: 32
+  outcome_head: ordinal
+  context_strategy: late
+  sequence_mixer: ssm
+  ssm_state_dim: 64
+
+loss:
+  lambda_rank: 0.0
+  huber_beta: 0.1
+  min_pair_diff: 0.02
+  max_pairs_per_group: 4
+  outcome_head: ordinal
+
+optim:
+  lr: 3.0e-4
+  weight_decay: 0.01
+  warmup_frac: 0.05
+  grad_clip: 1.0
+
+train:
+  batch_size: 512
+  max_epochs: 30
+  early_stop_patience: 30      # round-4 finding: val Spearman genuinely improves
+  early_stop_min_warmup_epochs: 3  # after long plateaus here; do not shorten
+  precision: bf16

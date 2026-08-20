@@ -57,6 +57,10 @@ class FeaturizedCorpus:
     # See scripts/train/attach_family_c_features.py.
     features: np.ndarray | None = None  # (N, F) float32, normalized + NaN-imputed
     features_missing: np.ndarray | None = None  # (N, F) float32, 1.0 where imputed
+    # Round-5 §8: each row's efficiency quantile *within its experimental context*,
+    # computed from training rows only. Attached by the training script rather than by
+    # featurize(), since it depends on the train/val split.
+    target_ctx_q: np.ndarray | None = None  # (N,) float32 in [0,1]
 
     def __len__(self) -> int:
         return len(self.target)
@@ -141,6 +145,8 @@ class PEDataset(Dataset):
             "target_indel": torch.tensor(c.target_indel[j], dtype=torch.float32),
             "group_key": torch.tensor(c.group_key[j], dtype=torch.int64),
         }
+        if c.target_ctx_q is not None:
+            item["target_ctx_q"] = torch.tensor(c.target_ctx_q[j], dtype=torch.float32)
         if c.features is not None:
             item["features"] = torch.from_numpy(c.features[j].astype(np.float32))
             item["features_missing"] = torch.from_numpy(c.features_missing[j].astype(np.float32))

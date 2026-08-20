@@ -52,6 +52,23 @@ class PERankFormerConfig:
     ordinal_thresholds: tuple[float, ...] = ()  # required iff outcome_head == "ordinal";
     # fixed quantiles of the *training* efficiency distribution, stored in the checkpoint
     # so evaluation reproduces the exact same score mapping.
+
+    # --- round-5 auxiliary heads (spec §6-§8) ---------------------------------------
+    # All three round-5 supervision experiments share one mechanism: extra output
+    # segments concatenated onto the primary head's logits, each with its own loss and
+    # weight. The *primary* head alone produces the ranking score, so an auxiliary head
+    # can only help by shaping the shared representation -- it never directly moves the
+    # prediction. That is what makes these multitask experiments rather than ensembling
+    # in disguise.
+    aux_simplex_weight: float = 0.0  # §6 dual-head: + 3 logits trained as the simplex
+    # outcome distribution, alongside the ordinal primary.
+    ordinal_thresholds_aux: tuple[tuple[float, ...], ...] = ()  # §7 multi-resolution:
+    # additional ordinal segments at *other* threshold resolutions (e.g. K=7 and K=43
+    # beside the primary K=18).
+    aux_ordinal_weight: float = 0.0  # weight on each auxiliary ordinal segment.
+    aux_context_ordinal: bool = False  # §8: one extra ordinal segment supervised on
+    # *context-normalised* quantiles F_c(y) rather than global ones.
+    aux_context_weight: float = 0.0
     context_strategy: str = "late"  # "late" (single FiLM after pooling) | "layerwise" (round-2
     # Family A: FiLM applied at every edit/pegRNA encoder layer and every cross-attention
     # block, so context modulates sequence representation throughout the network rather
@@ -87,6 +104,19 @@ class PERankFormerConfig:
                 raise ValueError(f"ordinal_thresholds must be strictly increasing, got {t}")
         elif self.ordinal_thresholds:
             raise ValueError("ordinal_thresholds set but outcome_head is not 'ordinal'")
+        aux_on = (self.aux_simplex_weight > 0 or self.ordinal_thresholds_aux
+                  or self.aux_context_ordinal)
+        if aux_on and self.outcome_head != "ordinal":
+            # The auxiliary machinery assumes an ordinal primary (that is the round-5
+            # baseline). Failing loudly beats silently training a head nothing reads.
+            raise ValueError("round-5 auxiliary heads require outcome_head='ordinal'")
+        if self.ordinal_thresholds_aux and self.aux_ordinal_weight <= 0:
+            raise ValueError("ordinal_thresholds_aux set but aux_ordinal_weight is 0")
+        if self.aux_context_ordinal and self.aux_context_weight <= 0:
+            raise ValueError("aux_context_ordinal set but aux_context_weight is 0")
+        for t in self.ordinal_thresholds_aux:
+            if len(t) < 2 or any(b <= a for a, b in zip(t, t[1:])):
+                raise ValueError(f"auxiliary thresholds must be strictly increasing, got {t}")
         if self.sequence_mixer == "ssm" and self.context_strategy == "layerwise":
             # The layerwise path interleaves FiLM between individually-exposed encoder
             # layers; the SSM stack is not currently decomposed that way. Fail loudly
@@ -373,6 +403,26 @@ class PERankFormer(nn.Module):
             n_out = len(config.ordinal_thresholds)
         else:
             n_out = 1
+
+        # Round-5: auxiliary segments appended after the primary. `head_segments` is the
+        # single source of truth for the layout and is consumed by the loss, so the model
+        # and the objective cannot disagree about which logits mean what.
+        self.head_segments: list[dict] = [
+            {"kind": config.outcome_head, "start": 0, "end": n_out, "weight": 1.0}
+        ]
+        if config.aux_simplex_weight > 0:
+            self.head_segments.append({"kind": "simplex", "start": n_out, "end": n_out + 3,
+                                       "weight": config.aux_simplex_weight})
+            n_out += 3
+        for t in config.ordinal_thresholds_aux:
+            self.head_segments.append({"kind": "ordinal", "start": n_out, "end": n_out + len(t),
+                                       "weight": config.aux_ordinal_weight, "thresholds": t})
+            n_out += len(t)
+        if config.aux_context_ordinal:
+            k = len(config.ordinal_thresholds)
+            self.head_segments.append({"kind": "ordinal_ctx", "start": n_out, "end": n_out + k,
+                                       "weight": config.aux_context_weight})
+            n_out += k
         if config.moe_experts > 0:
             # Disaggregated head, only used for MoE (round-2 Family B, §8) -- kept as a
             # separate code path rather than the default so every pre-round-2 checkpoint
@@ -460,7 +510,7 @@ class PERankFormer(nn.Module):
         else:
             out = self.head(pooled)
         if self.config.outcome_head in ("simplex", "ordinal"):
-            return out  # simplex: (B,3) outcome logits; ordinal: (B,K-1) threshold logits
+            return out  # simplex: (B,3); ordinal: (B,K-1) [+ auxiliary segments appended]
         return out.squeeze(-1)  # (B,) raw score
 
     def ranking_score(self, out: torch.Tensor) -> torch.Tensor:
@@ -473,8 +523,10 @@ class PERankFormer(nn.Module):
             return out[:, 1] - out[:, 0]
         if self.config.outcome_head == "ordinal":
             # Mean of the cumulative probabilities: monotone in the predicted quantile,
-            # and already the quantity the metric cares about.
-            return torch.sigmoid(out).mean(dim=-1)
+            # and already the quantity the metric cares about. Sliced to the PRIMARY
+            # segment so auxiliary heads never leak into the ranking score.
+            k = len(self.config.ordinal_thresholds)
+            return torch.sigmoid(out[..., :k]).mean(dim=-1)
         return out
 
     def efficiency_from_output(self, out: torch.Tensor) -> torch.Tensor:
@@ -484,7 +536,8 @@ class PERankFormer(nn.Module):
             # (1/(K-1)) * sum_k P(y > t_k) in [0,1]: an estimate of the row's normalised
             # rank, not of its efficiency. Rank-correlation metrics are unaffected, but
             # absolute-error metrics against raw efficiency are meaningless for this head.
-            return torch.sigmoid(out).mean(dim=-1)
+            k = len(self.config.ordinal_thresholds)
+            return torch.sigmoid(out[..., :k]).mean(dim=-1)
         return torch.sigmoid(out)
 
     def predict_efficiency(self, batch: dict[str, torch.Tensor]) -> torch.Tensor:

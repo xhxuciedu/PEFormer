@@ -90,6 +90,23 @@ def main() -> None:
     )
     ap.add_argument("--ordinal-bins", type=int, default=20, help="K for --ordinal-head")
     ap.add_argument(
+        "--aux-simplex-weight", type=float, default=0.0,
+        help="round-5 §6 dual-head: weight on an auxiliary simplex head alongside ordinal",
+    )
+    ap.add_argument(
+        "--aux-ordinal-bins", type=int, nargs="+", default=None,
+        help="round-5 §7 multi-resolution: extra ordinal head resolutions, e.g. 8 50",
+    )
+    ap.add_argument("--aux-ordinal-weight", type=float, default=0.0)
+    ap.add_argument(
+        "--aux-context-weight", type=float, default=0.0,
+        help="round-5 §8: weight on an auxiliary ordinal head over context-normalised quantiles",
+    )
+    ap.add_argument(
+        "--context-quantile-fields", nargs="+", default=["source_study", "cell_type", "pe_type"],
+        help="grouping used to define the context-normalised target for --aux-context-weight",
+    )
+    ap.add_argument(
         "--bag-frac", type=float, default=1.0,
         help="round-4: train on this fraction of training PROTOSPACERS (bagging). "
              "Subsampling is by protospacer, not by row, because rows sharing a "
@@ -308,6 +325,14 @@ def main() -> None:
             len(FEATURE_COLS), args.features_path, len(train_idx),
         )
 
+    if args.aux_simplex_weight > 0:
+        cfg["model"]["aux_simplex_weight"] = args.aux_simplex_weight
+    if args.aux_ordinal_bins:
+        cfg["model"]["aux_ordinal_weight"] = args.aux_ordinal_weight
+    if args.aux_context_weight > 0:
+        cfg["model"]["aux_context_ordinal"] = True
+        cfg["model"]["aux_context_weight"] = args.aux_context_weight
+
     if cfg["model"].get("outcome_head") == "ordinal":
         # Thresholds are quantiles of the TRAINING targets only -- deriving them from the
         # full corpus would leak the validation/test target distribution into the model's
@@ -319,6 +344,45 @@ def main() -> None:
         logger.info(
             "ordinal head: %d thresholds from %d training targets (range %.4f - %.4f)",
             len(thr), len(train_idx), thr[0], thr[-1],
+        )
+        if args.aux_ordinal_bins:
+            aux = []
+            for k in args.aux_ordinal_bins:
+                qa = np.linspace(0.0, 1.0, k + 1)[1:-1]
+                ta = np.unique(np.quantile(corpus.target[train_idx], qa)).astype(float)
+                aux.append(tuple(ta.tolist()))
+                logger.info("  aux ordinal resolution K=%d -> %d distinct thresholds", k, len(ta))
+            cfg["model"]["ordinal_thresholds_aux"] = tuple(aux)
+
+    if args.aux_context_weight > 0:
+        # Context-normalised target: each row's rank within its own experimental
+        # context, mapped to [0,1]. Fitted on TRAINING rows only -- the empirical CDF is
+        # a statistic of the data, so building it from all rows would leak the
+        # validation target distribution into the training signal. Validation rows are
+        # mapped through the training CDF by interpolation; contexts unseen in training
+        # fall back to the global training CDF.
+        ctx_df = pd.read_parquet(
+            cfg["data"].get("source_df", "data/processed/optiprime_official_318471.parquet"),
+            columns=["record_id"] + args.context_quantile_fields,
+        ).set_index("record_id").reindex(corpus.record_id)
+        key = ctx_df[args.context_quantile_fields].astype(str).agg("|".join, axis=1).to_numpy()
+        y_all = corpus.target
+        ctx_q = np.empty(len(corpus), dtype=np.float32)
+        train_mask = np.zeros(len(corpus), dtype=bool)
+        train_mask[train_idx] = True
+        global_ref = np.sort(y_all[train_idx])
+        n_small = 0
+        for k_ in np.unique(key):
+            in_k = key == k_
+            ref = np.sort(y_all[in_k & train_mask])
+            if len(ref) < 50:
+                ref = global_ref
+                n_small += 1
+            ctx_q[in_k] = np.searchsorted(ref, y_all[in_k], side="right") / max(len(ref), 1)
+        corpus.target_ctx_q = np.clip(ctx_q, 0.0, 1.0)
+        logger.info(
+            "context-normalised targets over %d groups (%s); %d groups too small, using global CDF",
+            len(np.unique(key)), "+".join(args.context_quantile_fields), n_small,
         )
 
     model_cfg = PERankFormerConfig(
@@ -349,6 +413,7 @@ def main() -> None:
             torch.tensor(model_cfg.ordinal_thresholds, dtype=torch.float32)
             if model_cfg.outcome_head == "ordinal" else None
         ),
+        head_segments=model.head_segments,
         beta_corr=cfg["loss"].get("beta_corr", 0.0),
     )
     max_pairs_per_group = cfg["loss"]["max_pairs_per_group"]
@@ -396,6 +461,7 @@ def main() -> None:
                 loss, parts = total_loss(
                     out, batch["target"], pi, pj, weights,
                     rank_score=rank_score, target_indel=batch.get("target_indel"),
+                    target_ctx_q=batch.get("target_ctx_q"),
                 )
 
             opt.zero_grad(set_to_none=True)
