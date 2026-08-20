@@ -36,8 +36,11 @@ free_gpu() {
 
 while IFS='|' read -r run flags; do
   [ -z "${run// }" ] && continue
-  if compgen -G "checkpoints/${run}_*/best.pt" > /dev/null; then
-    echo "SKIP $run (checkpoint exists)"; continue
+  # Test final.pt, not best.pt: best.pt is rewritten on every validation improvement,
+  # so a run that crashed at epoch 10 leaves one behind and would be skipped here as
+  # though it had succeeded. final.pt is written only after the training loop exits.
+  if compgen -G "checkpoints/${run}_*/final.pt" > /dev/null; then
+    echo "SKIP $run (completed: final.pt exists)"; continue
   fi
   while :; do
     g=$(free_gpu)
