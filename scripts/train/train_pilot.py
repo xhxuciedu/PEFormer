@@ -121,6 +121,11 @@ def main() -> None:
         help="round-2 Family B (§8): number of context-gated experts in the head (0 disables)",
     )
     ap.add_argument(
+        "--val-fold", type=int, default=None, choices=[1, 2, 3, 4, 5],
+        help="round-4: override the config's official val_fold, setting train_folds to the "
+             "other four. Fold 0 is the locked held-out set and is never selectable here.",
+    )
+    ap.add_argument(
         "--dev-folds-file", type=str, default=None,
         help="round-3 §5: parquet from build_round3_dev_folds.py, overrides "
              "val_fold/train_folds with a Liu+Kim-matched split when set",
@@ -159,6 +164,10 @@ def main() -> None:
     args = ap.parse_args()
     if args.dev_folds_file and not args.dev_fold_col:
         ap.error("--dev-folds-file requires --dev-fold-col")
+    if args.val_fold is not None and args.dev_folds_file:
+        # The dev-folds path replaces val_fold/train_folds wholesale, so honouring both
+        # would silently ignore one of them.
+        ap.error("--val-fold and --dev-folds-file are mutually exclusive")
 
     cfg = yaml.safe_load(args.config.read_text())
     if args.lambda_rank is not None:
@@ -201,6 +210,12 @@ def main() -> None:
     corpus = load_featurized(str(corpus_path), vocab)
     dataset_hash = file_sha256(corpus_path)
     logger.info("corpus: %d rows, hash=%s", len(corpus), dataset_hash[:12])
+
+    if args.val_fold is not None:
+        cfg["data"]["val_fold"] = args.val_fold
+        cfg["data"]["train_folds"] = [f for f in (1, 2, 3, 4, 5) if f != args.val_fold]
+        logger.info("official split override: val_fold=%d train_folds=%s",
+                    args.val_fold, cfg["data"]["train_folds"])
 
     fold = corpus.fold
     test_idx = np.where(fold == cfg["data"]["test_fold"])[0]
