@@ -1,0 +1,23 @@
+\contentsline {section}{\numberline {1}Introduction}{2}{section.1}%
+\contentsline {section}{\numberline {2}Training Data}{3}{section.2}%
+\contentsline {subsection}{\numberline {2.1}Independent reconstruction from public data}{4}{subsection.2.1}%
+\contentsline {section}{\numberline {3}Model Architecture}{5}{section.3}%
+\contentsline {subsection}{\numberline {3.1}The simplex outcome head: diagnosis-driven innovation}{5}{subsection.3.1}%
+\contentsline {section}{\numberline {4}Training Procedure}{6}{section.4}%
+\contentsline {section}{\numberline {5}Ablation and Configuration Sweep}{6}{section.5}%
+\contentsline {section}{\numberline {6}Head-to-Head with OptiPrime}{7}{section.6}%
+\contentsline {subsection}{\numberline {6.1}Protocol}{7}{subsection.6.1}%
+\contentsline {subsection}{\numberline {6.2}Result on the complete held-out set}{7}{subsection.6.2}%
+\contentsline {subsection}{\numberline {6.3}The result is not uniform: Liu vs.\ Kim}{8}{subsection.6.3}%
+\contentsline {subsection}{\numberline {6.4}Reproduction check against the published figure}{10}{subsection.6.4}%
+\contentsline {subsection}{\numberline {6.5}The cost of an unmatched protocol}{10}{subsection.6.5}%
+\contentsline {section}{\numberline {7}A Retracted Result, and Why It Was Wrong}{11}{section.7}%
+\contentsline {section}{\numberline {8}Model Search: Rounds 2--4}{11}{section.8}%
+\contentsline {subsection}{\numberline {8.1}What did not work}{12}{subsection.8.1}%
+\contentsline {subsection}{\numberline {8.2}The ordinal head}{12}{subsection.8.2}%
+\contentsline {subsection}{\numberline {8.3}Sequence mixing, and the final model}{13}{subsection.8.3}%
+\contentsline {subsection}{\numberline {8.4}Decorrelated \emph {and} competent}{13}{subsection.8.4}%
+\contentsline {subsection}{\numberline {8.5}Selection discipline}{13}{subsection.8.5}%
+\contentsline {subsection}{\numberline {8.6}Final result}{14}{subsection.8.6}%
+\contentsline {section}{\numberline {9}Discussion and Caveats}{14}{section.9}%
+\contentsline {section}{\numberline {10}Conclusion}{15}{section.10}%

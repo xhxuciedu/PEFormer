@@ -38,20 +38,29 @@ authors: the exact 297{,}962 training rows, their five cross-validation splits,
 and a held-out test set of 20{,}509 rows that neither model ever trains on. Both
 models are five-model cross-validation ensembles trained on the identical rows,
 matching OptiPrime's own protocol exactly. On the \textbf{complete held-out set}
-($n=20{,}509$), PE-RankFormer reaches Spearman $\rho=0.8865$ against OptiPrime's
-$0.8690$ -- a difference of $+0.0175$ with a protospacer-clustered paired
-bootstrap 95\% CI of $[+0.0068, +0.0279]$ and $p=0.001$. \textbf{PE-RankFormer is
-ahead, with the difference outside chance.}
+($n=20{,}509$), PE-RankFormer reaches Spearman $\rho=\mathbf{0.9079}$ against
+OptiPrime's $0.8690$ -- a difference of $+0.0389$ with a protospacer-clustered
+paired bootstrap 95\% CI of $[+0.0286, +0.0498]$, ahead in $100\%$ of 5{,}000
+resamples ($p<0.0002$). \textbf{PE-RankFormer is ahead, with the difference
+outside chance.} The absolute figure clears $0.90$ on the point estimate, though
+its own 95\% interval $[0.8955, 0.9173]$ places that threshold within sampling
+uncertainty ($90\%$ of resamples exceed it); the \emph{margin} over OptiPrime is
+the considerably stronger claim.
+
+That figure is the product of four successive rounds of model search. The
+single largest contributor was a change of training objective rather than of
+architecture: an ordinal (CORAL-style) head that predicts cumulative indicators
+$P(y>t_k)$ at fixed quantiles of the training distribution, and is therefore
+matched to the rank-correlation metric the task is scored on.
 
 That result is not uniform across the two studies contributing to the held-out
 set. On the 9{,}175-row Liu partition -- the paper's own primary held-out
-benchmark -- the two models are statistically indistinguishable ($\rho=0.8349$
-vs.\ $0.8365$, $p=0.94$). The entire measured advantage is concentrated in the
-11{,}334-row Kim partition ($\rho=0.775$ vs.\ $0.732$), which spans seven cell
-lines and multiple Cas9/PE-system variants absent from Liu. We report both
-results rather than the pooled number alone, since they support different
-claims: parity on the benchmark the paper itself emphasizes, and a measurable
-edge on a more experimentally diverse one.
+benchmark -- the final margin is $+0.0220$ ($\rho=0.8585$ vs.\ $0.8365$), where
+the round-1 model had been at parity. On the 11{,}334-row Kim partition, which
+spans seven cell lines and multiple Cas9/PE-system variants absent from Liu, the
+margin is $+0.0804$ ($\rho=0.8124$ vs.\ $0.7320$). We report both rather than the
+pooled number alone: the advantage is real on the paper's own benchmark but
+roughly four times larger on the more experimentally diverse one.
 
 We also report, and retract, an earlier result. Before the authors' data was
 available we reconstructed the corpus from public sources and measured an
@@ -574,6 +583,212 @@ We report the retraction in full rather than quietly substituting the corrected
 number, since the withdrawn result is more instructive than the one that replaced it.
 
 
+
+% ============================================================
+\section{Model Search: Rounds 2--4}
+\label{sec:rounds}
+% ============================================================
+
+The result above ($\rho=0.8865$) was the round-1 model. Three further rounds of
+search raised it to $0.9079$. This section records what moved the number and,
+equally, what did not.
+
+\subsection{What did not work}
+
+Round 2 tested architectural variants: layerwise FiLM conditioning, a
+mixture-of-experts head, an engineered-feature branch, and a batch-correlation
+loss. Round 3 added domain-adaptive fine-tuning. Round 4 opened with three
+post-hoc ensemble methods operating on existing predictions.
+
+\begin{table}[H]
+\centering
+\caption{Approaches that failed, with the measurement that closed each.
+``$S_3$ gain'' is the change in ensemble Spearman from adding a member under the
+frozen equal-weight rank-average rule.}
+\label{tab:negatives}
+\begin{tabular}{llr}
+\toprule
+Approach & Measurement & Result \\
+\midrule
+Context-gated ensemble weights & nested, protospacer-disjoint & $+0.0000$ \\
+Nonlinear stacking (GBM, ridge) & nested, protospacer-disjoint & $+0.0013$ \\
+Residual learning on features & \emph{oracle} upper bound & $+0.0006$ \\
+Protospacer bagging ($\times 4$) & $S_3$ gain & $+0.0002$ to $-0.0022$ \\
+Medium model (59M params) & $S_3$ gain & $+0.0022$ \\
+New random seed & $S_3$ gain & $+0.0022$ \\
+Pairwise ranking loss & $S_3$ gain & $-0.0037$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The residual-learning entry is bounded rather than merely measured. A na\"ive run
+scored $-0.0040$, but that number partly reflects blend-weight selection; choosing
+the weight \emph{on the scoring fold itself} -- illegitimate as a procedure, valid
+as a diagnostic ceiling -- still yields only $+0.0006$. The ensemble's residual is
+essentially unpredictable from engineered features and experimental context. With
+context gating at $+0.0000$ and stacking at $+0.0013$, the three together
+establish that nothing recoverable remained in the members' outputs, which is what
+justified spending the remaining compute on new models rather than new combination
+rules.
+
+\subsection{The ordinal head}
+\label{sec:ordinal}
+
+Every model through round 3 was trained with the simplex head of
+\S\ref{sec:simplex}: a three-way cross-entropy over outcome proportions. They
+therefore shared a loss geometry, a plausible reason their pairwise prediction
+correlations bottomed out near $0.945$.
+
+The ordinal head changes the learning problem instead of the parameters. Fix
+$K-1$ thresholds $t_k$ at quantiles of the \emph{training} efficiency
+distribution; the head emits one logit per threshold, trained with binary
+cross-entropy against the cumulative indicators $\mathbf{1}[y>t_k]$, and scores a
+row by $\frac{1}{K-1}\sum_k \sigma(z_k)$ -- an estimate of its normalised rank.
+
+Two independent motivations. First, it is \emph{metric-matched}: Spearman depends
+only on order, so a head estimating the target's quantile optimises the evaluated
+quantity directly, where the simplex head optimises proportions and is only
+incidentally monotone. Second, it is robust to the target's heavy right skew,
+which has large mass at zero; a proportion or Huber objective spends most of its
+gradient on the few high-efficiency rows, whereas $K-1$ balanced binary decisions
+spread supervision across the distribution. It forgoes the indel signal
+deliberately -- a different \emph{view} of the same rows is the point.
+
+The hypothesis was that a different loss geometry would produce different
+\emph{errors}. The diagnostic for that is residual correlation with the existing
+ensemble, and it confirmed the prediction directly: the four lowest residual
+correlations in the screen ($0.686$--$0.708$) were all ordinal-head models, while
+every simplex-head candidate sat at $0.76$--$0.78$.
+
+\subsection{Sequence mixing, and the final model}
+
+Round 4 also replaced self-attention with a bidirectional diagonal state-space
+(S4D) mixer, implemented in closed form and applied by FFT convolution. Its block
+topology deliberately mirrors the Transformer layer it replaces, so the comparison
+isolates the mixing mechanism rather than confounding it with block design.
+
+Combining both axes proved best. Out-of-fold on the development folds, a single
+\emph{ordinal + SSM} model scores $0.9082$ -- above the entire three-member
+round-3 ensemble ($0.8982$).
+
+\begin{table}[H]
+\centering
+\caption{Out-of-fold standalone Spearman on the matched development folds. Every
+round-4 member beats every incumbent.}
+\label{tab:members}
+\begin{tabular}{lr}
+\toprule
+Member & OOF $\rho$ \\
+\midrule
+Ordinal $+$ SSM & \textbf{0.9082} \\
+PE-SSM & 0.9011 \\
+Ordinal $+$ feature branch & 0.8924 \\
+Ordinal $+$ layerwise FiLM & 0.8920 \\
+Ordinal (base) & 0.8911 \\
+\midrule
+\emph{Round-3 ensemble (3 members)} & \emph{0.8982} \\
+Family A (best incumbent) & 0.8845 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The final model is an equal-weight rank average of five out-of-fold members:
+ordinal$+$SSM, PE-SSM, ordinal$+$features, ordinal$+$layerwise, and the round-3
+Family~A incumbent.
+
+\subsection{Decorrelated \emph{and} competent}
+\label{sec:decorr}
+
+Round 3 concluded that error decorrelation, not standalone accuracy, was what the
+ensemble rewarded -- the domain-adaptive model was better standalone yet worthless
+because it correlated at $0.997$ with an existing member. Round 4 supplies the
+counterexample that corrects the other half of that claim.
+
+\begin{table}[H]
+\centering
+\caption{The most decorrelated candidate measured still harmed the ensemble.}
+\label{tab:decorr}
+\begin{tabular}{lrrrr}
+\toprule
+Candidate & Solo $\rho$ & Pred.\ corr & Resid.\ corr & $S_3$ gain \\
+\midrule
+Simplex $+$ ranking loss & 0.8244 & \textbf{0.9077} & \textbf{0.6654} & $\mathbf{-0.0037}$ \\
+Ordinal $+$ SSM & 0.8972 & 0.9407 & 0.6863 & $+0.0092$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The ranking-loss model has both the lowest prediction correlation and the lowest
+residual correlation of any candidate in this project, and it \emph{hurt} the
+ensemble: at $0.8244$ standalone it cannot carry its weight in an equal-weight
+average. The accurate statement is that a member must be \textbf{both decorrelated
+and competent}. Decorrelation separates useful from redundant \emph{among models of
+comparable strength}; it cannot rescue a weak one.
+
+\subsection{Selection discipline}
+
+With eight candidate members there are 255 non-empty subsets, and picking the best
+on three repeatedly-used development folds invites a selection bias of the same
+order as the effects being chased. The selection protocol was therefore
+\emph{pre-registered} in writing before the search was run: rank subsets on
+development folds, require a subset to beat the incumbent on \emph{every} fold
+rather than on the mean, gate the shortlist on a held-back lockbox
+($17{,}975$ rows, $367$ protospacers, sharing no protospacer with any development
+validation set) scored out-of-fold, and on disagreement prefer the lockbox winner,
+breaking near-ties toward fewer members.
+
+The development winner (four members) and the lockbox winner (five members)
+disagreed by $0.001011$, eleven millionths past the pre-set near-tie threshold of
+$0.001$. The rule was followed as written. The two candidates are statistically
+indistinguishable, so little turned on it -- but re-deciding the rule after seeing
+the numbers is precisely what pre-registration exists to prevent. The lockbox's own
+unconstrained best subset ($0.9155$) was \emph{not} adopted, since selecting on it
+would have converted the only unworn evaluation surface into a fitted one.
+
+\subsection{Final result}
+
+\begin{table}[H]
+\centering
+\caption{Complete held-out set ($n=20{,}509$), Spearman $\rho$. Paired
+protospacer-clustered bootstrap, 5{,}000 resamples over 750 clusters.}
+\label{tab:final}
+\begin{tabular}{lrrr}
+\toprule
+Model & Full & Liu ($9{,}175$) & Kim ($11{,}334$) \\
+\midrule
+PE-RankFormer (round 4) & \textbf{0.9079} & \textbf{0.8585} & \textbf{0.8124} \\
+PE-RankFormer (round 3) & 0.8933 & 0.8462 & 0.7836 \\
+PE-RankFormer (round 1) & 0.8865 & 0.8349 & 0.7751 \\
+OptiPrime & 0.8690 & 0.8365 & 0.7320 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Paired differences on identical rows.}
+\label{tab:final-boot}
+\begin{tabular}{lrlr}
+\toprule
+Comparison & $\Delta\rho$ & 95\% CI & $p$ \\
+\midrule
+Round 4 $-$ OptiPrime & $+0.0389$ & $[+0.0286, +0.0498]$ & $<0.0002$ \\
+Round 4 $-$ Round 3 & $+0.0146$ & $[+0.0113, +0.0184]$ & $<0.0002$ \\
+Round 3 $-$ OptiPrime & $+0.0243$ & $[+0.0138, +0.0346]$ & $<0.0002$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+PE-RankFormer is ahead in every one of the 5{,}000 resamples in all three
+comparisons. One caveat belongs beside the headline: the absolute figure's own
+95\% interval is $[0.8955, 0.9173]$ and $90.0\%$ of resamples exceed $0.90$, so
+the threshold is cleared on the point estimate but not at 95\% confidence. The
+margin over OptiPrime is the stronger claim by a wide measure.
+
+The held-out set was evaluated once, after the model was frozen, with the
+expectation recorded in advance ($\approx 0.910$, plausible range
+$0.905$--$0.915$); the observed $0.9079$ fell inside it.
+
 % ============================================================
 \section{Discussion and Caveats}
 \label{sec:caveats}
@@ -632,17 +847,26 @@ as opposed to relative ranking, where top-$k$ regret is low.
 Given OptiPrime's exact training data, its cross-validation splits, and its
 complete held-out test set, a minimally-mechanistic relational Transformer is
 ahead of a strongly mechanistic model by a margin outside chance: Spearman
-$0.8865$ against $0.8690$ on 20{,}509 rows neither model trained on, $+0.0175$
-with a 95\% CI of $[+0.0068, +0.0279]$ and $p=0.001$.
+$0.9079$ against $0.8690$ on 20{,}509 rows neither model trained on, $+0.0389$
+with a 95\% CI of $[+0.0286, +0.0498]$ and $p<0.0002$, ahead in all 5{,}000
+bootstrap resamples.
 
-That headline understates an important structure in the result. On the 9{,}175-row
-Liu partition -- the specific benchmark the paper itself reports -- the two models
-are statistically indistinguishable ($-0.0016$, $p=0.94$). The entire measured
-advantage is concentrated in the 11{,}334-row Kim partition, which is more
-experimentally diverse (seven cell lines, multiple PE systems) than Liu. We regard
-both findings as load-bearing: parity on the paper's own primary benchmark, and an
-edge on a broader one, is a more precise and more defensible claim than either
-number alone, and considerably more precise than the retracted result below.
+The advantage holds on both partitions but is far from uniform: $+0.0220$ on the
+9{,}175-row Liu partition (the specific benchmark the paper itself reports) and
+$+0.0804$ on the 11{,}334-row Kim partition, which is more experimentally diverse
+(seven cell lines, multiple PE systems). Round 1 was at parity on Liu; the
+subsequent rounds converted that into a clear margin while roughly doubling the
+Kim advantage. We report both, since the four-fold difference between them is
+itself the most informative feature of the result.
+
+The largest single contributor was not architectural. Replacing the training
+objective with an ordinal head matched to the rank-correlation metric
+(\S\ref{sec:ordinal}) produced the most valuable ensemble member, and did so by
+the mechanism predicted in advance: it makes \emph{different errors}, not merely
+better ones. The corollary, established by counterexample in \S\ref{sec:decorr},
+is that a useful ensemble member must be both decorrelated and competent --
+the most decorrelated candidate we measured was also harmful, because it was too
+weak to carry its weight.
 
 For the original research question -- whether domain mechanism can be substituted
 for by scale plus a sufficiently expressive general-purpose architecture -- the
