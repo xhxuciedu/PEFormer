@@ -312,3 +312,32 @@ to 1.0 so no bagging is applied. Their S1 values are therefore **not** comparabl
 the batch-512 Phase-1 screens; only comparisons *within* wave 2, and S3 gains, are
 meaningful. Any wave-2 member that gets promoted must keep this recipe across all
 five of its folds.
+
+### Decision: do NOT shorten Phase-2 training (checked, then rejected)
+
+Phase 2 is running ~12h wall-clock because GPU contention pushed the SSM runs from
+232s to ~495s per epoch. Every promoted member reached its best epoch by 19 on dev
+fold 0, and epochs 20-29 contributed exactly +0.0000, which made early stopping look
+like free money.
+
+Simulated `--patience 5` against all 11 Phase-1 logs before touching anything:
+
+| outcome | runs |
+|---|---|
+| identical checkpoint | ordSSM, ssm, ordC, ordA, ordB, bag1, bag2, bag4 |
+| **worse** checkpoint | fAs2 (-0.0029), bag3 (-0.0018), medium (-0.0006) |
+
+Three of eleven runs improved *after* a five-epoch drought, so patience 5 would have
+stopped early and kept a worse model. It happens to be safe for the five promoted
+members on this fold, but that is n=1 fold each, and nothing says another official
+fold behaves the same way -- fAs2's late gain of +0.0029 is the size of effects this
+round is trying to measure.
+
+**Rejected.** Trading a silent, member-specific quality regression for wall-clock
+that is not actually scarce (the GPUs are free and this runs in the background) is a
+bad trade. Keeping `max_epochs 30 / patience 30` unchanged.
+
+Worth keeping as a finding in its own right: `patience: 30` is not redundant padding
+on this problem -- validation Spearman here genuinely improves after long plateaus,
+so any future run that adopts aggressive early stopping should expect to lose a few
+thousandths.
