@@ -281,3 +281,34 @@ runs actually need ~22GB and 9 of 25 jobs OOM'd on launch. Replaced the guess wi
 `queue_runs.sh`, which reads each GPU's real free memory and dispatches only when a
 card can hold the job. It skips runs whose checkpoint already exists, so the 17
 missing jobs were requeued without disturbing the 8 still training.
+
+### Wave 2 (pre-registered before results): pushing the objective axis further
+
+Phase 2 only occupies the three large cards, so the five 11GB cards were idle.
+Queued four more dev-fold-0 screens there, all on the axis that actually paid --
+the training objective:
+
+| run | change | question |
+|---|---|---|
+| `r4w2_ordrank` | ordinal + `lambda_rank=0.25` | do a cumulative-threshold loss and an explicit pairwise ranking loss supply *different* order information? |
+| `r4w2_rank` | simplex + `lambda_rank=0.25` | isolates the ranking loss on its own, so any ordrank gain can be attributed |
+| `r4w2_ordK8` | ordinal, 7 thresholds | coarse quantile supervision |
+| `r4w2_ordK50` | ordinal, 43 thresholds | fine quantile supervision |
+
+The pairwise ranking loss is the one objective already in the codebase that round 1
+tested and dropped (`lambda_rank` 0.25 -> 0.0). It was dropped on *standalone*
+grounds, which round 3 showed is the wrong criterion for an ensemble member -- so it
+is worth re-testing on S3, where the question is different.
+
+K=8 vs 20 vs 50 is a genuine hypothesis rather than a sweep: the threshold count
+controls how much of the target distribution's shape the loss sees. Too coarse and
+it degenerates toward binary classification; too fine and each indicator gets few
+effective positives. If all three land at the same S3 the head is insensitive to K,
+which is itself worth knowing.
+
+**Recipe caveat**: these use `configs/round4/bagged.yaml` (batch 256, lr 2e-4) since
+that is the config that fits an 11GB card -- despite the name, `--bag-frac` defaults
+to 1.0 so no bagging is applied. Their S1 values are therefore **not** comparable to
+the batch-512 Phase-1 screens; only comparisons *within* wave 2, and S3 gains, are
+meaningful. Any wave-2 member that gets promoted must keep this recipe across all
+five of its folds.
