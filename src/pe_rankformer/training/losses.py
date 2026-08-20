@@ -119,6 +119,30 @@ def ordinal_loss(
     return F.binary_cross_entropy_with_logits(logits, y)
 
 
+
+def pinball_loss(
+    pred: torch.Tensor, target: torch.Tensor, quantiles: torch.Tensor
+) -> torch.Tensor:
+    """Quantile (pinball) regression loss (round-5 spec §13).
+
+    `pred` is (B, Q), one estimate per requested quantile level. For level q the loss
+    is the standard asymmetric absolute deviation, whose minimiser is the conditional
+    q-th quantile of y given x:
+
+        L_q(e) = max(q * e, (q - 1) * e),   e = y - yhat_q
+
+    Related to the ordinal head but not the same thing. The ordinal head asks "is y
+    above threshold t_k", producing a probability; this asks "what value sits at
+    quantile q", producing a value in the target's own units. So it estimates the
+    conditional distribution directly and, unlike the ordinal head, yields a
+    calibrated efficiency rather than a rank estimate -- which also makes it the
+    natural companion to the §15 calibration work.
+    """
+    e = target.unsqueeze(-1) - pred  # (B, Q)
+    q = quantiles.unsqueeze(0)
+    return torch.maximum(q * e, (q - 1.0) * e).mean()
+
+
 def correlation_loss(score: torch.Tensor, target: torch.Tensor, eps: float = 1e-8) -> torch.Tensor:
     """1 - batch Pearson correlation between `score` and `target`.
 
@@ -151,6 +175,7 @@ class LossWeights:
     regression_space: str = "raw"  # "raw" or "logit" (task spec §19 comparison)
     outcome_head: str = "scalar"  # "scalar" | "simplex" | "ordinal"
     ordinal_thresholds: torch.Tensor | None = None  # required for the ordinal head
+    quantile_levels: torch.Tensor | None = None  # required for outcome_head='quantile'
     head_segments: list | None = None  # round-5: the model's `head_segments` layout.
     # Supplied by the model rather than reconstructed here, so the objective and the
     # network cannot disagree about which logits mean what.
@@ -183,6 +208,9 @@ def total_loss(
     elif weights.outcome_head == "ordinal":
         assert weights.ordinal_thresholds is not None, "ordinal head requires thresholds"
         l_reg = ordinal_loss(primary, target, weights.ordinal_thresholds.to(score.device))
+    elif weights.outcome_head == "quantile":
+        assert weights.quantile_levels is not None, "quantile head requires levels"
+        l_reg = pinball_loss(primary, target, weights.quantile_levels.to(score.device))
     else:
         l_reg = regression_loss(
             primary, target, huber_beta=weights.huber_beta, space=weights.regression_space

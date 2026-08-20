@@ -49,6 +49,10 @@ class PERankFormerConfig:
     # the target's marginal distribution) differs fundamentally from the simplex head's
     # 3-way cross-entropy over outcome proportions, and error decorrelation -- not
     # standalone accuracy -- is what the round-3 analysis showed the ensemble rewards.
+    quantile_levels: tuple[float, ...] = ()  # required iff outcome_head == "quantile"
+    # (round-5 §13): predicts the conditional quantiles of efficiency by pinball loss.
+    # Unlike the ordinal head this outputs values in the target's own units, so it is
+    # the only head that yields a calibrated efficiency directly.
     ordinal_thresholds: tuple[float, ...] = ()  # required iff outcome_head == "ordinal";
     # fixed quantiles of the *training* efficiency distribution, stored in the checkpoint
     # so evaluation reproduces the exact same score mapping.
@@ -90,9 +94,9 @@ class PERankFormerConfig:
             raise ValueError("context_strategy='layerwise' requires use_context=True")
         if self.moe_experts > 0 and not self.use_context:
             raise ValueError("moe_experts>0 requires use_context=True (the gate is context-conditioned)")
-        if self.sequence_mixer not in ("attention", "ssm"):
+        if self.sequence_mixer not in ("attention", "ssm", "hybrid_alt", "hybrid_par"):
             raise ValueError(f"unknown sequence_mixer: {self.sequence_mixer!r}")
-        if self.outcome_head not in ("scalar", "simplex", "ordinal"):
+        if self.outcome_head not in ("scalar", "simplex", "ordinal", "quantile"):
             raise ValueError(f"unknown outcome_head: {self.outcome_head!r}")
         if self.outcome_head == "ordinal":
             t = self.ordinal_thresholds
@@ -104,6 +108,14 @@ class PERankFormerConfig:
                 raise ValueError(f"ordinal_thresholds must be strictly increasing, got {t}")
         elif self.ordinal_thresholds:
             raise ValueError("ordinal_thresholds set but outcome_head is not 'ordinal'")
+        if self.outcome_head == "quantile":
+            q = self.quantile_levels
+            if len(q) < 2 or any(b <= a for a, b in zip(q, q[1:])):
+                raise ValueError(f"quantile_levels must be strictly increasing, got {q}")
+            if not all(0.0 < x < 1.0 for x in q):
+                raise ValueError(f"quantile_levels must lie strictly inside (0,1), got {q}")
+        elif self.quantile_levels:
+            raise ValueError("quantile_levels set but outcome_head is not 'quantile'")
         aux_on = (self.aux_simplex_weight > 0 or self.ordinal_thresholds_aux
                   or self.aux_context_ordinal)
         if aux_on and self.outcome_head != "ordinal":
@@ -117,6 +129,11 @@ class PERankFormerConfig:
         for t in self.ordinal_thresholds_aux:
             if len(t) < 2 or any(b <= a for a, b in zip(t, t[1:])):
                 raise ValueError(f"auxiliary thresholds must be strictly increasing, got {t}")
+        if self.sequence_mixer.startswith("hybrid") and self.context_strategy == "layerwise":
+            raise ValueError(
+                f"sequence_mixer={self.sequence_mixer!r} with context_strategy='layerwise' "
+                "is not implemented; use context_strategy='late'"
+            )
         if self.sequence_mixer == "ssm" and self.context_strategy == "layerwise":
             # The layerwise path interleaves FiLM between individually-exposed encoder
             # layers; the SSM stack is not currently decomposed that way. Fail loudly
@@ -147,6 +164,13 @@ def _encoder_stack(
         from .ssm import BiS4DStack
 
         return BiS4DStack(d_model, ffn_dim, dropout, n_layers, ssm_state_dim)
+    if mixer in ("hybrid_alt", "hybrid_par"):
+        from .ssm import HybridStack
+
+        return HybridStack(
+            d_model, n_heads, ffn_dim, dropout, n_layers, ssm_state_dim,
+            mode="alternating" if mixer == "hybrid_alt" else "parallel",
+        )
     layer = _encoder_layer(d_model, n_heads, ffn_dim, dropout)
     # norm_first (pre-LN) encoder layers can't use PyTorch's nested-tensor fast path;
     # disabling it explicitly avoids a benign warning at every model construction.
@@ -401,6 +425,8 @@ class PERankFormer(nn.Module):
             n_out = 3
         elif config.outcome_head == "ordinal":
             n_out = len(config.ordinal_thresholds)
+        elif config.outcome_head == "quantile":
+            n_out = len(config.quantile_levels)
         else:
             n_out = 1
 
@@ -509,7 +535,7 @@ class PERankFormer(nn.Module):
             out = self.head_out(hidden)
         else:
             out = self.head(pooled)
-        if self.config.outcome_head in ("simplex", "ordinal"):
+        if self.config.outcome_head in ("simplex", "ordinal", "quantile"):
             return out  # simplex: (B,3); ordinal: (B,K-1) [+ auxiliary segments appended]
         return out.squeeze(-1)  # (B,) raw score
 
@@ -521,6 +547,11 @@ class PERankFormer(nn.Module):
         """
         if self.config.outcome_head == "simplex":
             return out[:, 1] - out[:, 0]
+        if self.config.outcome_head == "quantile":
+            # Rank by the predicted median, the most robust single order statistic
+            # (spec §13 also allows the mean of quantiles; the median is used because
+            # pinball estimates at extreme levels are the noisiest).
+            return out[..., len(self.config.quantile_levels) // 2]
         if self.config.outcome_head == "ordinal":
             # Mean of the cumulative probabilities: monotone in the predicted quantile,
             # and already the quantity the metric cares about. Sliced to the PRIMARY
@@ -532,6 +563,9 @@ class PERankFormer(nn.Module):
     def efficiency_from_output(self, out: torch.Tensor) -> torch.Tensor:
         if self.config.outcome_head == "simplex":
             return torch.softmax(out, dim=-1)[:, 1]
+        if self.config.outcome_head == "quantile":
+            # Already in efficiency units -- no sigmoid, unlike every other head.
+            return out[..., len(self.config.quantile_levels) // 2]
         if self.config.outcome_head == "ordinal":
             # (1/(K-1)) * sum_k P(y > t_k) in [0,1]: an estimate of the row's normalised
             # rank, not of its efficiency. Rank-correlation metrics are unaffected, but

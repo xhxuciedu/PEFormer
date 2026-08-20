@@ -90,6 +90,12 @@ def main() -> None:
     )
     ap.add_argument("--ordinal-bins", type=int, default=20, help="K for --ordinal-head")
     ap.add_argument(
+        "--quantile-head", action="store_true",
+        help="round-5 §13: conditional quantile regression with pinball loss",
+    )
+    ap.add_argument("--quantile-levels", type=float, nargs="+",
+                    default=[0.1, 0.25, 0.5, 0.75, 0.9])
+    ap.add_argument(
         "--aux-simplex-weight", type=float, default=0.0,
         help="round-5 §6 dual-head: weight on an auxiliary simplex head alongside ordinal",
     )
@@ -174,7 +180,7 @@ def main() -> None:
              "Schwank-dominated official fold",
     )
     ap.add_argument(
-        "--sequence-mixer", choices=["attention", "ssm"], default=None,
+        "--sequence-mixer", choices=["attention", "ssm", "hybrid_alt", "hybrid_par"], default=None,
         help="round-4 §8: intra-sequence mixing -- Transformer attention or bidirectional SSM",
     )
     ap.add_argument("--lr", type=float, default=None, help="override optim.lr (fine-tuning uses a small LR)")
@@ -325,6 +331,11 @@ def main() -> None:
             len(FEATURE_COLS), args.features_path, len(train_idx),
         )
 
+    if args.quantile_head:
+        cfg["model"]["outcome_head"] = "quantile"
+        cfg["loss"]["outcome_head"] = "quantile"
+        cfg["model"]["quantile_levels"] = tuple(args.quantile_levels)
+        cfg["model"].pop("ordinal_thresholds", None)
     if args.aux_simplex_weight > 0:
         cfg["model"]["aux_simplex_weight"] = args.aux_simplex_weight
     if args.aux_ordinal_bins:
@@ -414,6 +425,10 @@ def main() -> None:
             if model_cfg.outcome_head == "ordinal" else None
         ),
         head_segments=model.head_segments,
+        quantile_levels=(
+            torch.tensor(model_cfg.quantile_levels, dtype=torch.float32)
+            if model_cfg.outcome_head == "quantile" else None
+        ),
         beta_corr=cfg["loss"].get("beta_corr", 0.0),
     )
     max_pairs_per_group = cfg["loss"]["max_pairs_per_group"]
