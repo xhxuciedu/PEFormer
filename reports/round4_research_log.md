@@ -341,3 +341,49 @@ Worth keeping as a finding in its own right: `patience: 30` is not redundant pad
 on this problem -- validation Spearman here genuinely improves after long plateaus,
 so any future run that adopts aggressive early stopping should expect to lose a few
 thousandths.
+
+### The truncation decision, checked against Phase-2 evidence
+
+Phase-2 runs peak **later** than the dev-fold screens did (best epochs 16-27 vs
+15-19), so the dev-fold evidence I used to evaluate early stopping would have
+*understated* the risk. Measured on the first five completed Phase-2 runs:
+
+| run | best epoch | cost of cap at 22 | cost of cap at 19 |
+|---|---:|---:|---:|
+| ordA cv1 | 25 | -0.0002 | -0.0008 |
+| ordC cv1 | 21 | +0.0000 | -0.0006 |
+| ordC cv3 | 18 | +0.0000 | +0.0000 |
+| ordC cv5 | 16 | +0.0000 | +0.0000 |
+| **ssm cv5** | **27** | **-0.0004** | **-0.0012** |
+
+Small individually, but they would have been silent per-fold degradations inside
+members whose five folds get averaged into one OOF prediction set -- no error, no
+warning, just a slightly worse member. Keeping the full 30 epochs was correct.
+
+The general lesson: **the dev folds are not a safe proxy for official-fold training
+dynamics.** The official folds are larger and Schwank-heavy, and their optimisation
+curves run longer. Any future recipe change validated only on dev folds should be
+re-checked on an official fold before adoption.
+
+### First Phase-2 standalone numbers (official-fold validation)
+
+All five completed runs beat the round-1 baseline on the matched fold:
+
+| run | this round | round-1 baseline, same fold | delta |
+|---|---:|---:|---:|
+| ordA cv1 | 0.9226 | 0.9192 | +0.0034 |
+| ordC cv1 | 0.9229 | 0.9192 | +0.0037 |
+| ordC cv3 | 0.9220 | 0.9161 | +0.0059 |
+| ordC cv5 | 0.9227 | 0.9202 | +0.0025 |
+| **ssm cv5** | **0.9375** | 0.9202 | **+0.0173** |
+
+PE-SSM's margin is far larger than anything else this round. Verified its setup
+before believing it: val_fold=5, train_folds=[1,2,3,4], train=238,583 / val=59,379,
+held-out fold untouched at 20,509, and a smooth plateau rather than a spike.
+
+Two cautions on these numbers. They carry the usual best-epoch-on-the-scored-rows
+bias -- but so do the round-1 baseline figures they are compared against, computed
+the same way on the same folds, so the *deltas* are fair. And they are official-fold
+scores (Schwank-heavy), not the Liu+Kim-matched dev scores, so they are not
+comparable to the ~0.88 numbers elsewhere in this log. Standalone accuracy still
+does not decide promotion; the OOF ensemble numbers do.
