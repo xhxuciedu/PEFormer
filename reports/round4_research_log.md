@@ -387,3 +387,54 @@ the same way on the same folds, so the *deltas* are fair. And they are official-
 scores (Schwank-heavy), not the Liu+Kim-matched dev scores, so they are not
 comparable to the ~0.88 numbers elsewhere in this log. Standalone accuracy still
 does not decide promotion; the OOF ensemble numbers do.
+
+---
+
+## 2026-08-20 — FINAL: 0.9079 held-out, +0.0389 over OptiPrime
+
+Both round-4 goals met. Full write-up in `reports/round4_results.md`.
+
+| | full | Liu | Kim |
+|---|---:|---:|---:|
+| round 4 | **0.9079** | 0.8585 | 0.8124 |
+| round 3 | 0.8933 | 0.8462 | 0.7836 |
+| OptiPrime | 0.8690 | 0.8365 | 0.7320 |
+
+round4 − OptiPrime = **+0.0389** [+0.0286, +0.0498], wins 1.000, p < 0.0002.
+round4 − round3 = +0.0146 [+0.0113, +0.0184].
+
+**Caveat kept next to the headline**: round-4's absolute ρ CI is [0.8955, 0.9173] and
+90.0% of resamples exceed 0.90, so the threshold is cleared on the point estimate but
+not at 95% confidence. The margin over OptiPrime is the far stronger claim.
+
+Pre-recorded expectation was ~0.910 (range 0.905–0.915); actual 0.9079 landed inside
+it, so dev→held-out transfer behaved as modelled (~0.007 loss vs round 3's ~0.005).
+
+### Wave 2 completed the record, and refined round 3's central claim
+
+| candidate | S1 | S2 corr | S2r resid | S3 |
+|---|---:|---:|---:|---:|
+| ordinal K=7 | 0.8774 | 0.9378 | 0.6876 | +0.0043 |
+| ordinal K=43 | 0.8813 | 0.9491 | 0.7354 | +0.0039 |
+| ordinal + rank loss | 0.8676 | 0.9338 | 0.6985 | +0.0029 |
+| **simplex + rank loss** | **0.8244** | **0.9077** | **0.6654** | **−0.0037** |
+
+The pure ranking-loss model is **the most decorrelated candidate ever measured here**
+-- lowest prediction correlation *and* lowest residual correlation -- and it still
+**hurt** the ensemble. At 0.8244 standalone it cannot carry its weight in an
+equal-weight rank average.
+
+This is the counterexample that corrects round 3's "standalone accuracy is close to
+irrelevant". The accurate statement is **a member must be both decorrelated and
+competent**. Decorrelation distinguishes useful from redundant *among models of
+comparable strength* -- which is why DAPT at 0.997 correlation was worthless despite
+being better standalone -- but it cannot rescue a weak model. Round 4's gain came
+from members that were simultaneously stronger *and* differently wrong.
+
+Ordinal K is not a sensitive knob for ensembling: standalone moves +0.0046 from K=7
+to K=43, but S3 is flat at +0.0039 to +0.0043 across K ∈ {7, 18, 43}.
+
+**Not promoted.** Wave 2 finished after the Phase-2 members were already trained, and
+promoting from it would have meant re-opening a search that had been frozen and
+evaluated. These numbers complete the experimental record; they did not influence the
+reported model.
