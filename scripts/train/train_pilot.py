@@ -90,6 +90,31 @@ def main() -> None:
     )
     ap.add_argument("--ordinal-bins", type=int, default=20, help="K for --ordinal-head")
     ap.add_argument(
+        "--source-weights", nargs="+", default=None, metavar="STUDY=W",
+        help="round-6 Lead 1: per-source loss weights, e.g. deepprime=2.5 hsu2026=2.0 "
+             "pridict_pridict2=0.3. Corrects the train/eval mismatch (58.4%% of training "
+             "rows are Schwank, which is 0%% of the evaluation set).",
+    )
+    ap.add_argument(
+        "--coral-head", action="store_true",
+        help="round-6 Lead 2a: rank-consistent ordinal head (shared weights, ordered biases)",
+    )
+    ap.add_argument(
+        "--hurdle-head", action="store_true",
+        help="round-6 Lead 3a: zero-inflation two-part head, P(y>0) gate + conditional ordinal",
+    )
+    ap.add_argument("--mono-penalty", type=float, default=0.0,
+                    help="round-6 Lead 2c: penalty on non-monotone cumulative probabilities")
+    ap.add_argument("--ema-decay", type=float, default=0.0,
+                    help="round-6 Lead 4d: evaluate an EMA of weights (0 disables)")
+    ap.add_argument("--ssm-state-dim", type=int, default=None)
+    ap.add_argument("--n-edit-layers", type=int, default=None)
+    ap.add_argument("--n-peg-layers", type=int, default=None)
+    ap.add_argument("--d-model", type=int, default=None)
+    ap.add_argument("--ffn-dim", type=int, default=None)
+    ap.add_argument("--moe-experts-r6", type=int, default=None, dest="moe_r6",
+                    help="round-6: MoE experts (alias avoiding the round-2 flag's default)")
+    ap.add_argument(
         "--quantile-head", action="store_true",
         help="round-5 §13: conditional quantile regression with pinball loss",
     )
@@ -319,6 +344,27 @@ def main() -> None:
             len(keep_spacers), len(train_spacers), args.bag_frac, n_before, len(train_idx),
         )
 
+    if args.source_weights:
+        # Weights apply to TRAINING rows only. Validation stays unweighted so the
+        # selection metric remains the plain Liu+Kim Spearman we actually report --
+        # otherwise a weight sweep would move the target it is being judged against.
+        wmap = {}
+        for spec in args.source_weights:
+            k_, v_ = spec.split("=")
+            wmap[k_] = float(v_)
+        srcw = pd.read_parquet(
+            cfg["data"].get("source_df", "data/processed/optiprime_official_318471.parquet"),
+            columns=["record_id", "source_study"],
+        ).set_index("record_id").source_study.reindex(corpus.record_id).to_numpy()
+        w = np.array([wmap.get(x, 1.0) for x in srcw], dtype=np.float32)
+        corpus.sample_weight = w
+        eff = {s_: float(w[(srcw == s_)][0]) for s_ in np.unique(srcw)}
+        tr_src = srcw[train_idx]
+        share = {s_: float((w[train_idx] * (tr_src == s_)).sum() / w[train_idx].sum())
+                 for s_ in np.unique(tr_src)}
+        logger.info("source weights %s -> effective training gradient share %s",
+                    eff, {k_: round(v_, 3) for k_, v_ in share.items()})
+
     logger.info("train=%d val=%d test=%d (test fold locked, not touched)", len(train_idx), len(val_idx), len(test_idx))
 
     if args.feature_branch:
@@ -331,6 +377,19 @@ def main() -> None:
             len(FEATURE_COLS), args.features_path, len(train_idx),
         )
 
+    if args.coral_head:
+        cfg["model"]["outcome_head"] = "coral"
+        cfg["loss"]["outcome_head"] = "coral"
+    if args.hurdle_head:
+        cfg["model"]["outcome_head"] = "hurdle"
+        cfg["loss"]["outcome_head"] = "hurdle"
+    if args.mono_penalty > 0:
+        cfg["loss"]["mono_penalty"] = args.mono_penalty
+    for k_, v_ in (("ssm_state_dim", args.ssm_state_dim), ("n_edit_layers", args.n_edit_layers),
+                   ("n_peg_layers", args.n_peg_layers), ("d_model", args.d_model),
+                   ("ffn_dim", args.ffn_dim), ("moe_experts", args.moe_r6)):
+        if v_ is not None:
+            cfg["model"][k_] = v_
     if args.quantile_head:
         cfg["model"]["outcome_head"] = "quantile"
         cfg["loss"]["outcome_head"] = "quantile"
@@ -344,7 +403,7 @@ def main() -> None:
         cfg["model"]["aux_context_ordinal"] = True
         cfg["model"]["aux_context_weight"] = args.aux_context_weight
 
-    if cfg["model"].get("outcome_head") == "ordinal":
+    if cfg["model"].get("outcome_head") in ("ordinal", "coral", "hurdle"):
         # Thresholds are quantiles of the TRAINING targets only -- deriving them from the
         # full corpus would leak the validation/test target distribution into the model's
         # output parameterisation. Duplicates are dropped so the thresholds stay strictly
@@ -420,9 +479,10 @@ def main() -> None:
         min_pair_diff=cfg["loss"]["min_pair_diff"],
         regression_space=cfg["loss"].get("regression_space", "raw"),
         outcome_head=cfg["loss"].get("outcome_head", "scalar"),
+        mono_penalty=cfg["loss"].get("mono_penalty", 0.0),
         ordinal_thresholds=(
             torch.tensor(model_cfg.ordinal_thresholds, dtype=torch.float32)
-            if model_cfg.outcome_head == "ordinal" else None
+            if model_cfg.outcome_head in ("ordinal", "coral", "hurdle") else None
         ),
         head_segments=model.head_segments,
         quantile_levels=(
@@ -477,6 +537,7 @@ def main() -> None:
                     out, batch["target"], pi, pj, weights,
                     rank_score=rank_score, target_indel=batch.get("target_indel"),
                     target_ctx_q=batch.get("target_ctx_q"),
+                    sample_weight=batch.get("sample_weight"),
                 )
 
             opt.zero_grad(set_to_none=True)

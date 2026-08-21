@@ -61,6 +61,9 @@ class FeaturizedCorpus:
     # computed from training rows only. Attached by the training script rather than by
     # featurize(), since it depends on the train/val split.
     target_ctx_q: np.ndarray | None = None  # (N,) float32 in [0,1]
+    # Round-6 Lead 1: per-row loss weight, used to correct the train/eval source
+    # mismatch (58.4% of training rows are Schwank, which is 0% of the evaluation set).
+    sample_weight: np.ndarray | None = None  # (N,) float32
 
     def __len__(self) -> int:
         return len(self.target)
@@ -147,6 +150,8 @@ class PEDataset(Dataset):
         }
         if c.target_ctx_q is not None:
             item["target_ctx_q"] = torch.tensor(c.target_ctx_q[j], dtype=torch.float32)
+        if c.sample_weight is not None:
+            item["sample_weight"] = torch.tensor(c.sample_weight[j], dtype=torch.float32)
         if c.features is not None:
             item["features"] = torch.from_numpy(c.features[j].astype(np.float32))
             item["features_missing"] = torch.from_numpy(c.features_missing[j].astype(np.float32))

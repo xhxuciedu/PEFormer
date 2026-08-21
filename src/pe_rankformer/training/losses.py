@@ -8,6 +8,19 @@ import torch
 import torch.nn.functional as F
 
 
+
+def _wmean(per_row: torch.Tensor, w: torch.Tensor | None) -> torch.Tensor:
+    """Mean over rows, optionally weighted (round-6 Lead 1).
+
+    Normalised by the weight sum rather than by row count, so changing the weights
+    rescales *which* rows matter without rescaling the loss magnitude -- otherwise a
+    weight sweep would silently confound itself with a learning-rate sweep.
+    """
+    if w is None:
+        return per_row.mean()
+    return (per_row * w).sum() / w.sum().clamp_min(1e-8)
+
+
 def regression_loss(
     score: torch.Tensor,
     target: torch.Tensor,
@@ -97,7 +110,8 @@ def simplex_loss(logits: torch.Tensor, edited: torch.Tensor, indel: torch.Tensor
 
 
 def ordinal_loss(
-    logits: torch.Tensor, target: torch.Tensor, thresholds: torch.Tensor
+    logits: torch.Tensor, target: torch.Tensor, thresholds: torch.Tensor,
+    sample_weight: torch.Tensor | None = None, mono_penalty: float = 0.0,
 ) -> torch.Tensor:
     """CORAL-style cumulative-threshold loss (round 4).
 
@@ -116,7 +130,18 @@ def ordinal_loss(
     # (B, K-1) binary targets; comparison is strict so a row exactly at a threshold
     # counts as below it, consistently with how the thresholds were derived (quantiles).
     y = (target.unsqueeze(-1) > thresholds.unsqueeze(0)).to(logits.dtype)
-    return F.binary_cross_entropy_with_logits(logits, y)
+    per_row = F.binary_cross_entropy_with_logits(logits, y, reduction="none").mean(dim=-1)
+    loss = _wmean(per_row, sample_weight)
+    if mono_penalty > 0:
+        # Round-6 Lead 2c: P(y > t_k) must be non-increasing in k. With independent
+        # per-threshold weights nothing enforces that, and a trained model violates it
+        # on 100% of rows. This penalises violations without changing the
+        # parameterisation, which separates the value of the CONSTRAINT from the cost
+        # of CORAL's shared-weight parameterisation.
+        p = torch.sigmoid(logits)
+        viol = torch.clamp(p[..., 1:] - p[..., :-1], min=0.0).mean(dim=-1)
+        loss = loss + mono_penalty * _wmean(viol, sample_weight)
+    return loss
 
 
 
@@ -141,6 +166,45 @@ def pinball_loss(
     e = target.unsqueeze(-1) - pred  # (B, Q)
     q = quantiles.unsqueeze(0)
     return torch.maximum(q * e, (q - 1.0) * e).mean()
+
+
+
+def hurdle_loss(
+    gate_logit: torch.Tensor, ord_logits: torch.Tensor, target: torch.Tensor,
+    thresholds: torch.Tensor, sample_weight: torch.Tensor | None = None,
+) -> torch.Tensor:
+    """Two-part (hurdle) loss for a zero-inflated target (round-6 Lead 3).
+
+    28.4% of rows have efficiency *exactly* zero, and 49.9% within the Kim partition.
+    A single continuous head must spend capacity discriminating inside a block where
+    the truth is constant, and its ordering there is arbitrary noise.
+
+    This factorises the problem the way the data is generated:
+
+        P(y > 0)          -- a binary "does this pegRNA edit at all" gate
+        rank(y | y > 0)   -- the ordinal head, trained ONLY on rows that do edit
+
+    Distinct from the simplex head, which decomposes outcome *type* (unedited / edited
+    / indel) across all rows. This decomposes zero versus positive, which is the axis
+    the zero-inflation actually lies on.
+
+    The conditional term is masked, not down-weighted: a zero row carries no
+    information about ordering among editing rows, so including it with any weight
+    would inject noise into the very block the factorisation exists to remove.
+    """
+    is_pos = (target > 0).to(gate_logit.dtype)
+    per_row_gate = F.binary_cross_entropy_with_logits(gate_logit, is_pos, reduction="none")
+    loss = _wmean(per_row_gate, sample_weight)
+
+    pos = is_pos > 0
+    if pos.any():
+        y = (target[pos].unsqueeze(-1) > thresholds.unsqueeze(0)).to(ord_logits.dtype)
+        per_row_ord = F.binary_cross_entropy_with_logits(
+            ord_logits[pos], y, reduction="none"
+        ).mean(dim=-1)
+        w = None if sample_weight is None else sample_weight[pos]
+        loss = loss + _wmean(per_row_ord, w)
+    return loss
 
 
 def correlation_loss(score: torch.Tensor, target: torch.Tensor, eps: float = 1e-8) -> torch.Tensor:
@@ -176,6 +240,7 @@ class LossWeights:
     outcome_head: str = "scalar"  # "scalar" | "simplex" | "ordinal"
     ordinal_thresholds: torch.Tensor | None = None  # required for the ordinal head
     quantile_levels: torch.Tensor | None = None  # required for outcome_head='quantile'
+    mono_penalty: float = 0.0  # round-6 Lead 2c: penalise non-monotone cumulative probs
     head_segments: list | None = None  # round-5: the model's `head_segments` layout.
     # Supplied by the model rather than reconstructed here, so the objective and the
     # network cannot disagree about which logits mean what.
@@ -191,6 +256,7 @@ def total_loss(
     rank_score: torch.Tensor | None = None,
     target_indel: torch.Tensor | None = None,
     target_ctx_q: torch.Tensor | None = None,
+    sample_weight: torch.Tensor | None = None,
 ) -> tuple[torch.Tensor, dict[str, float]]:
     """`score` is the model's raw head output: (B,) for the scalar head, (B,3) logits for
     the simplex head. `rank_score` is the monotone scalar used for ranking (supplied by
@@ -205,9 +271,15 @@ def total_loss(
     if weights.outcome_head == "simplex":
         assert target_indel is not None, "simplex head requires target_indel"
         l_reg = simplex_loss(primary, target, target_indel)
-    elif weights.outcome_head == "ordinal":
+    elif weights.outcome_head in ("ordinal", "coral"):
         assert weights.ordinal_thresholds is not None, "ordinal head requires thresholds"
-        l_reg = ordinal_loss(primary, target, weights.ordinal_thresholds.to(score.device))
+        l_reg = ordinal_loss(primary, target, weights.ordinal_thresholds.to(score.device),
+                             sample_weight=sample_weight, mono_penalty=weights.mono_penalty)
+    elif weights.outcome_head == "hurdle":
+        assert weights.ordinal_thresholds is not None, "hurdle head requires thresholds"
+        l_reg = hurdle_loss(primary[..., 0], primary[..., 1:], target,
+                            weights.ordinal_thresholds.to(score.device),
+                            sample_weight=sample_weight)
     elif weights.outcome_head == "quantile":
         assert weights.quantile_levels is not None, "quantile head requires levels"
         l_reg = pinball_loss(primary, target, weights.quantile_levels.to(score.device))

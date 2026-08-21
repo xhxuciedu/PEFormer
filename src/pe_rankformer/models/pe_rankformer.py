@@ -49,6 +49,14 @@ class PERankFormerConfig:
     # the target's marginal distribution) differs fundamentally from the simplex head's
     # 3-way cross-entropy over outcome proportions, and error decorrelation -- not
     # standalone accuracy -- is what the round-3 analysis showed the ensemble rewards.
+    # Round-6 Lead 2 / Lead 3 heads:
+    #   "coral"  -- true rank-consistent ordinal. One SHARED weight vector plus K-1
+    #               ordered biases, so P(y>t_k) is non-increasing BY CONSTRUCTION. The
+    #               current "ordinal" head has independent per-threshold weights and
+    #               violates monotonicity on 100% of rows (8 of 16 pairs on average).
+    #   "hurdle" -- zero-inflation factorisation: a binary P(y>0) gate plus an ordinal
+    #               head trained only on rows that edit. 28.4% of rows are exactly zero
+    #               (49.9% in Kim), which no other head models explicitly.
     quantile_levels: tuple[float, ...] = ()  # required iff outcome_head == "quantile"
     # (round-5 §13): predicts the conditional quantiles of efficiency by pinball loss.
     # Unlike the ordinal head this outputs values in the target's own units, so it is
@@ -96,12 +104,12 @@ class PERankFormerConfig:
             raise ValueError("moe_experts>0 requires use_context=True (the gate is context-conditioned)")
         if self.sequence_mixer not in ("attention", "ssm", "hybrid_alt", "hybrid_par"):
             raise ValueError(f"unknown sequence_mixer: {self.sequence_mixer!r}")
-        if self.outcome_head not in ("scalar", "simplex", "ordinal", "quantile"):
+        if self.outcome_head not in ("scalar", "simplex", "ordinal", "quantile", "coral", "hurdle"):
             raise ValueError(f"unknown outcome_head: {self.outcome_head!r}")
-        if self.outcome_head == "ordinal":
+        if self.outcome_head in ("ordinal", "coral", "hurdle"):
             t = self.ordinal_thresholds
             if len(t) < 2:
-                raise ValueError("outcome_head='ordinal' requires >=2 ordinal_thresholds")
+                raise ValueError(f"outcome_head={self.outcome_head!r} requires >=2 ordinal_thresholds")
             if any(b <= a for a, b in zip(t, t[1:])):
                 # Non-increasing thresholds would make the cumulative targets incoherent
                 # (P(y>t_k) must be non-increasing in k) and silently corrupt training.
@@ -118,7 +126,12 @@ class PERankFormerConfig:
             raise ValueError("quantile_levels set but outcome_head is not 'quantile'")
         aux_on = (self.aux_simplex_weight > 0 or self.ordinal_thresholds_aux
                   or self.aux_context_ordinal)
-        if aux_on and self.outcome_head != "ordinal":
+        if aux_on and self.outcome_head == "coral":
+            # forward() expands CORAL's single logit into K-1 columns; auxiliary segments
+            # concatenated by the head would be shifted by that expansion. Fail loudly
+            # rather than silently mis-slicing them.
+            raise ValueError("outcome_head='coral' cannot be combined with auxiliary heads")
+        if aux_on and self.outcome_head not in ("ordinal", "coral", "hurdle"):
             # The auxiliary machinery assumes an ordinal primary (that is the round-5
             # baseline). Failing loudly beats silently training a head nothing reads.
             raise ValueError("round-5 auxiliary heads require outcome_head='ordinal'")
@@ -425,6 +438,10 @@ class PERankFormer(nn.Module):
             n_out = 3
         elif config.outcome_head == "ordinal":
             n_out = len(config.ordinal_thresholds)
+        elif config.outcome_head == "coral":
+            n_out = 1  # a single shared logit; the K-1 thresholds come from ordered biases
+        elif config.outcome_head == "hurdle":
+            n_out = 1 + len(config.ordinal_thresholds)  # [gate, ordinal...]
         elif config.outcome_head == "quantile":
             n_out = len(config.quantile_levels)
         else:
@@ -433,22 +450,30 @@ class PERankFormer(nn.Module):
         # Round-5: auxiliary segments appended after the primary. `head_segments` is the
         # single source of truth for the layout and is consumed by the loss, so the model
         # and the objective cannot disagree about which logits mean what.
+        # For CORAL the Linear emits ONE shared logit but forward() expands it to K-1
+        # columns, so the segment map must describe the post-expansion width or the loss
+        # will slice a 1-wide tensor against a (K-1)-wide target.
+        primary_width = (len(config.ordinal_thresholds)
+                         if config.outcome_head == "coral" else n_out)
         self.head_segments: list[dict] = [
-            {"kind": config.outcome_head, "start": 0, "end": n_out, "weight": 1.0}
+            {"kind": config.outcome_head, "start": 0, "end": primary_width, "weight": 1.0}
         ]
+        aux_start = primary_width
         if config.aux_simplex_weight > 0:
-            self.head_segments.append({"kind": "simplex", "start": n_out, "end": n_out + 3,
+            self.head_segments.append({"kind": "simplex", "start": aux_start, "end": aux_start + 3,
                                        "weight": config.aux_simplex_weight})
-            n_out += 3
+            n_out += 3; aux_start += 3
         for t in config.ordinal_thresholds_aux:
-            self.head_segments.append({"kind": "ordinal", "start": n_out, "end": n_out + len(t),
+            self.head_segments.append({"kind": "ordinal", "start": aux_start,
+                                       "end": aux_start + len(t),
                                        "weight": config.aux_ordinal_weight, "thresholds": t})
-            n_out += len(t)
+            n_out += len(t); aux_start += len(t)
         if config.aux_context_ordinal:
             k = len(config.ordinal_thresholds)
-            self.head_segments.append({"kind": "ordinal_ctx", "start": n_out, "end": n_out + k,
+            self.head_segments.append({"kind": "ordinal_ctx", "start": aux_start,
+                                       "end": aux_start + k,
                                        "weight": config.aux_context_weight})
-            n_out += k
+            n_out += k; aux_start += k
         if config.moe_experts > 0:
             # Disaggregated head, only used for MoE (round-2 Family B, §8) -- kept as a
             # separate code path rather than the default so every pre-round-2 checkpoint
@@ -468,6 +493,15 @@ class PERankFormer(nn.Module):
                 nn.Linear(d, n_out),
             )
             self.head_norm = self.head_hidden = self.head_out = None
+
+        if config.outcome_head == "coral":
+            # Ordered biases via cumulative softplus: b_1 = c_0, b_k = b_{k-1} +
+            # softplus(c_k) > b_{k-1}. Since P(y>t_k) = sigmoid(z - b_k), increasing b
+            # makes the cumulative probabilities non-increasing for EVERY input, with no
+            # penalty term and nothing to tune.
+            self.coral_bias_raw = nn.Parameter(torch.zeros(len(config.ordinal_thresholds)))
+        else:
+            self.coral_bias_raw = None
 
         self.apply(self._init_weights)
 
@@ -535,9 +569,17 @@ class PERankFormer(nn.Module):
             out = self.head_out(hidden)
         else:
             out = self.head(pooled)
-        if self.config.outcome_head in ("simplex", "ordinal", "quantile"):
+        if self.config.outcome_head == "coral":
+            b = self.coral_biases()
+            return out - b.unsqueeze(0)  # (B, K-1), guaranteed non-increasing in k
+        if self.config.outcome_head in ("simplex", "ordinal", "quantile", "hurdle"):
             return out  # simplex: (B,3); ordinal: (B,K-1) [+ auxiliary segments appended]
         return out.squeeze(-1)  # (B,) raw score
+
+    def coral_biases(self) -> torch.Tensor:
+        """Strictly increasing thresholds b_1 < b_2 < ... < b_{K-1}."""
+        c = self.coral_bias_raw
+        return torch.cat([c[:1], c[:1] + torch.cumsum(F.softplus(c[1:]), dim=0)])
 
     def ranking_score(self, out: torch.Tensor) -> torch.Tensor:
         """Monotone-in-efficiency scalar used by the pairwise ranking loss.
@@ -547,6 +589,12 @@ class PERankFormer(nn.Module):
         """
         if self.config.outcome_head == "simplex":
             return out[:, 1] - out[:, 0]
+        if self.config.outcome_head == "coral":
+            return torch.sigmoid(out).mean(dim=-1)
+        if self.config.outcome_head == "hurdle":
+            # P(edits at all) x expected rank given it edits. Both factors matter: the
+            # gate separates the zero block, the conditional orders within it.
+            return torch.sigmoid(out[..., 0]) * torch.sigmoid(out[..., 1:]).mean(dim=-1)
         if self.config.outcome_head == "quantile":
             # Rank by the predicted median, the most robust single order statistic
             # (spec §13 also allows the mean of quantiles; the median is used because
@@ -563,6 +611,10 @@ class PERankFormer(nn.Module):
     def efficiency_from_output(self, out: torch.Tensor) -> torch.Tensor:
         if self.config.outcome_head == "simplex":
             return torch.softmax(out, dim=-1)[:, 1]
+        if self.config.outcome_head == "coral":
+            return torch.sigmoid(out).mean(dim=-1)
+        if self.config.outcome_head == "hurdle":
+            return torch.sigmoid(out[..., 0]) * torch.sigmoid(out[..., 1:]).mean(dim=-1)
         if self.config.outcome_head == "quantile":
             # Already in efficiency units -- no sigmoid, unlike every other head.
             return out[..., len(self.config.quantile_levels) // 2]
