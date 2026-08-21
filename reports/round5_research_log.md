@@ -176,3 +176,100 @@ improve. Documented here rather than silently skipped.
 `ordSSM`/`ssm` redundancy inside the round-4 ensemble (most correlated pair measured,
 0.9639). Testing ensemble recomposition over the nine existing OOF members, which
 costs no training at all.
+
+---
+
+## 2026-08-21 — Ensemble recomposition: also null
+
+Phase 0 flagged that the round-4 ensemble's two strongest members, `ordSSM` and `ssm`,
+are the most correlated pair measured (pred 0.9639, resid 0.7641) because they share
+an architecture, and suggested swapping one for a Transformer-side member. Tested by
+searching all 511 subsets of the nine existing OOF members -- no training required.
+
+**Result: the top-10 subsets are identical to round 4's.** The dev optimum is still
+`ordSSM+ssm+ordC+ordA` at 0.9149. `round1_baseline_oof` -- the member the factorial
+identified as *most* complementary to ordSSM (residual corr 0.6453) -- does not appear
+in the top 10 at all.
+
+So the redundancy is real but not costly: `ssm` earns its place on strength despite
+overlapping with `ordSSM`, and the more complementary but weaker Transformer members
+cannot displace it. This is the "decorrelated **and** competent" rule again, now
+constraining ensemble *composition* rather than member admission.
+
+---
+
+## 2026-08-21 — Calibration (§15): the one clear round-5 win
+
+The round-4 system rank-averages, so its output is a normalised rank, not an
+efficiency -- MAE/RMSE against it are meaningless and it cannot be read as "edits ~12%
+of alleles". Fitted a monotone map on OOF dev predictions only.
+
+| | Spearman | Pearson | MAE | RMSE |
+|---|---:|---:|---:|---:|
+| held-out, uncalibrated | 0.9079 | 0.7278 | 0.3869 | 0.4343 |
+| **held-out, isotonic-calibrated** | **0.9079** | **0.8637** | **0.0478** | **0.0912** |
+
+**MAE falls 8-fold and Pearson rises 0.136, with the ranking untouched.** Applying it
+to the frozen held-out predictions is legitimate because the map is fitted entirely on
+dev, is verified non-decreasing, and changes no pair's order -- it is a change of
+units on an already-frozen vector, not a new model selection.
+
+Implementation note: I first asserted "Spearman must not change", which failed at
+2e-05. The assertion was wrong, not the calibration. Isotonic regression is piecewise
+*constant*, so it maps distinct scores to identical values; those ties move Spearman
+infinitesimally without inverting any pair. Replaced it with a direct check that the
+map is non-decreasing, which distinguishes "created ties" (expected) from "reordered
+rows" (a real bug).
+
+---
+
+## 2026-08-21 — Independent lead: zero-floor tie matching. Real effect, **rejected**.
+
+**Origin.** The PCHIP calibrator scored +0.0046 dev Spearman above uncalibrated, which
+is impossible for a monotone map. Investigating rather than ignoring that anomaly led
+to a genuine mechanism.
+
+**Mechanism.** 28.4% of dev rows have efficiency *exactly* 0.0 -- one tie block of
+~10,140 rows. A strictly-increasing predictor assigns them all distinct ranks, and
+every bit of that internal ordering is arbitrary. Spearman compares against a target
+where they are mutually tied, so the arbitrary ordering is pure penalty. Collapsing
+the lowest-scoring rows onto one value matches the target's tie structure.
+
+**It works, and the mechanism is confirmed.** The optimum floor fraction (0.30) sits
+right at the zero-mass (28.4%), and the effect tracks zero-mass across studies exactly
+as the mechanism predicts:
+
+| study | zero-mass | effect at frac=0.30 |
+|---|---:|---:|
+| Liu | 0.7% | **−0.0154** |
+| Kim | 50.7% | **+0.0066** |
+
+Nested global tuning gave **+0.0044, positive on all three folds**; a context-aware
+version (Liu 0.00, Kim 0.40) gave +0.0029 without harming Liu.
+
+**Rejected anyway.** The decisive test was whether the gain reflects better prediction
+or the metric's tie convention -- so I applied the identical transform to five other
+models on Kim rows:
+
+| model | base | floored | delta |
+|---|---:|---:|---:|
+| ordSSM (best) | 0.7912 | 0.8040 | +0.0127 |
+| ssm | 0.7771 | 0.7933 | +0.0162 |
+| round1 baseline (weakest) | 0.7517 | 0.7666 | +0.0149 |
+| familyC | 0.7534 | 0.7680 | +0.0146 |
+| DAPT | 0.7539 | 0.7688 | +0.0148 |
+
+**Every model gains ~+0.015, essentially independent of quality.** It is a property of
+how Spearman handles ties, not a modelling improvement. OptiPrime outputs continuous,
+tie-free scores, so adopting this unilaterally would produce a headline gain from a
+metric convention while comparing against a baseline denied the same benefit --
+precisely what the round-5 rule "do not claim improvement without a fair comparison"
+forbids. It also degrades practical utility: 40% of Kim designs would receive an
+identical score.
+
+**Recorded as a benchmark-methodology finding, which is its real value.** Spearman on
+this benchmark is materially sensitive to tie behaviour: any model that emits ties in
+the zero-mass region gains ~+0.015 on Kim regardless of its quality. Comparisons
+between models with different tie behaviour are therefore not automatically
+apples-to-apples, and this belongs in the manuscript as a caveat for anyone
+benchmarking PE models on Kim-style data.
