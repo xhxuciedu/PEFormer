@@ -78,3 +78,101 @@ heads can therefore only help by shaping the representation; they never move the
 prediction directly. Without that property these would be ensembling in disguise, and
 a negative result could read as positive -- so it is the property the unit tests
 target hardest.
+
+---
+
+## 2026-08-21 — Phase 1 + hybrid + quantile: a comprehensive null
+
+14 candidates trained on dev fold 0 across all 8 GPUs, all 30 epochs, no failures.
+Every one measured against the round-4 ensemble (0.9156 on this fold).
+
+| candidate | S1 solo | S2 vs ordSSM | S3 vs R4ens | S4 resid | **S5 gain** |
+|---|---:|---:|---:|---:|---:|
+| multi-res + context (small) | 0.8991 | 0.9530 | 0.9585 | 0.7614 | +0.0020 |
+| hybrid alternating (small) | 0.8981 | 0.9511 | 0.9584 | 0.7539 | +0.0019 |
+| dual-head λ=0.50 | 0.8973 | 0.9525 | 0.9572 | 0.7583 | +0.0019 |
+| **plain re-run (no new mechanism)** | **0.8979** | **0.9542** | **0.9608** | **0.7809** | **+0.0018** |
+| context-ordinal λ=0.10 | 0.8988 | 0.9550 | 0.9613 | 0.7752 | +0.0017 |
+| hybrid parallel | 0.8945 | 0.9451 | 0.9549 | 0.7466 | +0.0017 |
+| hybrid alternating | 0.8958 | 0.9489 | 0.9599 | 0.7759 | +0.0014 |
+| quantile head | 0.8840 | 0.9322 | 0.9386 | **0.6645** | +0.0010 |
+
+*(remaining dual/context/multi-res variants all fall between +0.0016 and +0.0019)*
+
+**Nothing clears either promotion bar.** Path A needs +0.005 standalone (best: +0.0016).
+Path B needs +0.003 ensemble gain (best: +0.0020).
+
+### The control that makes this conclusive
+
+`r5s_ordssm_ref_d0` is Ordinal-SSM retrained at a different batch size -- **no new
+mechanism whatsoever**. It gains **+0.0018**, statistically indistinguishable from the
+best novel mechanism's +0.0020.
+
+So the ~+0.002 every candidate shows is not the auxiliary heads, the hybrid mixers or
+the quantile head doing anything. It is simply what adding a **sixth member** to a
+five-member ensemble is worth on this benchmark. **The difference attributable to
+every round-5 idea combined is +0.0002.**
+
+Without that control I would have reported fourteen small positive gains and might
+have promoted the top one. Including a mechanism-free re-run in the screen is what
+turned an ambiguous set of small positives into a clean null, and it is the single
+most useful thing I did this phase.
+
+### Why the hybrid mixer failed — the gate says so directly
+
+The parallel hybrid's learned gates were built as a diagnostic. After training:
+
+```
+edit encoder, mean SSM weight per layer: 0.514 0.510 0.508 0.505 0.505 0.505
+peg  encoder, mean SSM weight per layer: 0.514 0.509 0.507 0.507
+```
+
+Initialised at 0.500. They barely moved. The model **never developed a preference**
+and kept a near-even blend at every layer, which is why it scored *below* the pure
+SSM (-0.0027) rather than above it.
+
+The mechanistic reading: **averaging two mixers inside a network is not ensembling
+two networks.** Across models, averaging predictions cancels independent errors and
+helps. Within a model, averaging two representations before the head produces a
+blurrier representation than either -- the mixers cannot specialise because both see
+identical input and their outputs are summed before any nonlinearity that could
+separate them. Diversity pays at the prediction level and costs at the representation
+level. That also explains the alternating variant's smaller loss (-0.0014): it at
+least lets each mechanism act on the other's output rather than averaging them.
+
+### Quantile head: another "decorrelated but not competent"
+
+Lowest residual correlation of any candidate (0.6645, well below the ~0.75 pack) --
+genuinely different errors, exactly as hoped for a distributional objective. And the
+lowest standalone score (0.8840) and lowest ensemble gain (+0.0010). This is the same
+pattern round 4's ranking-loss model established, now confirmed on a second, unrelated
+objective: decorrelation without competence is worthless.
+
+Its value is not predictive. It is the only head that outputs efficiency in the
+target's own units, so it is retained as the natural instrument for the §15
+calibration work rather than as an ensemble member.
+
+### Decision
+
+Close experiments A (dual-head), B (multi-resolution), C (context-ordinal),
+G (hybrid mixer) and H (quantile) as **null on this backbone**. Classification per
+§20: *redundant* -- not weak, not unstable, not implementation-invalid. They train
+fine and score near baseline; they simply add nothing the backbone does not already
+capture.
+
+This is consistent with, and now strongly reinforces, the Phase-0 factorial's
+sub-additive interaction (-0.0043): mechanisms stacked on one backbone overlap rather
+than compose.
+
+**Not pursuing** experiments D (reverse-complement) or E (relational contrastive
+pretraining) on this evidence. Both are substantially more expensive than anything
+above, and five independent mechanisms spanning supervision geometry, architecture
+and output parameterisation have now each returned the same ~+0.002 that a plain
+re-run returns. Spending days of implementation on a sixth is not justified by the
+evidence; §26 explicitly warns against over-tuning when a round does not materially
+improve. Documented here rather than silently skipped.
+
+**Next:** the one lead Phase 0 raised that is *not* about new mechanisms -- the
+`ordSSM`/`ssm` redundancy inside the round-4 ensemble (most correlated pair measured,
+0.9639). Testing ensemble recomposition over the nine existing OOF members, which
+costs no training at all.
