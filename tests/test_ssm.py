@@ -79,10 +79,17 @@ def test_ssm_model_forward_and_backward():
     assert torch.isfinite(model.edit_encoder.layers[0].kernel_fwd.C.grad).all()
 
 
-def test_ssm_rejects_layerwise_context():
-    """Silently ignoring one of two conflicting settings would be worse than failing."""
-    with pytest.raises(ValueError, match="not implemented"):
-        PERankFormerConfig(sequence_mixer="ssm", context_strategy="layerwise")
+def test_ssm_supports_layerwise_context():
+    """Round 6 implemented this; it previously raised "not implemented".
+
+    Kept as a test rather than deleted, because the round-6 diagnostic (the model
+    reorders far less across experimental conditions than reality does) is the reason
+    the combination matters, and a silent regression to late-only conditioning would
+    be hard to notice from accuracy alone.
+    """
+    cfg = PERankFormerConfig(sequence_mixer="ssm", context_strategy="layerwise",
+                             context_fields=("cell_type",), context_vocab_sizes={"cell_type": 3})
+    assert cfg.context_strategy == "layerwise"
 
 
 def test_unknown_mixer_rejected():

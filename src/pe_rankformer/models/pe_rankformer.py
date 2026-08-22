@@ -147,14 +147,7 @@ class PERankFormerConfig:
                 f"sequence_mixer={self.sequence_mixer!r} with context_strategy='layerwise' "
                 "is not implemented; use context_strategy='late'"
             )
-        if self.sequence_mixer == "ssm" and self.context_strategy == "layerwise":
-            # The layerwise path interleaves FiLM between individually-exposed encoder
-            # layers; the SSM stack is not currently decomposed that way. Fail loudly
-            # rather than silently ignoring one of the two settings.
-            raise ValueError(
-                "sequence_mixer='ssm' with context_strategy='layerwise' is not implemented; "
-                "use context_strategy='late' for SSM runs"
-            )
+
 
 
 def _encoder_layer(d_model: int, n_heads: int, ffn_dim: int, dropout: float) -> nn.TransformerEncoderLayer:
@@ -400,13 +393,28 @@ class PERankFormer(nn.Module):
             # internally, so per-layer conditioning needs the individual encoder layers
             # exposed directly rather than wrapped.
             ctx_dim = self.context_encoder.out_dim
-            self.edit_layers = nn.ModuleList(
-                [_encoder_layer(d, config.n_heads, config.ffn_dim, config.dropout) for _ in range(config.n_edit_layers)]
-            )
+
+            def _one_block() -> nn.Module:
+                """A single conditionable mixing block, for either mixer.
+
+                Round-6 diagnostic: the model's rankings are far more similar across
+                experimental conditions than reality is (0.835 vs 0.683 mean
+                cross-condition Spearman), i.e. it uses context to rescale a summary
+                rather than to reorder designs -- yet that reordering is partly
+                predictable (rho ~ 0.275) from design features alone. Late FiLM can only
+                rescale the pooled vector; layerwise FiLM lets context shape the
+                representation as it is built. This was previously unavailable on the
+                SSM backbone, which is the strongest one we have.
+                """
+                if config.sequence_mixer == "ssm":
+                    from .ssm import BiS4DLayer
+
+                    return BiS4DLayer(d, config.ffn_dim, config.dropout, config.ssm_state_dim)
+                return _encoder_layer(d, config.n_heads, config.ffn_dim, config.dropout)
+
+            self.edit_layers = nn.ModuleList([_one_block() for _ in range(config.n_edit_layers)])
             self.edit_films = nn.ModuleList([FiLM(ctx_dim, d) for _ in range(config.n_edit_layers)])
-            self.peg_layers = nn.ModuleList(
-                [_encoder_layer(d, config.n_heads, config.ffn_dim, config.dropout) for _ in range(config.n_peg_layers)]
-            )
+            self.peg_layers = nn.ModuleList([_one_block() for _ in range(config.n_peg_layers)])
             self.peg_films = nn.ModuleList([FiLM(ctx_dim, d) for _ in range(config.n_peg_layers)])
             self.cross_edit_films = nn.ModuleList([FiLM(ctx_dim, d) for _ in range(config.n_cross_blocks)])
             self.cross_peg_films = nn.ModuleList([FiLM(ctx_dim, d) for _ in range(config.n_cross_blocks)])
@@ -536,12 +544,16 @@ class PERankFormer(nn.Module):
 
         if self.layerwise:
             # Family A (round-2 §7): h'_l = (1+gamma_l(c)) * h_l + beta_l(c); h_{l+1} = block_l(h'_l).
+            ssm_blocks = self.config.sequence_mixer == "ssm"
             for film, layer in zip(self.edit_films, self.edit_layers):
                 edit_h = film(edit_h, context_vector)
-                edit_h = layer(edit_h, src_key_padding_mask=edit_pad_mask)
+                # BiS4DLayer takes the pad mask positionally; the Transformer layer by keyword.
+                edit_h = (layer(edit_h, edit_pad_mask) if ssm_blocks
+                          else layer(edit_h, src_key_padding_mask=edit_pad_mask))
             for film, layer in zip(self.peg_films, self.peg_layers):
                 peg_h = film(peg_h, context_vector)
-                peg_h = layer(peg_h, src_key_padding_mask=peg_pad_mask)
+                peg_h = (layer(peg_h, peg_pad_mask) if ssm_blocks
+                         else layer(peg_h, src_key_padding_mask=peg_pad_mask))
             for i, block in enumerate(self.cross_blocks):
                 edit_h = self.cross_edit_films[i](edit_h, context_vector)
                 peg_h = self.cross_peg_films[i](peg_h, context_vector)
