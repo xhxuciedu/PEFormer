@@ -203,3 +203,66 @@ may nonetheless be empirically harmless.
 Given round 5's null and the sub-additive interaction, I would treat a **+0.005 to
 +0.010 single-model gain** as a good round-6 outcome and anything above +0.015 as a
 surprise worth double-checking for leakage before believing.
+
+---
+
+# Wave 1 results (2026-08-21)
+
+Thirteen runs, all 8 GPUs, 30 epochs each, one plain re-run control per recipe track.
+
+| Lead | run | score | Δ vs control |
+|---|---|---:|---:|
+| 4 capacity | **deep, 9+6 SSM layers** | 0.9005 | **+0.0038** |
+| 1 distribution | **source weights, mild** | 0.9000 | **+0.0033** |
+| 1 distribution | source weights, moderate | 0.8975 | +0.0008 |
+| 2c consistency | monotonicity penalty | 0.8974 | +0.0007 |
+| 2a consistency | true CORAL | 0.8972 | +0.0005 |
+| 3a zero-inflation | hurdle head | 0.8945 | −0.0022 |
+| 1 distribution | source weights, aggressive | 0.8908 | −0.0059 |
+
+*small-card track (control 0.8980):* **MoE-4 0.9012 (+0.0032)**, state256 +0.0002,
+ffn2304 −0.0001, state128 −0.0022.
+
+## Reading
+
+**Nothing clears +0.005.** At a ~0.005 single-fold resolution floor, no individual
+result here is distinguishable from noise, and none is promoted on this evidence.
+
+**But this is not round 5.** There, every candidate matched a mechanism-free re-run to
+within +0.0002. Here three candidates on *genuinely orthogonal* axes reach +0.003 to
++0.004 — capacity, data distribution, and conditional capacity. Whether that is three
+real small effects or three draws from the noise distribution is exactly what Wave 2's
+replication answers.
+
+**Source weighting is an inverted-U**, which resolves the question the sweep was built
+to answer. Mild +0.0033, moderate +0.0008, aggressive −0.0059. Cutting Schwank to 4.3%
+of the gradient produced the *worst* run in the wave. So Schwank's 174k rows carry real
+transferable signal despite never being evaluated: the win is a **modest tilt** toward
+the evaluation mix, not training on it. Running one setting instead of three would have
+given either a false positive or a false negative depending on which I picked.
+
+**Depth's trajectory is the strongest single signal.** It was −0.0012 at epoch 5 and
++0.0038 at epoch 20 — trains slower early, then overtakes, which is the shape of a
+capacity gain rather than a convergence artifact. Source weighting was flat from epoch
+5 (+0.0021 → +0.0033), i.e. an early advantage that holds without compounding. This
+also partly clears the confound that source weighting merely converges faster toward
+what validation measures.
+
+**Both rank-consistency leads came in flat** (CORAL +0.0005, penalty +0.0007), the
+outcome the plan called most likely. The head does violate monotonicity on 100% of
+rows, but repairing that is not what binds performance. Recorded as *implementation
+gap, empirically inert* — worth fixing for coherence of the predicted CDF, not for
+accuracy.
+
+**The hurdle head was negative** (−0.0022) despite targeting a real 28.4% zero mass.
+Classification: *redundant* — the ordinal head's lowest thresholds already separate the
+zero block, so an explicit gate adds a parameter path without adding information.
+
+## Wave 2 (running)
+
+1. **Replication** of `deep` and `srcA` on dev folds 1 and 2, with matched controls. A
+   fold-0-only result at this effect size is not evidence.
+2. **MoE moved to the batch-512 track** so it is comparable to `deep` and `srcA`
+   rather than only to its own small-card control.
+3. **Composition:** MoE × source weighting, and MoE-8, to test whether orthogonal axes
+   stack — the factorial's sub-additive interaction predicts they will not fully.
