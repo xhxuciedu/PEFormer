@@ -87,3 +87,63 @@ evidence.
 model's cross-condition rank correlation toward the true 0.683 while raising Kim
 Spearman. If Kim improves but cross-condition similarity does not fall, the gain came
 from somewhere else and the explanation is wrong.
+
+---
+
+# Result: the prediction was falsified, informatively
+
+Layerwise context on the SSM backbone, three folds with matched controls:
+
+| fold | layerwise | control | delta |
+|---|---:|---:|---:|
+| 0 | 0.8963 | 0.8964 | −0.0001 |
+| 1 | 0.8994 | 0.8993 | +0.0001 |
+| 2 | 0.8960 | 0.8957 | +0.0003 |
+
+**Mean +0.0001.** No effect.
+
+The pre-registered prediction was that layerwise conditioning would *lower* the model's
+cross-condition rank correlation toward the true 0.683. It did the opposite:
+
+| model | true xcond ρ | model xcond ρ | excess |
+|---|---:|---:|---:|
+| late FiLM (control) | 0.683 | 0.828 | +0.145 |
+| **layerwise FiLM** | 0.683 | **0.875** | **+0.192** |
+
+**More conditioning made the model *more* condition-invariant.** That is the opposite
+of the intent and it explains the null cleanly.
+
+**Why.** FiLM is structurally a per-channel scale and shift: `h' = (1+γ(c))·h + β(c)`.
+Applying it at every block does not create capacity to *reorder* designs; it creates a
+better pathway for representing the cross-condition **mean shift**. Cross-condition
+mean differences explain a large share of pooled variance and are far easier to fit
+than reordering, so extra conditioning capacity gets spent there, and the pressure on
+the sequence pathway to specialise per condition goes *down*.
+
+The diagnosis stands — context is under-used for reordering, and the reordering is
+learnable (ρ ≈ 0.275 from design features alone). The instrument was wrong.
+
+# Next intervention: attack the objective, not the architecture
+
+If the mean shift is the shortcut, remove it from the objective. **ctx-primary** trains
+the ordinal head on **within-condition quantiles** `F_c(y)` as the *primary* target, so
+predicting the condition's mean earns no credit and the only way to reduce loss is to
+rank correctly *within* a condition.
+
+Location is then restored exactly rather than learned approximately, by inverting
+through each condition's empirical **training** CDF:
+
+    yhat = F_c^{-1}( qhat(sequence, context) )
+
+This is a different proposition from round 5's §8 experiment, which added
+context-normalised supervision as a small *auxiliary* head (λ ≤ 0.5) alongside the
+global objective and scored +0.0016. Keeping the global target dominant left the
+shortcut fully available; making it primary removes it.
+
+Two variants are running on all three folds: pure ctx-primary, and ctx-primary with a
+global auxiliary head retaining some absolute-location signal.
+
+**Falsifiable prediction, again recorded in advance:** ctx-primary should reduce the
+cross-condition excess below the control's +0.145 and improve Kim's mean
+within-condition Spearman above 0.765. If pooled Kim rises without either of those
+moving, the mechanism story is wrong and I will drop it rather than rationalise it.

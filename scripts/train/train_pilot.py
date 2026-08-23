@@ -96,6 +96,14 @@ def main() -> None:
              "rows are Schwank, which is 0%% of the evaluation set).",
     )
     ap.add_argument(
+        "--ctx-primary", action="store_true",
+        help="round-7: train the PRIMARY ordinal head on context-normalised quantiles "
+             "F_c(y) instead of global ones. Removes the cross-condition mean shift as a "
+             "shortcut, forcing the sequence model to learn within-condition ranking; "
+             "inference maps the predicted quantile back through each condition's "
+             "training CDF, which supplies location exactly rather than approximately.",
+    )
+    ap.add_argument(
         "--coral-head", action="store_true",
         help="round-6 Lead 2a: rank-consistent ordinal head (shared weights, ordered biases)",
     )
@@ -403,7 +411,7 @@ def main() -> None:
         cfg["model"]["aux_context_ordinal"] = True
         cfg["model"]["aux_context_weight"] = args.aux_context_weight
 
-    if cfg["model"].get("outcome_head") in ("ordinal", "coral", "hurdle"):
+    if cfg["model"].get("outcome_head") in ("ordinal", "coral", "hurdle") and not args.ctx_primary:
         # Thresholds are quantiles of the TRAINING targets only -- deriving them from the
         # full corpus would leak the validation/test target distribution into the model's
         # output parameterisation. Duplicates are dropped so the thresholds stay strictly
@@ -424,6 +432,8 @@ def main() -> None:
                 logger.info("  aux ordinal resolution K=%d -> %d distinct thresholds", k, len(ta))
             cfg["model"]["ordinal_thresholds_aux"] = tuple(aux)
 
+    if args.ctx_primary:
+        args.aux_context_weight = max(args.aux_context_weight, 1e-9)  # trigger computation
     if args.aux_context_weight > 0:
         # Context-normalised target: each row's rank within its own experimental
         # context, mapped to [0,1]. Fitted on TRAINING rows only -- the empirical CDF is
@@ -454,6 +464,24 @@ def main() -> None:
             "context-normalised targets over %d groups (%s); %d groups too small, using global CDF",
             len(np.unique(key)), "+".join(args.context_quantile_fields), n_small,
         )
+        if args.ctx_primary:
+            # Swap the supervised target itself. Thresholds become the uniform grid on
+            # [0,1] because the target is now a quantile, not an efficiency. The
+            # per-condition training CDFs are stored so evaluation can invert the map;
+            # without them the predicted quantiles are not comparable across conditions
+            # and pooled Spearman would be meaningless.
+            corpus.target_global = corpus.target.copy()
+            corpus.target = corpus.target_ctx_q.astype(np.float32)
+            cfg["model"]["ordinal_thresholds"] = tuple(
+                np.linspace(0.0, 1.0, args.ordinal_bins + 1)[1:-1].tolist()
+            )
+            cdfs = {}
+            for k_ in np.unique(key):
+                ref = np.sort(y_all[(key == k_) & train_mask])
+                cdfs[str(k_)] = (ref if len(ref) >= 50 else global_ref).tolist()
+            cfg["ctx_primary"] = {"fields": args.context_quantile_fields, "cdfs": cdfs}
+            logger.info("ctx-primary: target replaced by within-condition quantile; "
+                        "stored %d condition CDFs for inference", len(cdfs))
 
     model_cfg = PERankFormerConfig(
         context_fields=vocab.fields, context_vocab_sizes=vocab.sizes(), **cfg["model"]
