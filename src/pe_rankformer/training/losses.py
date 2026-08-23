@@ -207,6 +207,33 @@ def hurdle_loss(
     return loss
 
 
+
+def shift_loss(
+    score_a: torch.Tensor, score_b: torch.Tensor, delta_rank: torch.Tensor,
+    beta: float = 0.1,
+) -> torch.Tensor:
+    """Same-design cross-context rank-shift loss (round-6 spec §9).
+
+    For one design measured in two contexts, the model's score difference should match
+    the observed difference in context-relative rank:
+
+        shat = s(d, c1) - s(d, c2)   vs   dr = r(d, c1) - r(d, c2)
+
+    The point is what cancels. Under the diagnosed decomposition
+    s(d,c) = g(d) + a(c) + h(d,c), differencing the *same design* across contexts
+    removes g(d) entirely -- the universal design-quality term the model currently
+    over-relies on. What remains is a(c) (a constant per context pair, which the model
+    can already fit) plus h(d,c), the design x context interaction that is missing.
+    So this objective supervises the interaction directly and gives no credit for
+    getting the universal ranking right.
+
+    Huber rather than squared error because observed rank shifts are heavy-tailed:
+    44.3% of pairs move by more than 0.1 rank, and a squared penalty would let the
+    largest shifts dominate the gradient.
+    """
+    return F.smooth_l1_loss(score_a - score_b, delta_rank, beta=beta)
+
+
 def correlation_loss(score: torch.Tensor, target: torch.Tensor, eps: float = 1e-8) -> torch.Tensor:
     """1 - batch Pearson correlation between `score` and `target`.
 

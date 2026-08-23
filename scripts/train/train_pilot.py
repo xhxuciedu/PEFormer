@@ -27,7 +27,7 @@ from pe_rankformer.data.context import ContextVocab  # noqa: E402
 from pe_rankformer.data.dataset import PEDataset, collate, load_featurized  # noqa: E402
 from pe_rankformer.evaluation.metrics import global_metrics  # noqa: E402
 from pe_rankformer.models.pe_rankformer import PERankFormer, PERankFormerConfig  # noqa: E402
-from pe_rankformer.training.losses import LossWeights, total_loss  # noqa: E402
+from pe_rankformer.training.losses import LossWeights, shift_loss, total_loss  # noqa: E402
 from pe_rankformer.training.ranking import GroupedBatchSampler, sample_ranking_pairs  # noqa: E402
 from pe_rankformer.training.schedule import warmup_cosine_schedule  # noqa: E402
 
@@ -94,6 +94,22 @@ def main() -> None:
         help="round-6 Lead 1: per-source loss weights, e.g. deepprime=2.5 hsu2026=2.0 "
              "pridict_pridict2=0.3. Corrects the train/eval mismatch (58.4%% of training "
              "rows are Schwank, which is 0%% of the evaluation set).",
+    )
+    ap.add_argument(
+        "--lambda-shift", type=float, default=0.0,
+        help="round-6 §9: weight on the same-design cross-context rank-shift loss. "
+             "Differencing one design across two contexts cancels the universal "
+             "design-quality term, so this supervises the interaction directly.",
+    )
+    ap.add_argument(
+        "--shift-pairs-per-step", type=int, default=128,
+        help="number of design-context pairs drawn per optimiser step for the shift loss",
+    )
+    ap.add_argument(
+        "--shift-shuffle-control", action="store_true",
+        help="round-6 §23 mechanism-free control: identical computation and gradient "
+             "magnitude, but the rank-shift targets are permuted, so any gain cannot be "
+             "attributed to real interaction signal",
     )
     ap.add_argument(
         "--ctx-primary", action="store_true",
@@ -373,6 +389,25 @@ def main() -> None:
         logger.info("source weights %s -> effective training gradient share %s",
                     eff, {k_: round(v_, 3) for k_, v_ in share.items()})
 
+    shift_pairs = None
+    if args.lambda_shift > 0:
+        pr = pd.read_parquet("data/processed/round6_context_pairs.parquet",
+                             columns=["record_a", "record_b", "delta_rank"])
+        pos = {r: i for i, r in enumerate(corpus.record_id)}
+        tr_set = set(train_idx.tolist())
+        ia = pr.record_a.map(pos).to_numpy()
+        ib = pr.record_b.map(pos).to_numpy()
+        ok = np.array([not (np.isnan(x) or np.isnan(y)) for x, y in zip(ia, ib)])
+        ia, ib = ia[ok].astype(np.int64), ib[ok].astype(np.int64)
+        dr = pr.delta_rank.to_numpy()[ok].astype(np.float32)
+        # BOTH rows of a pair must be training rows, or the loss would read a label
+        # from a validation row and leak it into training.
+        keep = np.array([a in tr_set and b in tr_set for a, b in zip(ia, ib)])
+        shift_pairs = (ia[keep], ib[keep], dr[keep])
+        logger.info("shift loss: %d usable train-only pairs of %d total (lambda=%.3f%s)",
+                    keep.sum(), len(pr), args.lambda_shift,
+                    ", SHUFFLED CONTROL" if args.shift_shuffle_control else "")
+
     logger.info("train=%d val=%d test=%d (test fold locked, not touched)", len(train_idx), len(val_idx), len(test_idx))
 
     if args.feature_branch:
@@ -568,6 +603,30 @@ def main() -> None:
                     sample_weight=batch.get("sample_weight"),
                 )
 
+            # --- round-6 §9: same-design cross-context rank-shift loss --------------
+            # Computed on an extra pair batch rather than opportunistically within the
+            # main batch, because same-design cross-context pairs almost never co-occur
+            # under ordinary sampling -- the signal would be seen a handful of times per
+            # epoch and contribute nothing.
+            if shift_pairs is not None:
+                ia_all, ib_all, dr_all = shift_pairs
+                sel = torch.randint(0, len(ia_all), (args.shift_pairs_per_step,)).numpy()
+                ds_ = PEDataset(corpus)
+                ba = collate([ds_[i] for i in ia_all[sel]])
+                bb = collate([ds_[i] for i in ib_all[sel]])
+                ba = {k: v.to(device, non_blocking=True) for k, v in ba.items()}
+                bb = {k: v.to(device, non_blocking=True) for k, v in bb.items()}
+                tgt = torch.tensor(dr_all[sel], device=device)
+                if args.shift_shuffle_control:
+                    # Same computation, same gradient scale, no real interaction signal.
+                    tgt = tgt[torch.randperm(len(tgt), device=device)]
+                with torch.autocast(device_type="cuda", dtype=torch.bfloat16):
+                    sa = model.ranking_score(model(ba))
+                    sb = model.ranking_score(model(bb))
+                l_shift = shift_loss(sa.float(), sb.float(), tgt)
+                loss = loss + args.lambda_shift * l_shift
+                parts["shift"] = l_shift.item()
+
             opt.zero_grad(set_to_none=True)
             loss.backward()
             torch.nn.utils.clip_grad_norm_(model.parameters(), cfg["optim"]["grad_clip"])
@@ -576,6 +635,8 @@ def main() -> None:
 
             for k in ("loss", "reg", "rank", "corr"):
                 running[k] += parts[k]
+            if "shift" in parts:
+                running["shift"] = running.get("shift", 0.0) + parts["shift"]
             running["n_pairs"] += pi.numel()
             n_batches += 1
 
