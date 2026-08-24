@@ -239,8 +239,12 @@ class SelectiveScan(nn.Module):
     """
 
     def __init__(self, d_model: int, n_state: int = 16, dt_rank: int | None = None,
-                 freeze_selection: bool = False):
+                 freeze_selection: bool = False, chunk: int = 8):
         super().__init__()
+        # Chunk length trades speed against conditioning: the within-chunk cumulative
+        # product spans `chunk` steps, and 8 keeps it comfortably inside fp32 range for
+        # the fastest-decaying channels while removing most of the Python loop.
+        self.chunk = chunk
         self.d_model = d_model
         self.n_state = n_state
         dt_rank = dt_rank or max(1, d_model // 16)
@@ -274,19 +278,29 @@ class SelectiveScan(nn.Module):
         dt, Bm, Cm = torch.split(proj, [self.dt_rank, N, N], dim=-1)
         dt = F.softplus(self.dt_proj(dt))                    # (B, L, H), positive
 
-        # Discretisation is done inside the loop rather than materialised up front.
-        # Precomputing dA and dBx as (B, L, H, N) needs ~94GB at batch 512 for this
-        # model; computing (B, H, N) slices per step keeps the same maths at a fraction
-        # of the peak memory, at the cost of a Python-level loop over <=102 steps.
+        # h_t = a_t h_{t-1} + b_t is a first-order linear recurrence, so it has a
+        # closed form: with P_t = prod_{r<=t} a_r,
+        #     h_t = P_t * (h_prev + sum_{s<=t} b_s / P_s).
+        # Evaluated over the whole sequence that is numerically hopeless -- P_t
+        # underflows after ~100 steps and the division explodes -- but over a SHORT
+        # CHUNK it is well conditioned, so the sequence is processed in chunks:
+        # vectorised within a chunk, sequential across chunks. This turns a 102-step
+        # Python loop into ~13 steps and cut epoch time from 2311s to the timing
+        # reported in the round-8 log; a test asserts it matches the naive loop.
+        C = self.chunk
         h = x.new_zeros(B, H, N)
-        ys = []
-        for t in range(L):
-            dt_t = dt[:, t].unsqueeze(-1)                    # (B, H, 1)
-            dA_t = torch.exp(dt_t * A)                       # (B, H, N)
-            dBx_t = dt_t * Bm[:, t].unsqueeze(1) * x[:, t].unsqueeze(-1)
-            h = dA_t * h + dBx_t
-            ys.append((h * Cm[:, t].unsqueeze(1)).sum(-1))   # (B, H)
-        y = torch.stack(ys, dim=1)                           # (B, L, H)
+        outs = []
+        for start in range(0, L, C):
+            end = min(start + C, L)
+            dt_c = dt[:, start:end].unsqueeze(-1)                    # (B, c, H, 1)
+            a = torch.exp(dt_c * A)                                  # (B, c, H, N)
+            b = dt_c * Bm[:, start:end].unsqueeze(2) * x[:, start:end].unsqueeze(-1)
+            # Inclusive cumulative product along the chunk, in log space for stability.
+            P = torch.exp(torch.cumsum(dt_c * A, dim=1))             # (B, c, H, N)
+            hc = P * (h.unsqueeze(1) + torch.cumsum(b / P.clamp_min(1e-30), dim=1))
+            outs.append((hc * Cm[:, start:end].unsqueeze(2)).sum(-1))  # (B, c, H)
+            h = hc[:, -1]
+        y = torch.cat(outs, dim=1)                                   # (B, L, H)
         return y + x * self.D
 
 

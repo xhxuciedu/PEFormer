@@ -123,3 +123,49 @@ def test_prior_mixers_unchanged():
     assert PERankFormerConfig().sequence_mixer == "attention"
     with pytest.raises(ValueError, match="unknown sequence_mixer"):
         PERankFormerConfig(sequence_mixer="selective_nonsense")
+
+
+def test_chunked_scan_matches_the_naive_recurrence():
+    """The chunked closed form must reproduce the step-by-step recurrence exactly.
+
+    This is the test that matters for the optimisation: the speedup is only legitimate
+    if the maths is unchanged, and a subtle indexing error here would silently train a
+    different model.
+    """
+    torch.manual_seed(0)
+    m = SelectiveScan(8, n_state=8, chunk=8).double().eval()
+    x = torch.randn(2, 37, 8, dtype=torch.double)   # length not a multiple of the chunk
+
+    with torch.no_grad():
+        fast = m(x)
+
+        # Reference: literal per-step loop.
+        B, L, H = x.shape
+        N = m.n_state
+        A = -torch.exp(m.log_neg_A)
+        proj = m.x_proj(x)
+        dt, Bm, Cm = torch.split(proj, [m.dt_rank, N, N], dim=-1)
+        dt = torch.nn.functional.softplus(m.dt_proj(dt))
+        h = x.new_zeros(B, H, N)
+        ys = []
+        for t in range(L):
+            dt_t = dt[:, t].unsqueeze(-1)
+            h = torch.exp(dt_t * A) * h + dt_t * Bm[:, t].unsqueeze(1) * x[:, t].unsqueeze(-1)
+            ys.append((h * Cm[:, t].unsqueeze(1)).sum(-1))
+        ref = torch.stack(ys, dim=1) + x * m.D
+
+    assert torch.allclose(fast, ref, atol=1e-8), \
+        f"chunked scan diverges from the recurrence (max {(fast - ref).abs().max():.2e})"
+
+
+def test_chunk_size_does_not_change_the_result():
+    torch.manual_seed(0)
+    x = torch.randn(1, 30, 8, dtype=torch.double)
+    outs = []
+    for c in (4, 8, 16):
+        torch.manual_seed(0)
+        m = SelectiveScan(8, n_state=8, chunk=c).double().eval()
+        with torch.no_grad():
+            outs.append(m(x))
+    assert torch.allclose(outs[0], outs[1], atol=1e-8)
+    assert torch.allclose(outs[1], outs[2], atol=1e-8)
