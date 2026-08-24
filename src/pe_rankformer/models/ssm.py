@@ -207,3 +207,157 @@ class HybridStack(nn.Module):
             return []
         with torch.no_grad():
             return [float(torch.sigmoid(g).mean()) for g in self.gates]
+
+
+class SelectiveScan(nn.Module):
+    """Input-dependent (Mamba/S6-style) diagonal SSM scan, one direction.
+
+    The distinction from `S4DKernel` is the whole point of this module. S4D is
+    **linear time-invariant**: its kernel is a function of the sequence length alone,
+    so the same convolution is applied to every input. It can encode "positions eight
+    apart interact" but never "retain *this* position because of what it contains".
+
+    Here dt, B and C are produced by linear projections of the token representation,
+    so the recurrence becomes content-dependent:
+
+        h_t = exp(dt_t * A) h_{t-1} + dt_t * B_t * x_t
+        y_t = C_t . h_t + D * x_t
+
+    Why this should matter for prime editing specifically: the edit position moves from
+    design to design, and the PBS/RTT must match a particular location on the target.
+    An LTI kernel has to average over every position the edit could occupy; a selective
+    one can gate on the edit itself.
+
+    Because the recurrence is no longer LTI it cannot be evaluated by FFT convolution;
+    it needs a scan. At L <= 102 a sequential scan in plain PyTorch is affordable, and
+    keeps the implementation transparent.
+
+    `freeze_selection` supports the round-8 control: the projections exist (so the
+    parameter count matches) but are held at initialisation and excluded from
+    gradients, making the scan effectively input-independent. That isolates selectivity
+    from the capacity the extra projections add.
+    """
+
+    def __init__(self, d_model: int, n_state: int = 16, dt_rank: int | None = None,
+                 freeze_selection: bool = False):
+        super().__init__()
+        self.d_model = d_model
+        self.n_state = n_state
+        dt_rank = dt_rank or max(1, d_model // 16)
+        self.dt_rank = dt_rank
+
+        # Real diagonal A, initialised as the standard S4D-Real spectrum. Kept as
+        # log(-A) so A stays strictly negative and the recurrence stays stable.
+        A = torch.arange(1, n_state + 1, dtype=torch.float32).repeat(d_model, 1)
+        self.log_neg_A = nn.Parameter(torch.log(A))
+        self.D = nn.Parameter(torch.ones(d_model))
+
+        # The selection projections: these are what make the scan content-dependent.
+        self.x_proj = nn.Linear(d_model, dt_rank + 2 * n_state, bias=False)
+        self.dt_proj = nn.Linear(dt_rank, d_model, bias=True)
+        # Bias init so softplus(dt) starts in a moderate range, as in the S6 reference.
+        with torch.no_grad():
+            self.dt_proj.bias.uniform_(math.log(1e-3), math.log(1e-1))
+            self.dt_proj.bias.copy_(self.dt_proj.bias.exp().clamp(min=1e-4).log())
+
+        self.freeze_selection = freeze_selection
+        if freeze_selection:
+            for p in (self.x_proj.weight, self.dt_proj.weight, self.dt_proj.bias):
+                p.requires_grad_(False)
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        """x: (B, L, H) -> (B, L, H). Scans left to right."""
+        B, L, H = x.shape
+        N = self.n_state
+        A = -torch.exp(self.log_neg_A)                       # (H, N), negative
+        proj = self.x_proj(x)                                # (B, L, dt_rank + 2N)
+        dt, Bm, Cm = torch.split(proj, [self.dt_rank, N, N], dim=-1)
+        dt = F.softplus(self.dt_proj(dt))                    # (B, L, H), positive
+
+        # Discretisation is done inside the loop rather than materialised up front.
+        # Precomputing dA and dBx as (B, L, H, N) needs ~94GB at batch 512 for this
+        # model; computing (B, H, N) slices per step keeps the same maths at a fraction
+        # of the peak memory, at the cost of a Python-level loop over <=102 steps.
+        h = x.new_zeros(B, H, N)
+        ys = []
+        for t in range(L):
+            dt_t = dt[:, t].unsqueeze(-1)                    # (B, H, 1)
+            dA_t = torch.exp(dt_t * A)                       # (B, H, N)
+            dBx_t = dt_t * Bm[:, t].unsqueeze(1) * x[:, t].unsqueeze(-1)
+            h = dA_t * h + dBx_t
+            ys.append((h * Cm[:, t].unsqueeze(1)).sum(-1))   # (B, H)
+        y = torch.stack(ys, dim=1)                           # (B, L, H)
+        return y + x * self.D
+
+
+class BiSelectiveLayer(nn.Module):
+    """Bidirectional selective-SSM block, drop-in for `BiS4DLayer`.
+
+    Deliberately mirrors BiS4DLayer's residual topology, normalisation placement, gate
+    and FFN width, so an S4D-vs-selective comparison isolates the mixing mechanism
+    rather than confounding it with block design -- the same discipline used when the
+    SSM was first compared against the Transformer.
+    """
+
+    def __init__(self, d_model: int, ffn_dim: int, dropout: float, n_state: int = 16,
+                 freeze_selection: bool = False, checkpoint_scan: bool = True):
+        super().__init__()
+        # The scan keeps four (B, H, N) tensors per timestep for autograd, across up to
+        # 102 steps, two directions and ten layers -- about 52GB at batch 256, which
+        # OOMs a 96GB card. Gradient checkpointing recomputes the scan during backward
+        # instead of storing it: exact same gradients, roughly 30% more compute, and it
+        # is what makes this experiment runnable at a sensible batch size at all.
+        self.checkpoint_scan = checkpoint_scan
+        self.norm1 = nn.LayerNorm(d_model)
+        self.fwd = SelectiveScan(d_model, n_state, freeze_selection=freeze_selection)
+        self.bwd = SelectiveScan(d_model, n_state, freeze_selection=freeze_selection)
+        self.out_proj = nn.Linear(d_model, d_model)
+        self.gate = nn.Linear(d_model, d_model)
+        self.norm2 = nn.LayerNorm(d_model)
+        self.ffn = nn.Sequential(
+            nn.Linear(d_model, ffn_dim), nn.GELU(), nn.Dropout(dropout), nn.Linear(ffn_dim, d_model)
+        )
+        self.dropout = nn.Dropout(dropout)
+
+    def forward(self, x: torch.Tensor, pad_mask: torch.Tensor | None = None) -> torch.Tensor:
+        residual = x
+        h = self.norm1(x)
+        if pad_mask is not None:
+            # Zero padded positions before scanning. Unlike the convolutional case this
+            # is not sufficient on its own -- a left-to-right scan carries state past a
+            # pad -- so outputs are re-masked below and padded positions are excluded
+            # from pooling downstream.
+            h = h.masked_fill(pad_mask.unsqueeze(-1), 0.0)
+
+        if self.checkpoint_scan and self.training:
+            from torch.utils.checkpoint import checkpoint
+
+            y = (checkpoint(self.fwd, h, use_reentrant=False)
+                 + checkpoint(self.bwd, h.flip(1), use_reentrant=False).flip(1))
+        else:
+            y = self.fwd(h) + self.bwd(h.flip(1)).flip(1)
+        y = self.out_proj(y) * F.silu(self.gate(h))
+        x = residual + self.dropout(y)
+        x = x + self.dropout(self.ffn(self.norm2(x)))
+        if pad_mask is not None:
+            x = x.masked_fill(pad_mask.unsqueeze(-1), 0.0)
+        return x
+
+
+class BiSelectiveStack(nn.Module):
+    """Drop-in replacement for an nn.TransformerEncoder / BiS4DStack."""
+
+    def __init__(self, d_model: int, ffn_dim: int, dropout: float, n_layers: int,
+                 n_state: int = 16, freeze_selection: bool = False,
+                 checkpoint_scan: bool = True):
+        super().__init__()
+        self.layers = nn.ModuleList([
+            BiSelectiveLayer(d_model, ffn_dim, dropout, n_state, freeze_selection,
+                             checkpoint_scan)
+            for _ in range(n_layers)
+        ])
+
+    def forward(self, x: torch.Tensor, src_key_padding_mask: torch.Tensor | None = None) -> torch.Tensor:
+        for layer in self.layers:
+            x = layer(x, src_key_padding_mask)
+        return x

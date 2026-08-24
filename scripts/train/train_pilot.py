@@ -229,7 +229,9 @@ def main() -> None:
              "Schwank-dominated official fold",
     )
     ap.add_argument(
-        "--sequence-mixer", choices=["attention", "ssm", "hybrid_alt", "hybrid_par"], default=None,
+        "--sequence-mixer",
+        choices=["attention", "ssm", "hybrid_alt", "hybrid_par", "selective", "selective_frozen"],
+        default=None,
         help="round-4 §8: intra-sequence mixing -- Transformer attention or bidirectional SSM",
     )
     ap.add_argument("--lr", type=float, default=None, help="override optim.lr (fine-tuning uses a small LR)")

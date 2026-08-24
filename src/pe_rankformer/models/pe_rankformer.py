@@ -102,7 +102,8 @@ class PERankFormerConfig:
             raise ValueError("context_strategy='layerwise' requires use_context=True")
         if self.moe_experts > 0 and not self.use_context:
             raise ValueError("moe_experts>0 requires use_context=True (the gate is context-conditioned)")
-        if self.sequence_mixer not in ("attention", "ssm", "hybrid_alt", "hybrid_par"):
+        if self.sequence_mixer not in ("attention", "ssm", "hybrid_alt", "hybrid_par",
+                                       "selective", "selective_frozen"):
             raise ValueError(f"unknown sequence_mixer: {self.sequence_mixer!r}")
         if self.outcome_head not in ("scalar", "simplex", "ordinal", "quantile", "coral", "hurdle"):
             raise ValueError(f"unknown outcome_head: {self.outcome_head!r}")
@@ -142,6 +143,11 @@ class PERankFormerConfig:
         for t in self.ordinal_thresholds_aux:
             if len(t) < 2 or any(b <= a for a, b in zip(t, t[1:])):
                 raise ValueError(f"auxiliary thresholds must be strictly increasing, got {t}")
+        if self.sequence_mixer.startswith("selective") and self.context_strategy == "layerwise":
+            raise ValueError(
+                f"sequence_mixer={self.sequence_mixer!r} with context_strategy='layerwise' "
+                "is not implemented; use context_strategy='late'"
+            )
         if self.sequence_mixer.startswith("hybrid") and self.context_strategy == "layerwise":
             raise ValueError(
                 f"sequence_mixer={self.sequence_mixer!r} with context_strategy='layerwise' "
@@ -170,6 +176,15 @@ def _encoder_stack(
         from .ssm import BiS4DStack
 
         return BiS4DStack(d_model, ffn_dim, dropout, n_layers, ssm_state_dim)
+    if mixer in ("selective", "selective_frozen"):
+        from .ssm import BiSelectiveStack
+
+        # n_state is deliberately smaller than S4D's: the selective scan carries a
+        # (B, L, H, N) tensor, so memory grows linearly in N, and Mamba itself uses
+        # N=16 where S4 used 64.
+        return BiSelectiveStack(d_model, ffn_dim, dropout, n_layers,
+                                n_state=min(ssm_state_dim, 16),
+                                freeze_selection=(mixer == "selective_frozen"))
     if mixer in ("hybrid_alt", "hybrid_par"):
         from .ssm import HybridStack
 
