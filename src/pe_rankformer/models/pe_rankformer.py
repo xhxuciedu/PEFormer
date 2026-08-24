@@ -81,6 +81,19 @@ class PERankFormerConfig:
     aux_context_ordinal: bool = False  # §8: one extra ordinal segment supervised on
     # *context-normalised* quantiles F_c(y) rather than global ones.
     aux_context_weight: float = 0.0
+    # Round-8 B1: per-source output head over a shared trunk. The three source studies
+    # are three different ASSAYS -- different libraries, readouts and normalisations --
+    # so their "efficiency" columns are not the same measurement (zero-mass is 49.9% in
+    # Kim against 0.8% in Liu, which is substantially protocol rather than biology). If
+    # each source measures a different monotone function of the same underlying
+    # editability, the right model is one shared representation read out through
+    # source-specific links: shared biology, per-batch measurement model.
+    #   0                 -> single shared head (default, unchanged)
+    #   n_sources         -> one final projection per source
+    #   with tie_source_heads=True -> same parameter count, heads forced identical
+    #                                 (the control isolating differentiation from capacity)
+    source_conditional_head: int = 0
+    tie_source_heads: bool = False
     context_strategy: str = "late"  # "late" (single FiLM after pooling) | "layerwise" (round-2
     # Family A: FiLM applied at every edit/pegRNA encoder layer and every cross-attention
     # block, so context modulates sequence representation throughout the network rather
@@ -105,6 +118,10 @@ class PERankFormerConfig:
         if self.sequence_mixer not in ("attention", "ssm", "hybrid_alt", "hybrid_par",
                                        "selective", "selective_frozen"):
             raise ValueError(f"unknown sequence_mixer: {self.sequence_mixer!r}")
+        if self.source_conditional_head and "source_study" not in self.context_fields:
+            raise ValueError("source_conditional_head requires 'source_study' in context_fields")
+        if self.tie_source_heads and not self.source_conditional_head:
+            raise ValueError("tie_source_heads is meaningless without source_conditional_head")
         if self.outcome_head not in ("scalar", "simplex", "ordinal", "quantile", "coral", "hurdle"):
             raise ValueError(f"unknown outcome_head: {self.outcome_head!r}")
         if self.outcome_head in ("ordinal", "coral", "hurdle"):
@@ -517,6 +534,15 @@ class PERankFormer(nn.Module):
             )
             self.head_norm = self.head_hidden = self.head_out = None
 
+        if config.source_conditional_head:
+            # Only the FINAL projection is per-source; the trunk and the head's hidden
+            # layers stay shared, so the sources cannot drift into separate models.
+            self.source_heads = nn.ModuleList(
+                [nn.Linear(d, n_out) for _ in range(config.source_conditional_head)]
+            )
+        else:
+            self.source_heads = None
+
         if config.outcome_head == "coral":
             # Ordered biases via cumulative softplus: b_1 = c_0, b_k = b_{k-1} +
             # softplus(c_k) > b_{k-1}. Since P(y>t_k) = sigmoid(z - b_k), increasing b
@@ -596,6 +622,27 @@ class PERankFormer(nn.Module):
             out = self.head_out(hidden)
         else:
             out = self.head(pooled)
+
+        if self.source_heads is not None:
+            # Replace the final projection with the source's own. self.head[-1] is the
+            # shared output Linear; everything before it (norm, hidden, activation) is
+            # reused, so only the READOUT differs across assays.
+            hidden = pooled
+            for layer in list(self.head)[:-1]:
+                hidden = layer(hidden)
+            src = batch["ctx_source_study"].long()
+            if self.config.tie_source_heads:
+                # Control: identical parameter count, but every row is scored by head 0,
+                # so any gain must come from differentiation rather than capacity.
+                out = self.source_heads[0](hidden)
+            else:
+                out = torch.zeros(hidden.size(0), self.source_heads[0].out_features,
+                                  device=hidden.device, dtype=hidden.dtype)
+                for i, h_i in enumerate(self.source_heads):
+                    m = src == i
+                    if m.any():
+                        out[m] = h_i(hidden[m]).to(out.dtype)
+
         if self.config.outcome_head == "coral":
             b = self.coral_biases()
             return out - b.unsqueeze(0)  # (B, K-1), guaranteed non-increasing in k

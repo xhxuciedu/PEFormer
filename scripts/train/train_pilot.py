@@ -120,6 +120,16 @@ def main() -> None:
              "training CDF, which supplies location exactly rather than approximately.",
     )
     ap.add_argument(
+        "--source-conditional-head", action="store_true",
+        help="round-8 B1: per-source final projection over a shared trunk (batch-effect "
+             "model: shared biology, per-assay readout)",
+    )
+    ap.add_argument(
+        "--tie-source-heads", action="store_true",
+        help="round-8 B1 control: same parameter count, all sources scored by head 0, so "
+             "a gain must come from differentiation rather than capacity",
+    )
+    ap.add_argument(
         "--coral-head", action="store_true",
         help="round-6 Lead 2a: rank-consistent ordinal head (shared weights, ordered biases)",
     )
@@ -422,6 +432,9 @@ def main() -> None:
             len(FEATURE_COLS), args.features_path, len(train_idx),
         )
 
+    if args.source_conditional_head:
+        cfg["model"]["source_conditional_head"] = 4  # vocab size for source_study
+        cfg["model"]["tie_source_heads"] = args.tie_source_heads
     if args.coral_head:
         cfg["model"]["outcome_head"] = "coral"
         cfg["loss"]["outcome_head"] = "coral"
