@@ -239,12 +239,12 @@ class SelectiveScan(nn.Module):
     """
 
     def __init__(self, d_model: int, n_state: int = 16, dt_rank: int | None = None,
-                 freeze_selection: bool = False, chunk: int = 8):
+                 freeze_selection: bool = False, chunk: int = 4):
         super().__init__()
         # Chunk length trades speed against conditioning: the within-chunk cumulative
         # product spans `chunk` steps, and 8 keeps it comfortably inside fp32 range for
         # the fastest-decaying channels while removing most of the Python loop.
-        self.chunk = chunk
+        self.chunk = chunk  # short chunks keep the within-chunk product well conditioned
         self.d_model = d_model
         self.n_state = n_state
         dt_rank = dt_rank or max(1, d_model // 16)
@@ -270,7 +270,22 @@ class SelectiveScan(nn.Module):
                 p.requires_grad_(False)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        """x: (B, L, H) -> (B, L, H). Scans left to right."""
+        """x: (B, L, H) -> (B, L, H). Scans left to right.
+
+        The scan runs in float32 with autocast disabled. The chunked closed form
+        divides by a cumulative product that is legitimately small (~1e-3 over a
+        4-step chunk), and under bf16 -- which carries only ~3 decimal digits -- that
+        division destroys the mantissa and training goes to NaN. This was not caught by
+        a float64 unit test; it needs the precision training actually uses, which
+        `test_chunked_scan_stable_under_bf16_autocast` now pins down.
+        """
+        with torch.autocast(device_type=x.device.type, enabled=False):
+            # Upcast to at least float32; never downcast a float64 input (the
+            # equivalence tests run in double and must keep their precision).
+            work = x if x.dtype in (torch.float32, torch.float64) else x.to(torch.float32)
+            return self._scan(work).to(x.dtype)
+
+    def _scan(self, x: torch.Tensor) -> torch.Tensor:
         B, L, H = x.shape
         N = self.n_state
         A = -torch.exp(self.log_neg_A)                       # (H, N), negative

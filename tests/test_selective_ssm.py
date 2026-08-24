@@ -169,3 +169,27 @@ def test_chunk_size_does_not_change_the_result():
             outs.append(m(x))
     assert torch.allclose(outs[0], outs[1], atol=1e-8)
     assert torch.allclose(outs[1], outs[2], atol=1e-8)
+
+
+def test_chunked_scan_stable_under_bf16_autocast():
+    """Regression test for a real failure: the chunked scan trained to NaN under bf16.
+
+    The float64 equivalence test passed, so correctness of the maths was never the
+    issue -- the chunk formula divides by a small cumulative product, and bf16's ~3
+    decimal digits cannot survive that. The scan therefore forces float32 internally.
+    This test exercises the precision training actually uses.
+    """
+    if not torch.cuda.is_available():
+        import pytest as _pytest
+        _pytest.skip("needs CUDA for bf16 autocast")
+    torch.manual_seed(0)
+    m = SelectiveScan(64, n_state=16).cuda()
+    x = torch.randn(8, 102, 64, device="cuda")
+    with torch.autocast(device_type="cuda", dtype=torch.bfloat16):
+        y = m(x)
+        loss = y.square().mean()
+    loss.backward()
+    assert torch.isfinite(y).all(), "forward produced non-finite values under bf16"
+    for n_, p_ in m.named_parameters():
+        if p_.grad is not None:
+            assert torch.isfinite(p_.grad).all(), f"non-finite gradient in {n_}"
