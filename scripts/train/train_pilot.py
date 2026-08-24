@@ -461,7 +461,22 @@ def main() -> None:
         cfg["model"]["aux_context_ordinal"] = True
         cfg["model"]["aux_context_weight"] = args.aux_context_weight
 
-    if cfg["model"].get("outcome_head") in ("ordinal", "coral", "hurdle") and not args.ctx_primary:
+    if args.init_from and cfg["model"].get("outcome_head") in ("ordinal", "coral", "hurdle"):
+        # Fine-tuning must INHERIT the checkpoint's thresholds rather than recompute
+        # them. Recomputing on a data subset changes the output parameterisation --
+        # training on Liu+Kim alone yields 16 distinct quantiles where the full mix
+        # yields 18 -- which both breaks the strict load and silently redefines what
+        # the head predicts. For domain adaptation only the data should change.
+        _ck = torch.load(args.init_from, map_location="cpu", weights_only=False)
+        _thr = _ck.get("model_config", {}).get("ordinal_thresholds")
+        if _thr:
+            cfg["model"]["ordinal_thresholds"] = tuple(_thr)
+            logger.info("inherited %d ordinal thresholds from %s (not recomputed)",
+                        len(_thr), args.init_from)
+        del _ck
+
+    if (cfg["model"].get("outcome_head") in ("ordinal", "coral", "hurdle")
+            and not args.ctx_primary and not cfg["model"].get("ordinal_thresholds")):
         # Thresholds are quantiles of the TRAINING targets only -- deriving them from the
         # full corpus would leak the validation/test target distribution into the model's
         # output parameterisation. Duplicates are dropped so the thresholds stay strictly
