@@ -193,3 +193,23 @@ def test_chunked_scan_stable_under_bf16_autocast():
     for n_, p_ in m.named_parameters():
         if p_.grad is not None:
             assert torch.isfinite(p_.grad).all(), f"non-finite gradient in {n_}"
+
+
+def test_scan_survives_large_dt_where_the_product_underflows():
+    """The regime that actually broke training.
+
+    With a learned dt large enough that the within-chunk cumulative product underflows,
+    the earlier division-based form produced inf and then NaN. The bf16 test above did
+    not catch it because random initialisation keeps dt moderate -- training does not.
+    """
+    torch.manual_seed(0)
+    m = SelectiveScan(16, n_state=8)
+    with torch.no_grad():
+        m.dt_proj.bias.fill_(6.0)       # softplus(6) ~ 6, so dt*A reaches ~ -100
+    x = torch.randn(4, 102, 16)
+    y = m(x)
+    assert torch.isfinite(y).all(), "scan produced non-finite values at large dt"
+    y.square().mean().backward()
+    for n_, p_ in m.named_parameters():
+        if p_.grad is not None:
+            assert torch.isfinite(p_.grad).all(), f"non-finite gradient in {n_} at large dt"

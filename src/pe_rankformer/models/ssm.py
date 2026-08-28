@@ -308,11 +308,23 @@ class SelectiveScan(nn.Module):
         for start in range(0, L, C):
             end = min(start + C, L)
             dt_c = dt[:, start:end].unsqueeze(-1)                    # (B, c, H, 1)
-            a = torch.exp(dt_c * A)                                  # (B, c, H, N)
             b = dt_c * Bm[:, start:end].unsqueeze(2) * x[:, start:end].unsqueeze(-1)
-            # Inclusive cumulative product along the chunk, in log space for stability.
-            P = torch.exp(torch.cumsum(dt_c * A, dim=1))             # (B, c, H, N)
-            hc = P * (h.unsqueeze(1) + torch.cumsum(b / P.clamp_min(1e-30), dim=1))
+            # L_t = sum_{r<=t} dt_r A_r, all <= 0 since A < 0.
+            Lc = torch.cumsum(dt_c * A, dim=1)                       # (B, c, H, N)
+            # Decay from step s to step t is exp(L_t - L_s), which is bounded by 1 for
+            # s <= t. Forming it directly avoids ever dividing by a cumulative product:
+            # the previous version did, and when that product legitimately underflows
+            # the clamp guard turns b/P into inf and training goes to NaN. This form has
+            # no such regime -- every quantity is an exp of a non-positive number.
+            c_len = end - start
+            diff = Lc.unsqueeze(2) - Lc.unsqueeze(1)                 # [.., t, s, ..]
+            tri = torch.tril(torch.ones(c_len, c_len, device=x.device, dtype=torch.bool))
+            # Mask BEFORE the exponential, not after. For t < s the difference is
+            # positive and can be large, so exp() overflows to inf and inf * 0 is NaN --
+            # masking first sends those entries to exp(-inf) = 0 exactly.
+            diff = diff.masked_fill(~tri.view(1, c_len, c_len, 1, 1), float("-inf"))
+            M = torch.exp(diff)
+            hc = torch.exp(Lc) * h.unsqueeze(1) + torch.einsum("btshn,bshn->bthn", M, b)
             outs.append((hc * Cm[:, start:end].unsqueeze(2)).sum(-1))  # (B, c, H)
             h = hc[:, -1]
         y = torch.cat(outs, dim=1)                                   # (B, L, H)
