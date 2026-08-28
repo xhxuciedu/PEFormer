@@ -1,0 +1,41 @@
+\contentsline {section}{\numberline {1}Introduction}{3}{section.1}%
+\contentsline {paragraph}{Contributions.}{3}{section*.2}%
+\contentsline {section}{\numberline {2}Methods}{3}{section.2}%
+\contentsline {subsection}{\numberline {2.1}Data}{3}{subsection.2.1}%
+\contentsline {subsubsection}{\numberline {2.1.1}Sequence representation}{4}{subsubsection.2.1.1}%
+\contentsline {subsubsection}{\numberline {2.1.2}Splits and evaluation surfaces}{4}{subsubsection.2.1.2}%
+\contentsline {subsection}{\numberline {2.2}Model architecture}{5}{subsection.2.2}%
+\contentsline {paragraph}{(1) Edit encoder.}{5}{section*.4}%
+\contentsline {paragraph}{(2) pegRNA encoder.}{5}{section*.5}%
+\contentsline {paragraph}{(3) Bidirectional cross-attention.}{5}{section*.6}%
+\contentsline {paragraph}{(4) Context conditioning.}{5}{section*.7}%
+\contentsline {paragraph}{(5) Output head.}{5}{section*.8}%
+\contentsline {subsubsection}{\numberline {2.2.1}Sequence mixing: attention versus state space}{5}{subsubsection.2.2.1}%
+\contentsline {subsubsection}{\numberline {2.2.2}Outcome heads}{5}{subsubsection.2.2.2}%
+\contentsline {paragraph}{Scalar head (baseline).}{5}{section*.9}%
+\contentsline {paragraph}{Simplex head.}{6}{section*.10}%
+\contentsline {paragraph}{Ordinal head (this work).}{6}{section*.11}%
+\contentsline {subsection}{\numberline {2.3}Training}{6}{subsection.2.3}%
+\contentsline {subsection}{\numberline {2.4}Evaluation and statistics}{7}{subsection.2.4}%
+\contentsline {subsection}{\numberline {2.5}Ensembling}{7}{subsection.2.5}%
+\contentsline {subsection}{\numberline {2.6}Calibration}{7}{subsection.2.6}%
+\contentsline {subsection}{\numberline {2.7}Replicate-based noise ceiling}{7}{subsection.2.7}%
+\contentsline {subsection}{\numberline {2.8}Implementation and reproducibility}{8}{subsection.2.8}%
+\contentsline {section}{\numberline {3}Results}{8}{section.3}%
+\contentsline {subsection}{\numberline {3.1}Held-out performance against OptiPrime}{8}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.2}Which components are responsible}{9}{subsection.3.2}%
+\contentsline {subsection}{\numberline {3.3}The ordinal head produces decorrelated errors}{10}{subsection.3.3}%
+\contentsline {subsection}{\numberline {3.4}Decorrelation is necessary but not sufficient}{11}{subsection.3.4}%
+\contentsline {subsection}{\numberline {3.5}Ensemble versus single model}{11}{subsection.3.5}%
+\contentsline {subsection}{\numberline {3.6}Calibration restores absolute efficiency}{12}{subsection.3.6}%
+\contentsline {subsection}{\numberline {3.7}The benchmark is not saturated}{12}{subsection.3.7}%
+\contentsline {subsection}{\numberline {3.8}A tie-structure caveat for Spearman on zero-inflated data}{13}{subsection.3.8}%
+\contentsline {subsection}{\numberline {3.9}Interventions that did not help}{13}{subsection.3.9}%
+\contentsline {section}{\numberline {4}Discussion}{14}{section.4}%
+\contentsline {subsection}{\numberline {4.1}Can architecture substitute for mechanism?}{14}{subsection.4.1}%
+\contentsline {subsection}{\numberline {4.2}Metric-matched supervision}{15}{subsection.4.2}%
+\contentsline {subsection}{\numberline {4.3}State-space mixing for biological sequences}{15}{subsection.4.3}%
+\contentsline {subsection}{\numberline {4.4}What the remaining error is, and is not}{15}{subsection.4.4}%
+\contentsline {subsection}{\numberline {4.5}Limitations}{16}{subsection.4.5}%
+\contentsline {subsection}{\numberline {4.6}Methodological recommendations}{16}{subsection.4.6}%
+\contentsline {section}{\numberline {5}Conclusions}{16}{section.5}%
