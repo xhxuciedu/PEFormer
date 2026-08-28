@@ -116,6 +116,36 @@ comparison on zero-inflated data.
 % =====================================================================
 \section{Methods}
 
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.97\textwidth]{../../results/paper/figures/fig1_architecture.pdf}
+\caption{\textbf{PE-RankFormer architecture and supervision.}
+\textbf{(A)} Overall model. The target locus is encoded as a single stream of
+\emph{paired} (wild-type, edited) tokens, so the edit is represented explicitly rather
+than inferred by comparing two sequences; the pegRNA is encoded as a nucleotide stream
+with an added functional-segment embedding marking spacer, PBS and RTT. Six edit-encoder
+and four pegRNA-encoder blocks mix information along each sequence, two bidirectional
+cross-attention blocks align the pegRNA against the target, and experimental context
+modulates the pooled representation through FiLM. The ordinal head emits $K-1$
+cumulative logits whose mean is the predicted normalised rank; a monotone calibration
+map converts that to an absolute efficiency (\S\ref{sec:calib}).
+\textbf{(B)} Encoder block. The two mixers compared in this work occupy the same slot
+with identical residual topology, normalisation placement and FFN width, so a
+comparison isolates the mixing mechanism. The S4D kernel mixes by \emph{distance};
+self-attention mixes by \emph{content}.
+\textbf{(C)} The $K-1$ ordinal thresholds $t_k$, placed at quantiles of the training
+efficiency distribution (shown; log counts, clipped at $y=0.6$). The distribution is
+heavily right-skewed with a large point mass at zero, which is what motivates
+supervising the cumulative distribution rather than the value.
+\textbf{(D)} Schematic of the resulting predictions: each design produces a decreasing
+curve over thresholds, and its score is the curve's mean.
+\textbf{(E)} Source composition. The Schwank-derived study supplies 58.4\% of training
+rows and none of the evaluation set, while the Kim-derived study dominates evaluation;
+\S\ref{sec:domain} shows that removing the unevaluated study is nonetheless harmful.}
+\label{fig:arch}
+\end{figure}
+
+
 \subsection{Data}
 
 We use the training mix underlying OptiPrime, obtained from its authors: 297{,}962
@@ -404,16 +434,27 @@ PE-RankFormer, round 3 & 0.8933 & 0.8462 & 0.7836 \\
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.92\textwidth]{../../results/paper/figures/fig1_benchmark.pdf}
-\caption{Held-out Spearman across successive model generations, overall and by source
-partition. The dotted line marks OptiPrime's overall performance. The advantage is
-consistently larger on the Kim partition, which spans more cell lines and editing
-systems.}
+\includegraphics[width=\textwidth]{../../results/paper/figures/fig2_benchmark.pdf}
+\caption{\textbf{Held-out benchmark result.}
+\textbf{(A)} Spearman $\rho$ on the complete held-out set and on each source partition,
+across successive model generations. All models were trained on the identical corpus
+and cross-validation splits and evaluated on identical rows; the dotted line marks the
+baseline's overall performance. The advantage is consistently larger on the Kim
+partition, which spans more cell lines and editing systems.
+\textbf{(B)} Distribution of the paired difference in Spearman $\rho$ under a
+protospacer-clustered bootstrap (5{,}000 resamples over 750 clusters). Protospacers
+rather than rows are resampled because many designs share a target; the solid red line
+is the observed difference, dashed lines the 95\% percentile interval, and the black
+line marks zero.
+\textbf{(C)} Held-out performance broken down by experimental condition
+($n\geq300$), coloured by source study. Performance spans $0.21$ between the weakest
+and strongest conditions, and the weakest are those with the highest fraction of
+exactly-zero measurements (cf.\ Figure~\ref{fig:ceiling}B).}
 \label{fig:bench}
 \end{figure}
 
 The paired protospacer-clustered bootstrap (Table~\ref{tab:boot},
-Figure~\ref{fig:boot}) gives $\Delta\rhoS = +0.0389$ with a 95\% interval of
+Figure~\ref{fig:bench}B) gives $\Delta\rhoS = +0.0389$ with a 95\% interval of
 $[+0.0286,+0.0498]$; PE-RankFormer leads in every one of 5{,}000 resamples.
 
 \begin{table}[H]
@@ -432,13 +473,7 @@ Round 3 $-$ OptiPrime & $+0.0243$ & $[+0.0138,+0.0346]$ & 1.000 & $<0.0002$ \\
 \end{tabular}
 \end{table}
 
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.52\textwidth]{../../results/paper/figures/fig2_bootstrap.pdf}
-\caption{Bootstrap distribution of the paired Spearman difference. The interval is
-clear of zero by a wide margin.}
-\label{fig:boot}
-\end{figure}
+
 
 We note explicitly that the absolute figure's own 95\% interval is $[0.8955,0.9173]$,
 with 90.0\% of resamples exceeding $0.90$. The \emph{margin} over OptiPrime is a
@@ -471,10 +506,19 @@ State space (SSM) & 0.9011 & \textbf{0.9082} \\
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.92\textwidth]{../../results/paper/figures/fig3_factorial.pdf}
-\caption{Left: out-of-fold Spearman for each objective $\times$ architecture cell.
-Right: main effects and interaction. Architecture contributes roughly twice as much as
-the objective, and the two combine sub-additively.}
+\includegraphics[width=\textwidth]{../../results/paper/figures/fig3_factorial.pdf}
+\caption{\textbf{Separating the two contributions.}
+\textbf{(A)} Out-of-fold development Spearman for each combination of outcome head and
+sequence mixer. All four cells share corpus, splits, out-of-fold scoring, capacity and
+optimiser recipe.
+\textbf{(B)} Main effects and interaction derived from (A). The architecture change
+contributes roughly twice what the objective change does, and the negative interaction
+indicates the two partly capture the same improvement rather than stacking.
+\textbf{(C)} Why the ordinal head is nonetheless valuable: residual correlation with
+the existing ensemble, for every candidate model of each head type (points; bars are
+group means). Ordinal-head models separate cleanly from simplex-head models, i.e.\ they
+make \emph{different errors}, which is what determines a member's value in an ensemble
+(\S\ref{sec:ensemble}). Lower is more complementary.}
 \label{fig:fact}
 \end{figure}
 
@@ -514,11 +558,17 @@ two models sharing an architecture correlate at $0.7641$.
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.95\textwidth]{../../results/paper/figures/fig6_members.pdf}
-\caption{Left: residual rank correlation between ensemble members on held-out data.
-Right: change in held-out Spearman when each member is removed. The strongest member
-contributes most; two members contribute marginally negatively, indicating the ensemble
-is at or past its useful size.}
+\includegraphics[width=\textwidth]{../../results/paper/figures/fig4_ensemble.pdf}
+\caption{\textbf{Ensemble structure on held-out data.}
+\textbf{(A)} Residual rank correlation between the five members. Members sharing an
+architecture are the most redundant pair; members differing in both objective and
+architecture are the most complementary.
+\textbf{(B)} Each member's individual held-out Spearman. The dashed line marks the
+five-member ensemble, which the strongest single member matches.
+\textbf{(C)} Change in held-out Spearman when each member is removed. Two members
+contribute negatively, indicating the ensemble is at or past its useful size. Panels
+(B) and (C) are post-hoc analyses on held-out data and did not inform the frozen model
+choice (\S\ref{sec:ens-honest}).}
 \label{fig:members}
 \end{figure}
 
@@ -538,6 +588,7 @@ and competent}. Decorrelation distinguishes useful from redundant \emph{among mo
 comparable strength}; it cannot rescue a weak model.
 
 \subsection{Ensemble versus single model}
+\label{sec:ens-honest}
 
 The frozen system is a five-member rank-average ensemble. Post-hoc analysis on the
 held-out set shows its strongest single member attains $0.9082$ against the ensemble's
@@ -579,10 +630,16 @@ Rank average & 0.9079 & 0.7278 & 0.3869 & 0.4343 \\
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.95\textwidth]{../../results/paper/figures/fig4_calibration.pdf}
-\caption{Left: calibration curve on held-out data after fitting the monotone map on
-development predictions alone. Right: metric comparison. Ranking is preserved exactly
-while absolute error falls roughly eight-fold.}
+\includegraphics[width=\textwidth]{../../results/paper/figures/fig5_calibration.pdf}
+\caption{\textbf{Monotone calibration restores an absolute efficiency scale.}
+\textbf{(A)} The learned map $g$ from the ensemble's rank score to efficiency, fitted by
+isotonic regression on out-of-fold development predictions only and then applied once
+to the frozen held-out predictions.
+\textbf{(B)} Calibration curve on held-out data, binned by predicted quantile; the
+dotted line is perfect calibration.
+\textbf{(C)} Metric comparison. Because $g$ is non-decreasing it inverts no pair, so
+Spearman is unchanged, while Pearson correlation rises and absolute error falls roughly
+eight-fold.}
 \label{fig:calib}
 \end{figure}
 
@@ -618,10 +675,18 @@ near $0.18$, while those near 38\% show gaps near $0.09$.
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.97\textwidth]{../../results/paper/figures/fig5_ceiling.pdf}
-\caption{Left: model performance against the empirical repeatability ceiling for each
-Kim condition, ordered by zero-inflation. Right: the gap to ceiling increases with the
-fraction of rows measured as exactly zero.}
+\includegraphics[width=\textwidth]{../../results/paper/figures/fig6_ceiling.pdf}
+\caption{\textbf{The benchmark is not saturated.}
+\textbf{(A)} Model performance against the empirical repeatability ceiling for each Kim
+condition, ordered by zero-inflation; the annotation gives the gap. Headroom is present
+in every condition.
+\textbf{(B)} The gap to ceiling increases with the fraction of rows measured as exactly
+zero, the regime in which a single measurement is least informative.
+\textbf{(C)} Both corrections described in \S\ref{sec:ceiling} are load-bearing. A
+naive replicate key merges epegRNA with plain-pegRNA constructs and returns a ceiling
+essentially equal to the model's own score (dashed line), which would wrongly indicate
+saturation; treating observed zeros as noiseless instead over-estimates it. Only the
+corrected, censoring-aware estimate is trustworthy.}
 \label{fig:ceiling}
 \end{figure}
 
