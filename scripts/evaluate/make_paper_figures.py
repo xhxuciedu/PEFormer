@@ -146,18 +146,24 @@ def fig1_architecture():
     panel_label(ax, "B", dx=-0.02, dy=1.14)
     ax.text(5, 16.1, "Encoder block", ha="center", fontsize=8.6, fontweight="bold")
 
-    _box(ax, 1.0, 13.4, 8.0, 1.7, "LayerNorm", C_GREY, 6.8)
-    _box(ax, 0.3, 8.7, 4.5, 3.4,
-         "bidirectional S4D\nclosed-form kernel,\nFFT convolution", C_EDIT, 6.4)
-    _box(ax, 5.2, 8.7, 4.5, 3.4,
-         "(alternative)\nself-attention,\ncontent-based lookup", C_GREY, 6.4)
-    _box(ax, 1.0, 5.9, 8.0, 1.7, "gated projection + residual", C_GREY, 6.8)
-    _box(ax, 1.0, 3.4, 8.0, 1.7, "FFN + residual", C_GREY, 6.8)
+    # Layout notes, both fixing collisions visible in the rendered PDF:
+    #  - the mixer captions were three lines at 6.4pt inside a box whose height in data
+    #    units rendered to almost exactly the text height, so the first and last lines
+    #    sat outside the box edge. Two lines in a taller box has clear margin.
+    #  - the arrows previously landed at x=2.5 and x=7.5, which is inside the caption
+    #    text. They now run down the 0.4-unit gap between the two alternative boxes,
+    #    which is also the semantically right place: the boxes are alternatives, so one
+    #    arrow through the middle reads as "either of these".
+    _box(ax, 0.2, 13.8, 9.6, 1.5, "LayerNorm", C_GREY, 6.8)
+    _box(ax, 0.2, 9.0, 4.6, 3.0, "bidirectional S4D\nclosed-form kernel", C_EDIT, 6.2)
+    _box(ax, 5.2, 9.0, 4.6, 3.0, "self-attention\n(alternative)", C_GREY, 6.2)
+    _box(ax, 0.2, 6.1, 9.6, 1.5, "gated projection + residual", C_GREY, 6.8)
+    _box(ax, 0.2, 3.6, 9.6, 1.5, "FFN + residual", C_GREY, 6.8)
 
-    _arrow(ax, (4.0, 13.4), (2.55, 12.2)); _arrow(ax, (6.0, 13.4), (7.45, 12.2))
-    _arrow(ax, (2.55, 8.7), (4.0, 7.7)); _arrow(ax, (7.45, 8.7), (6.0, 7.7))
-    _arrow(ax, (5.0, 5.9), (5.0, 5.15))
-    ax.text(5.0, 1.5, "S4D mixes by distance, not content  ($+0.0192$)",
+    _arrow(ax, (5.0, 13.8), (5.0, 12.2))
+    _arrow(ax, (5.0, 9.0), (5.0, 7.7))
+    _arrow(ax, (5.0, 6.1), (5.0, 5.2))
+    ax.text(5.0, 1.7, "S4D mixes by distance, not content  ($+0.0192$)",
             ha="center", fontsize=6.3, style="italic", color=C_EDIT)
 
     # ---------------- Panel C: ordinal thresholds on real data ----------------
@@ -486,18 +492,47 @@ def fig5_calibration():
 
     ax = fig.add_subplot(gs[2])
     panel_label(ax, "C", dx=-0.30)
+    # Round-9 rebuild. The previous version compared the calibrated output against our
+    # own UNCALIBRATED rank average, whose MAE/RMSE are not in efficiency units, and it
+    # set ylim=0.62 so the two Spearman bars overflowed the axes and printed their value
+    # labels outside the panel, colliding into "0.908.908". The comparison that carries
+    # an argument is against the baseline on identical rows.
+    op = json.load(open("results/round9/stratified_comparison.json"))["absolute_accuracy"]
+    base = op["OptiPrime (5-model ens)"]
+    ours = op["PE-RankFormer + isotonic"]
     keys = ["spearman", "pearson", "mae", "rmse"]
-    unc = [c["heldout_uncalibrated"][k] for k in keys]
-    ca = [c["heldout_calibrated"][k] for k in keys]
-    x = np.arange(4); w = 0.36
-    ax.bar(x - w / 2, unc, w, label="rank average", color=C_GREY)
-    ax.bar(x + w / 2, ca, w, label="+ calibration", color=C_OURS)
-    for i, (u, v) in enumerate(zip(unc, ca)):
-        ax.text(i - w / 2, u + 0.012, f"{u:.3f}", ha="center", fontsize=5.9)
-        ax.text(i + w / 2, v + 0.012, f"{v:.3f}", ha="center", fontsize=5.9)
-    ax.set_xticks(x); ax.set_xticklabels(["Spearman", "Pearson", "MAE", "RMSE"], fontsize=6.8)
-    ax.set_ylim(0, 0.62); ax.legend(frameon=False, fontsize=6.6)
-    ax.set_title("Ranking preserved,\nabsolute error cut 8-fold", fontsize=8.2)
+    labels = ["Spearman", "Pearson", "MAE", "RMSE"]
+    rank_only = {"spearman": c["heldout_uncalibrated"]["spearman"],
+                 "pearson": c["heldout_uncalibrated"]["pearson"],
+                 "mae": np.nan, "rmse": np.nan}  # not in efficiency units
+    x = np.arange(4); w = 0.27
+    # Colour language: grey = baseline, blues = ours. The two greys of an earlier
+    # version were indistinguishable at print size.
+    series = [("OptiPrime", [base[k] for k in keys], C_GREY),
+              ("ours, rank average", [rank_only[k] for k in keys], "#9dc3e6"),
+              ("ours, $+$ calibration", [ours[k] for k in keys], C_OURS)]
+    for i, (lab, vals, col) in enumerate(series):
+        ax.bar(x + (i - 1) * w, vals, w, label=lab, color=col,
+               edgecolor="white", linewidth=0.4)
+        for xi, v in zip(x + (i - 1) * w, vals):
+            if np.isnan(v):
+                ax.text(xi, 0.02, "n/a", ha="center", fontsize=5.4, rotation=90,
+                        color=C_GREY, va="bottom")
+            else:
+                ax.text(xi, v + 0.015, f"{v:.3f}", ha="center", fontsize=5.4, rotation=90)
+    ax.set_xticks(x)
+    ax.set_xticklabels(labels, fontsize=6.4, rotation=18, ha="right")
+    # Bars plus their rotated labels top out near 1.0, so 1.45 leaves a clear band above
+    # them for the legend. Anchoring the legend inside the plotting area at any height
+    # overlapped the Spearman/Pearson groups.
+    ax.set_ylim(0, 1.45)
+    ax.set_yticks([0.0, 0.2, 0.4, 0.6, 0.8, 1.0])  # no tick in the legend band
+    ax.set_ylabel("value")
+    ax.legend(frameon=False, fontsize=5.5, handlelength=1.0, labelspacing=0.25,
+              columnspacing=0.8, ncol=2, loc="upper center",
+              bbox_to_anchor=(0.5, 1.015))
+    ax.set_title("Ranking preserved; on the recovered\nscale the model also leads",
+                 fontsize=8.2)
 
     fig.savefig(OUT / "fig5_calibration.pdf"); plt.close(fig)
     logger.info("fig5 calibration")

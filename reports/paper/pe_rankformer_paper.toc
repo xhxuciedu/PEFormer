@@ -37,13 +37,13 @@
 \contentsline {subsection}{\numberline {3.8}Ensemble versus single model}{21}{subsection.3.8}%
 \contentsline {subsection}{\numberline {3.9}Calibration restores absolute efficiency, and it beats the baseline there too}{21}{subsection.3.9}%
 \contentsline {subsection}{\numberline {3.10}The benchmark is not saturated}{23}{subsection.3.10}%
-\contentsline {subsection}{\numberline {3.11}A tie-structure caveat for Spearman on zero-inflated data}{25}{subsection.3.11}%
-\contentsline {subsection}{\numberline {3.12}Interventions that did not help}{26}{subsection.3.12}%
-\contentsline {section}{\numberline {4}Discussion}{27}{section.4}%
-\contentsline {subsection}{\numberline {4.1}Can architecture substitute for mechanism?}{27}{subsection.4.1}%
-\contentsline {subsection}{\numberline {4.2}Metric-matched supervision}{27}{subsection.4.2}%
-\contentsline {subsection}{\numberline {4.3}State-space mixing for biological sequences}{28}{subsection.4.3}%
-\contentsline {subsection}{\numberline {4.4}What the remaining error is, and is not}{28}{subsection.4.4}%
-\contentsline {subsection}{\numberline {4.5}Limitations}{28}{subsection.4.5}%
-\contentsline {subsection}{\numberline {4.6}Methodological recommendations}{29}{subsection.4.6}%
-\contentsline {section}{\numberline {5}Conclusions}{29}{section.5}%
+\contentsline {subsection}{\numberline {3.11}A tie-structure caveat for Spearman on zero-inflated data}{24}{subsection.3.11}%
+\contentsline {subsection}{\numberline {3.12}Interventions that did not help}{25}{subsection.3.12}%
+\contentsline {section}{\numberline {4}Discussion}{26}{section.4}%
+\contentsline {subsection}{\numberline {4.1}Can architecture substitute for mechanism?}{26}{subsection.4.1}%
+\contentsline {subsection}{\numberline {4.2}Metric-matched supervision}{26}{subsection.4.2}%
+\contentsline {subsection}{\numberline {4.3}State-space mixing for biological sequences}{27}{subsection.4.3}%
+\contentsline {subsection}{\numberline {4.4}What the remaining error is, and is not}{27}{subsection.4.4}%
+\contentsline {subsection}{\numberline {4.5}Limitations}{27}{subsection.4.5}%
+\contentsline {subsection}{\numberline {4.6}Methodological recommendations}{28}{subsection.4.6}%
+\contentsline {section}{\numberline {5}Conclusions}{28}{section.5}%

@@ -391,8 +391,11 @@ separately (\S\ref{sec:ties}).
 
 Thresholds are computed from training rows only and stored in the checkpoint, so
 evaluation reproduces the score mapping exactly. Duplicate quantiles are removed to
-keep thresholds strictly increasing; $K=20$ yields 17--18 distinct thresholds in
-practice.
+keep thresholds strictly increasing. $K=20$ yields \textbf{17} distinct thresholds in
+every one of the twenty official-fold checkpoints that constitute the reported system,
+and 18 on the matched development folds, whose different training subset leaves one
+fewer duplicate at the bottom of the distribution. Figure~\ref{fig:arch}C shows the
+17-threshold configuration.
 
 Note the ordinal head \emph{discards} the indel signal the simplex head uses. This is
 deliberate: it constitutes a different \emph{view} of the same rows, and
@@ -432,7 +435,7 @@ Cross-attention blocks           & 2              & Batch size           & 512 \
 Dropout                          & 0.10           & Precision            & bf16 \\
 Context embedding                & 32             & Epochs               & 30 \\
 S4D state dimension              & 64             & Early stopping       & none (see note) \\
-Ordinal thresholds $K-1$         & 17--18         & Selection            & best validation $\rhoS$ \\
+Ordinal thresholds $K-1$         & 17            & Selection            & best validation $\rhoS$ \\
 Parameters                       & $\approx$25\,M & Runtime per model    & $\approx$2\,h, 1 GPU \\
 \bottomrule
 \end{tabular}
@@ -442,8 +445,10 @@ recorded official-fold runs given the full budget, the best epoch had median $24
 maximum $29$, with $50\%$ peaking in the final five epochs. Simulating patience-5
 selection on the same runs costs a mean of $0.0001$ and at most $0.0031$.
 \item Thresholds are quantiles of the training efficiency distribution, de-duplicated
-to remain strictly increasing. $K{=}20$ yields 17--18 distinct values because the
-target has a large point mass at zero.
+to remain strictly increasing. $K{=}20$ yields 17 distinct values in all twenty
+official-fold checkpoints, because the target has a large point mass at zero; the
+matched development folds retain 18. Counts were read back from the checkpoints rather
+than assumed (\texttt{revision/audit\_00\_consistency.py}).
 \end{tablenotes}
 \end{threeparttable}
 \end{table}

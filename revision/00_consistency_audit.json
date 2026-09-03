@@ -1,0 +1,670 @@
+{
+  "git_commit": "d0b842e73205",
+  "seed": 20260903,
+  "inputs": {
+    "reports/paper/pe_rankformer_paper.tex": "7aefaab156233cf0",
+    "data/processed/optiprime_official_318471.parquet": "16b83acd41e0c7bf",
+    "data/processed/round3_dev_assignments.parquet": "6f1cfe4cbf9ae612",
+    "results/round5/heldout_calibrated.parquet": "9cbd7ce15f3e0c5c",
+    "results/heldout_full_head_to_head.parquet": "23d833dfcccb6f60"
+  },
+  "suspect_1_zero_mass": {
+    "training_297962": {
+      "n": 297962,
+      "zero_mass": 0.15963780616320203,
+      "kim_zero_mass": 0.4987393012126722
+    },
+    "heldout_20509": {
+      "n": 20509,
+      "zero_mass": 0.26822370666536643,
+      "kim_zero_mass": 0.47697194282689254
+    },
+    "dev_pool_all_297962": {
+      "n": 297962,
+      "zero_mass": 0.15963780616320203,
+      "note": "the dev assignment file covers all training rows; the reported dev numbers are the val subsets below"
+    },
+    "per_dev_fold": {
+      "round3_dev_fold_0": {
+        "n": 35649,
+        "zero_mass": 0.28443995624000673,
+        "kim_n": 19747,
+        "kim_zero_mass": 0.5081278168835772
+      },
+      "round3_dev_fold_1": {
+        "n": 35692,
+        "zero_mass": 0.2827244200381038,
+        "kim_n": 19740,
+        "kim_zero_mass": 0.5059270516717326
+      },
+      "round3_dev_fold_2": {
+        "n": 35700,
+        "zero_mass": 0.28414565826330535,
+        "kim_n": 19742,
+        "kim_zero_mass": 0.508256508965657
+      },
+      "mean_of_three_val_folds": {
+        "n": 35680,
+        "zero_mass": 0.28377001151380526,
+        "kim_n": 19743,
+        "kim_zero_mass": 0.5074371258403222
+      }
+    }
+  },
+  "suspect_2_kim_numbers": {
+    "heldout_frozen_ensemble": {
+      "n": 11334,
+      "rho": 0.812383882551176,
+      "what": "5-member rank-average ensemble, official held-out rows"
+    },
+    "heldout_best_single_member": {
+      "n": 11334,
+      "rho": 0.8151282174160803,
+      "what": "ordinal+S4D member alone, official held-out rows"
+    },
+    "dev_ordSSM_per_fold": [
+      {
+        "fold": 0,
+        "n": 19747,
+        "rho": 0.7869344027663455
+      },
+      {
+        "fold": 1,
+        "n": 19740,
+        "rho": 0.7882835837706181
+      },
+      {
+        "fold": 2,
+        "n": 19742,
+        "rho": 0.7984666558683254
+      }
+    ],
+    "dev_ordSSM_mean_of_folds": {
+      "n_mean": 19743,
+      "rho": 0.7912282141350963,
+      "what": "ordinal+S4D out-of-fold, mean over the 3 matched development folds"
+    }
+  },
+  "suspect_3_kim_zero_fraction": "covered by suspect_1 (per-population Kim zero-mass)",
+  "suspect_4_ordinal_thresholds": {
+    "all_ordinal_checkpoints": {
+      "18": 69,
+      "17": 20,
+      "43": 1,
+      "7": 1,
+      "19": 6,
+      "16": 1
+    },
+    "official_frozen_member_checkpoints": {
+      "17": 20
+    }
+  },
+  "duplicated_numbers_in_manuscript": [
+    {
+      "value": "0.9079",
+      "occurrences": 13,
+      "tex_lines": [
+        46,
+        117,
+        584,
+        604,
+        715,
+        729,
+        755,
+        1008,
+        1033,
+        1051,
+        1074,
+        1075,
+        1458
+      ]
+    },
+    {
+      "value": "0.0389",
+      "occurrences": 11,
+      "tex_lines": [
+        47,
+        118,
+        607,
+        644,
+        652,
+        664,
+        740,
+        755,
+        1077,
+        1313,
+        1459
+      ]
+    },
+    {
+      "value": "0.8690",
+      "occurrences": 8,
+      "tex_lines": [
+        47,
+        117,
+        584,
+        601,
+        715,
+        755,
+        1072,
+        1459
+      ]
+    },
+    {
+      "value": "0.0002",
+      "occurrences": 7,
+      "tex_lines": [
+        48,
+        664,
+        665,
+        667,
+        668,
+        803,
+        1442
+      ]
+    },
+    {
+      "value": "0.0220",
+      "occurrences": 6,
+      "tex_lines": [
+        52,
+        57,
+        607,
+        666,
+        684,
+        803
+      ]
+    },
+    {
+      "value": "0.9082",
+      "occurrences": 6,
+      "tex_lines": [
+        867,
+        923,
+        1002,
+        1019,
+        1019,
+        1032
+      ]
+    },
+    {
+      "value": "0.0506",
+      "occurrences": 5,
+      "tex_lines": [
+        50,
+        643,
+        740,
+        757,
+        1314
+      ]
+    },
+    {
+      "value": "0.8124",
+      "occurrences": 5,
+      "tex_lines": [
+        604,
+        730,
+        1008,
+        1121,
+        1145
+      ]
+    },
+    {
+      "value": "0.0286",
+      "occurrences": 4,
+      "tex_lines": [
+        47,
+        653,
+        664,
+        755
+      ]
+    },
+    {
+      "value": "0.0498",
+      "occurrences": 4,
+      "tex_lines": [
+        47,
+        653,
+        664,
+        755
+      ]
+    },
+    {
+      "value": "0.0804",
+      "occurrences": 4,
+      "tex_lines": [
+        51,
+        607,
+        780,
+        1326
+      ]
+    },
+    {
+      "value": "0.0478",
+      "occurrences": 4,
+      "tex_lines": [
+        70,
+        1058,
+        1075,
+        1466
+      ]
+    },
+    {
+      "value": "0.0590",
+      "occurrences": 4,
+      "tex_lines": [
+        70,
+        1058,
+        1072,
+        1466
+      ]
+    },
+    {
+      "value": "0.0294",
+      "occurrences": 4,
+      "tex_lines": [
+        211,
+        844,
+        1260,
+        1292
+      ]
+    },
+    {
+      "value": "0.0031",
+      "occurrences": 4,
+      "tex_lines": [
+        407,
+        439,
+        1002,
+        1251
+      ]
+    },
+    {
+      "value": "0.0027",
+      "occurrences": 4,
+      "tex_lines": [
+        666,
+        684,
+        804,
+        1252
+      ]
+    },
+    {
+      "value": "0.0013",
+      "occurrences": 4,
+      "tex_lines": [
+        1003,
+        1006,
+        1038,
+        1236
+      ]
+    },
+    {
+      "value": "0.0803",
+      "occurrences": 3,
+      "tex_lines": [
+        57,
+        665,
+        803
+      ]
+    },
+    {
+      "value": "0.7413",
+      "occurrences": 3,
+      "tex_lines": [
+        59,
+        600,
+        714
+      ]
+    },
+    {
+      "value": "0.0092",
+      "occurrences": 3,
+      "tex_lines": [
+        65,
+        874,
+        911
+      ]
+    },
+    {
+      "value": "0.0192",
+      "occurrences": 3,
+      "tex_lines": [
+        66,
+        875,
+        910
+      ]
+    },
+    {
+      "value": "0.0912",
+      "occurrences": 3,
+      "tex_lines": [
+        70,
+        1059,
+        1075
+      ]
+    },
+    {
+      "value": "0.1026",
+      "occurrences": 3,
+      "tex_lines": [
+        70,
+        1059,
+        1072
+      ]
+    },
+    {
+      "value": "0.1149",
+      "occurrences": 3,
+      "tex_lines": [
+        75,
+        1121,
+        1141
+      ]
+    },
+    {
+      "value": "0.1043",
+      "occurrences": 3,
+      "tex_lines": [
+        76,
+        1121,
+        1145
+      ]
+    },
+    {
+      "value": "0.0018",
+      "occurrences": 3,
+      "tex_lines": [
+        283,
+        1259,
+        1441
+      ]
+    },
+    {
+      "value": "0.0001",
+      "occurrences": 3,
+      "tex_lines": [
+        407,
+        439,
+        1255
+      ]
+    },
+    {
+      "value": "0.8585",
+      "occurrences": 3,
+      "tex_lines": [
+        604,
+        730,
+        1008
+      ]
+    },
+    {
+      "value": "0.8955",
+      "occurrences": 3,
+      "tex_lines": [
+        618,
+        694,
+        1397
+      ]
+    },
+    {
+      "value": "0.9173",
+      "occurrences": 3,
+      "tex_lines": [
+        618,
+        694,
+        1397
+      ]
+    },
+    {
+      "value": "0.0114",
+      "occurrences": 3,
+      "tex_lines": [
+        866,
+        916,
+        1077
+      ]
+    },
+    {
+      "value": "28.4%",
+      "occurrences": 3,
+      "tex_lines": [
+        384,
+        1197,
+        1205
+      ]
+    },
+    {
+      "value": "0.0345",
+      "occurrences": 2,
+      "tex_lines": [
+        51,
+        757
+      ]
+    },
+    {
+      "value": "0.0670",
+      "occurrences": 2,
+      "tex_lines": [
+        51,
+        757
+      ]
+    },
+    {
+      "value": "0.0017",
+      "occurrences": 2,
+      "tex_lines": [
+        284,
+        1440
+      ]
+    },
+    {
+      "value": "0.0020",
+      "occurrences": 2,
+      "tex_lines": [
+        284,
+        1440
+      ]
+    },
+    {
+      "value": "0.7987",
+      "occurrences": 2,
+      "tex_lines": [
+        558,
+        1378
+      ]
+    },
+    {
+      "value": "0.8111",
+      "occurrences": 2,
+      "tex_lines": [
+        716,
+        757
+      ]
+    },
+    {
+      "value": "0.0071",
+      "occurrences": 2,
+      "tex_lines": [
+        867,
+        916
+      ]
+    },
+    {
+      "value": "0.0043",
+      "occurrences": 2,
+      "tex_lines": [
+        877,
+        915
+      ]
+    },
+    {
+      "value": "0.8982",
+      "occurrences": 2,
+      "tex_lines": [
+        924,
+        1279
+      ]
+    },
+    {
+      "value": "0.8151",
+      "occurrences": 2,
+      "tex_lines": [
+        1002,
+        1146
+      ]
+    },
+    {
+      "value": "0.0006",
+      "occurrences": 2,
+      "tex_lines": [
+        1004,
+        1237
+      ]
+    },
+    {
+      "value": "0.0007",
+      "occurrences": 2,
+      "tex_lines": [
+        1005,
+        1247
+      ]
+    },
+    {
+      "value": "0.0003",
+      "occurrences": 2,
+      "tex_lines": [
+        1035,
+        1038
+      ]
+    },
+    {
+      "value": "0.8637",
+      "occurrences": 2,
+      "tex_lines": [
+        1059,
+        1075
+      ]
+    },
+    {
+      "value": "0.8270",
+      "occurrences": 2,
+      "tex_lines": [
+        1059,
+        1072
+      ]
+    },
+    {
+      "value": "0.9061",
+      "occurrences": 2,
+      "tex_lines": [
+        1120,
+        1141
+      ]
+    },
+    {
+      "value": "0.7912",
+      "occurrences": 2,
+      "tex_lines": [
+        1120,
+        1141
+      ]
+    },
+    {
+      "value": "0.9167",
+      "occurrences": 2,
+      "tex_lines": [
+        1121,
+        1145
+      ]
+    },
+    {
+      "value": "0.1046",
+      "occurrences": 2,
+      "tex_lines": [
+        1122,
+        1142
+      ]
+    },
+    {
+      "value": "0.0934",
+      "occurrences": 2,
+      "tex_lines": [
+        1122,
+        1147
+      ]
+    },
+    {
+      "value": "0.0008",
+      "occurrences": 2,
+      "tex_lines": [
+        1240,
+        1241
+      ]
+    },
+    {
+      "value": "0.0022",
+      "occurrences": 2,
+      "tex_lines": [
+        1248,
+        1253
+      ]
+    },
+    {
+      "value": "2.0%",
+      "occurrences": 2,
+      "tex_lines": [
+        54,
+        793
+      ]
+    },
+    {
+      "value": "55.3%",
+      "occurrences": 2,
+      "tex_lines": [
+        55,
+        794
+      ]
+    },
+    {
+      "value": "58.4%",
+      "occurrences": 2,
+      "tex_lines": [
+        171,
+        1292
+      ]
+    },
+    {
+      "value": "26.8%",
+      "occurrences": 2,
+      "tex_lines": [
+        383,
+        1199
+      ]
+    },
+    {
+      "value": "90.0%",
+      "occurrences": 2,
+      "tex_lines": [
+        618,
+        695
+      ]
+    },
+    {
+      "value": "50.7%",
+      "occurrences": 2,
+      "tex_lines": [
+        1198,
+        1207
+      ]
+    },
+    {
+      "value": "0.7%",
+      "occurrences": 2,
+      "tex_lines": [
+        1198,
+        1207
+      ]
+    }
+  ]
+}
