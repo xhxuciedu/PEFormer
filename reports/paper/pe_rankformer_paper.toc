@@ -19,30 +19,31 @@
 \contentsline {paragraph}{Ordinal head (this work).}{9}{section*.14}%
 \contentsline {subsection}{\numberline {2.4}Training}{10}{subsection.2.4}%
 \contentsline {subsection}{\numberline {2.5}Evaluation and statistics}{11}{subsection.2.5}%
-\contentsline {subsection}{\numberline {2.6}Ensembling}{11}{subsection.2.6}%
-\contentsline {paragraph}{Composition of the frozen system.}{11}{section*.17}%
+\contentsline {subsection}{\numberline {2.6}Baselines}{11}{subsection.2.6}%
+\contentsline {subsection}{\numberline {2.7}Ensembling}{12}{subsection.2.7}%
+\contentsline {paragraph}{Composition of the frozen system.}{12}{section*.17}%
 \contentsline {paragraph}{Selection protocol, fixed in advance.}{12}{section*.18}%
-\contentsline {subsection}{\numberline {2.7}Calibration}{12}{subsection.2.7}%
-\contentsline {subsection}{\numberline {2.8}Replicate-based noise ceiling}{12}{subsection.2.8}%
-\contentsline {subsection}{\numberline {2.9}Implementation and reproducibility}{12}{subsection.2.9}%
+\contentsline {subsection}{\numberline {2.8}Calibration}{12}{subsection.2.8}%
+\contentsline {subsection}{\numberline {2.9}Replicate-based noise ceiling}{13}{subsection.2.9}%
+\contentsline {subsection}{\numberline {2.10}Implementation and reproducibility}{13}{subsection.2.10}%
 \contentsline {section}{\numberline {3}Results}{13}{section.3}%
 \contentsline {subsection}{\numberline {3.1}Held-out performance against OptiPrime}{13}{subsection.3.1}%
-\contentsline {subsection}{\numberline {3.2}A feature-based baseline places both models}{15}{subsection.3.2}%
-\contentsline {subsection}{\numberline {3.3}The margin is not an artifact of pooling}{15}{subsection.3.3}%
-\contentsline {subsection}{\numberline {3.4}A training-weight asymmetry accounts for much of the partition margin}{16}{subsection.3.4}%
-\contentsline {subsection}{\numberline {3.5}Which components are responsible}{17}{subsection.3.5}%
-\contentsline {subsection}{\numberline {3.6}The ordinal head produces decorrelated errors}{18}{subsection.3.6}%
-\contentsline {subsection}{\numberline {3.7}Decorrelation is necessary but not sufficient}{19}{subsection.3.7}%
-\contentsline {subsection}{\numberline {3.8}Ensemble versus single model}{20}{subsection.3.8}%
-\contentsline {subsection}{\numberline {3.9}Calibration restores absolute efficiency, and it beats the baseline there too}{20}{subsection.3.9}%
-\contentsline {subsection}{\numberline {3.10}The benchmark is not saturated}{22}{subsection.3.10}%
-\contentsline {subsection}{\numberline {3.11}A tie-structure caveat for Spearman on zero-inflated data}{23}{subsection.3.11}%
-\contentsline {subsection}{\numberline {3.12}Interventions that did not help}{24}{subsection.3.12}%
-\contentsline {section}{\numberline {4}Discussion}{25}{section.4}%
-\contentsline {subsection}{\numberline {4.1}Can architecture substitute for mechanism?}{25}{subsection.4.1}%
-\contentsline {subsection}{\numberline {4.2}Metric-matched supervision}{25}{subsection.4.2}%
-\contentsline {subsection}{\numberline {4.3}State-space mixing for biological sequences}{26}{subsection.4.3}%
-\contentsline {subsection}{\numberline {4.4}What the remaining error is, and is not}{26}{subsection.4.4}%
-\contentsline {subsection}{\numberline {4.5}Limitations}{26}{subsection.4.5}%
-\contentsline {subsection}{\numberline {4.6}Methodological recommendations}{27}{subsection.4.6}%
-\contentsline {section}{\numberline {5}Conclusions}{27}{section.5}%
+\contentsline {subsection}{\numberline {3.2}A feature-based baseline places both models}{16}{subsection.3.2}%
+\contentsline {subsection}{\numberline {3.3}The margin is not an artifact of pooling}{16}{subsection.3.3}%
+\contentsline {subsection}{\numberline {3.4}A training-weight asymmetry accounts for much of the partition margin}{17}{subsection.3.4}%
+\contentsline {subsection}{\numberline {3.5}Which components are responsible}{18}{subsection.3.5}%
+\contentsline {subsection}{\numberline {3.6}The ordinal head produces decorrelated errors}{19}{subsection.3.6}%
+\contentsline {subsection}{\numberline {3.7}Decorrelation is necessary but not sufficient}{20}{subsection.3.7}%
+\contentsline {subsection}{\numberline {3.8}Ensemble versus single model}{21}{subsection.3.8}%
+\contentsline {subsection}{\numberline {3.9}Calibration restores absolute efficiency, and it beats the baseline there too}{21}{subsection.3.9}%
+\contentsline {subsection}{\numberline {3.10}The benchmark is not saturated}{23}{subsection.3.10}%
+\contentsline {subsection}{\numberline {3.11}A tie-structure caveat for Spearman on zero-inflated data}{24}{subsection.3.11}%
+\contentsline {subsection}{\numberline {3.12}Interventions that did not help}{25}{subsection.3.12}%
+\contentsline {section}{\numberline {4}Discussion}{26}{section.4}%
+\contentsline {subsection}{\numberline {4.1}Can architecture substitute for mechanism?}{26}{subsection.4.1}%
+\contentsline {subsection}{\numberline {4.2}Metric-matched supervision}{26}{subsection.4.2}%
+\contentsline {subsection}{\numberline {4.3}State-space mixing for biological sequences}{27}{subsection.4.3}%
+\contentsline {subsection}{\numberline {4.4}What the remaining error is, and is not}{27}{subsection.4.4}%
+\contentsline {subsection}{\numberline {4.5}Limitations}{27}{subsection.4.5}%
+\contentsline {subsection}{\numberline {4.6}Methodological recommendations}{28}{subsection.4.6}%
+\contentsline {section}{\numberline {5}Conclusions}{28}{section.5}%

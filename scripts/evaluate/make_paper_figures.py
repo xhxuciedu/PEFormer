@@ -234,12 +234,15 @@ def fig2_benchmark():
     # A: grouped bars
     ax = fig.add_subplot(gs[0, :])
     panel_label(ax, "A")
-    models = ["OptiPrime\n(mechanistic baseline)", "PE-RankFormer\nround 1",
+    # Round-9: the feature baseline is included so the figure shows what the
+    # mechanistic model and ours are both clear of, not only the gap between them.
+    models = ["Gradient-boosted trees\non engineered features",
+              "OptiPrime\n(mechanistic baseline)", "PE-RankFormer\nround 1",
               "PE-RankFormer\nround 3", "PE-RankFormer\nfinal"]
-    full = [0.8690, 0.8865, 0.8933, 0.9079]
-    liu = [0.8365, 0.8349, 0.8462, 0.8585]
-    kim = [0.7320, 0.7751, 0.7836, 0.8124]
-    x = np.arange(4); w = 0.26
+    full = [0.7413, 0.8690, 0.8865, 0.8933, 0.9079]
+    liu = [0.6347, 0.8365, 0.8349, 0.8462, 0.8585]
+    kim = [0.5745, 0.7320, 0.7751, 0.7836, 0.8124]
+    x = np.arange(5); w = 0.26
     for i, (v, lab, c) in enumerate([(full, "All (n=20,509)", C_OURS),
                                      (liu, "Liu (n=9,175)", "#dd6b20"),
                                      (kim, "Kim (n=11,334)", "#38a169")]):
@@ -249,10 +252,12 @@ def fig2_benchmark():
             ax.text(r.get_x() + r.get_width() / 2, val + 0.005, f"{val:.4f}",
                     ha="center", fontsize=6, rotation=90)
     ax.axhline(0.8690, ls=":", c=C_GREY, lw=1)
-    ax.text(3.46, 0.8660, "OptiPrime, all", fontsize=6.2, color=C_GREY,
-            va="top", ha="right")
-    ax.set_xticks(x); ax.set_xticklabels(models, fontsize=7.2)
-    ax.set_ylabel("Spearman $\\rho$"); ax.set_ylim(0.70, 0.97)
+    # Left of the OptiPrime group the reference line runs over whitespace; placing the
+    # label anywhere right of it collides with the bar value labels.
+    ax.text(-0.42, 0.8745, "OptiPrime, all", fontsize=6.2, color=C_GREY,
+            va="bottom", ha="left")
+    ax.set_xticks(x); ax.set_xticklabels(models, fontsize=6.8)
+    ax.set_ylabel("Spearman $\\rho$"); ax.set_ylim(0.54, 0.98)
     ax.legend(frameon=False, ncol=3, loc="upper left", fontsize=7)
     ax.set_title("Held-out performance under matched training data, splits and evaluation",
                  fontsize=8.8)
@@ -284,24 +289,35 @@ def fig2_benchmark():
             transform=ax.transAxes, va="top", fontsize=6.6,
             bbox=dict(boxstyle="round,pad=0.32", fc="white", ec=C_GREY, lw=0.6))
 
-    # C: per-condition
+    # C: paired per-condition comparison. Round-9: this panel used to show only our
+    # own per-condition score, which says nothing about the comparison. The paired
+    # version is the robustness result -- the margin holds in every condition, and it is
+    # larger within condition than pooled because pooling helps both models equally.
     ax = fig.add_subplot(gs[1, 1])
     panel_label(ax, "C")
-    m = json.load(open("results/round4/heldout/metrics_round4_final.json"))
-    pc = [c for c in m["per_condition"] if c["n"] >= 300]
-    pc.sort(key=lambda c: c["spearman"])
-    labs = [f"{'Kim' if c['source']=='deepprime' else 'Liu'}  {c['cell_type']}/{c['pe_type']}"
-            for c in pc]
-    vals = [c["spearman"] for c in pc]
-    cols = ["#38a169" if c["source"] == "deepprime" else "#dd6b20" for c in pc]
-    ax.barh(np.arange(len(labs)), vals, color=cols)
-    ax.set_yticks(np.arange(len(labs))); ax.set_yticklabels(labs, fontsize=6.2)
-    ax.set_xlim(0.6, 0.93); ax.set_xlabel("Spearman $\\rho$")
-    ax.set_title("Held-out performance by\nexperimental condition ($n\\geq300$)", fontsize=8.2)
-    from matplotlib.patches import Patch
-    ax.legend(handles=[Patch(color="#38a169", label="Kim"),
-                       Patch(color="#dd6b20", label="Liu")],
-              frameon=False, loc="lower right", fontsize=6.6)
+    st = json.load(open("results/round9/stratified_comparison.json"))
+    pc = sorted(st["per_condition"], key=lambda c: c["pe_rankformer"])
+    def _lab(c):
+        src, cell, pe = c["cond"].split("|")
+        return f"{'Kim' if src == 'deepprime' else 'Liu'}  {cell}/{pe}"
+    labs = [_lab(c) for c in pc]
+    yy = np.arange(len(pc))
+    ours = np.array([c["pe_rankformer"] for c in pc])
+    theirs = np.array([c["optiprime"] for c in pc])
+    for i in yy:  # connector shows the per-condition gain
+        ax.plot([theirs[i], ours[i]], [i, i], c=C_GREY, lw=0.9, zorder=1)
+    ax.scatter(theirs, yy, s=13, c=C_GREY, zorder=2, label="OptiPrime")
+    ax.scatter(ours, yy, s=13, c=C_OURS, zorder=3, label="PE-RankFormer")
+    ax.set_yticks(yy); ax.set_yticklabels(labs, fontsize=6.2)
+    ax.set_xlim(0.52, 0.95); ax.set_xlabel("Spearman $\\rho$ within condition")
+    ax.set_title("Paired comparison by experimental\ncondition ($n\\geq300$)", fontsize=8.2)
+    ax.legend(frameon=False, loc="lower right", fontsize=6.6)
+    wc = st["margin"]["within_condition"]
+    ax.text(0.02, 0.985,
+            f"ahead in {st['conditions_won']}/{st['conditions_total']} conditions\n"
+            f"$n$-weighted $\\Delta\\rho={wc['delta']:+.4f}$",
+            transform=ax.transAxes, va="top", fontsize=6.4,
+            bbox=dict(boxstyle="round,pad=0.3", fc="white", ec=C_GREY, lw=0.6))
 
     fig.savefig(OUT / "fig2_benchmark.pdf"); plt.close(fig)
     logger.info("fig2 benchmark")

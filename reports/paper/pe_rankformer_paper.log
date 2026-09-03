@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2022/dev/Debian) (preloaded format=pdflatex 2023.6.20)  3 SEP 2026 11:42
+This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2022/dev/Debian) (preloaded format=pdflatex 2023.6.20)  3 SEP 2026 11:49
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -549,120 +549,98 @@ LaTeX Font Info:    Trying to load font information for U+msb on input line 32.
 
 (/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
-)
-(./pe_rankformer_paper.toc [1
+) [1
 
-{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}])
+{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}] (./pe_rankformer_paper.toc
+)
 \tf@toc=\write4
 \openout4 = `pe_rankformer_paper.toc'.
 
  [2] [3]
-<../../results/paper/figures/fig1_architecture.pdf, id=226, 465.36258pt x 499.2
+<../../results/paper/figures/fig1_architecture.pdf, id=236, 465.36258pt x 499.2
 5542pt>
 File: ../../results/paper/figures/fig1_architecture.pdf Graphic file (type pdf)
 
 <use ../../results/paper/figures/fig1_architecture.pdf>
 Package pdftex.def Info: ../../results/paper/figures/fig1_architecture.pdf  use
-d on input line 149.
+d on input line 152.
 (pdftex.def)             Requested size: 455.66293pt x 488.86322pt.
- [4] [5]
+ [4]
+[5]
 Overfull \vbox (85.27673pt too high) has occurred while \output is active []
 
 
 [6 <../../results/paper/figures/fig1_architecture.pdf>] [7] [8]
 LaTeX Font Info:    Trying to load font information for OMS+cmr on input line 3
-45.
+48.
 
 (/usr/share/texlive/texmf-dist/tex/latex/base/omscmr.fd
 File: omscmr.fd 2019/12/16 v2.5j Standard LaTeX font definitions
 )
 LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <10.95> not available
-(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 345.
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 348.
  [9] [10] [11] [12]
-
-LaTeX Warning: Reference `sec:gbm' on page 13 undefined on input line 578.
-
-<../../results/paper/figures/fig2_benchmark.pdf, id=382, 454.22647pt x 354.8993
+[13]
+<../../results/paper/figures/fig2_benchmark.pdf, id=407, 451.28285pt x 354.8993
 8pt>
 File: ../../results/paper/figures/fig2_benchmark.pdf Graphic file (type pdf)
 <use ../../results/paper/figures/fig2_benchmark.pdf>
 Package pdftex.def Info: ../../results/paper/figures/fig2_benchmark.pdf  used o
-n input line 591.
-(pdftex.def)             Requested size: 469.75502pt x 367.03424pt.
-[13] [14 <../../results/paper/figures/fig2_benchmark.pdf>]
-
-LaTeX Warning: Reference `sec:limitations-baselines' on page 15 undefined on in
-put line 657.
-
-[15]
-Overfull \hbox (50.04195pt too wide) in paragraph at lines 697--723
+n input line 629.
+(pdftex.def)             Requested size: 469.75502pt x 369.4224pt.
+ [14] [15 <../../results/paper/figures/fig2_benchmark.pdf>] [16]
+Overfull \hbox (50.04195pt too wide) in paragraph at lines 741--767
  [] 
  []
 
-[16]
-<../../results/paper/figures/fig3_factorial.pdf, id=473, 482.08543pt x 215.3068
+[17]
+<../../results/paper/figures/fig3_factorial.pdf, id=499, 482.08543pt x 215.3068
 7pt>
 File: ../../results/paper/figures/fig3_factorial.pdf Graphic file (type pdf)
 <use ../../results/paper/figures/fig3_factorial.pdf>
 Package pdftex.def Info: ../../results/paper/figures/fig3_factorial.pdf  used o
-n input line 829.
+n input line 873.
 (pdftex.def)             Requested size: 469.75502pt x 209.80672pt.
- [17] [18 <../../results/paper/figures/fig3_factorial.pdf>]
-<../../results/paper/figures/fig4_ensemble.pdf, id=531, 536.12343pt x 241.21269
+ [18] [19 <../../results/paper/figures/fig3_factorial.pdf>]
+<../../results/paper/figures/fig4_ensemble.pdf, id=559, 536.12343pt x 241.21269
 pt>
 File: ../../results/paper/figures/fig4_ensemble.pdf Graphic file (type pdf)
 <use ../../results/paper/figures/fig4_ensemble.pdf>
 Package pdftex.def Info: ../../results/paper/figures/fig4_ensemble.pdf  used on
- input line 886.
+ input line 930.
 (pdftex.def)             Requested size: 469.75502pt x 211.36238pt.
- [19 <../../results/paper/figures/fig4_ensemble.pdf>] [20]
-<../../results/paper/figures/fig5_calibration.pdf, id=593, 448.89894pt x 273.92
+ [20 <../../results/paper/figures/fig4_ensemble.pdf>] [21]
+<../../results/paper/figures/fig5_calibration.pdf, id=621, 448.89894pt x 273.92
 928pt>
 File: ../../results/paper/figures/fig5_calibration.pdf Graphic file (type pdf)
 <use ../../results/paper/figures/fig5_calibration.pdf>
 Package pdftex.def Info: ../../results/paper/figures/fig5_calibration.pdf  used
- on input line 1025.
+ on input line 1069.
 (pdftex.def)             Requested size: 469.75502pt x 286.66869pt.
- [21 <../../results/paper/figures/fig5_calibration.pdf>]
-<../../results/paper/figures/fig6_ceiling.pdf, id=643, 511.16104pt x 273.09903p
+ [22 <../../results/paper/figures/fig5_calibration.pdf>]
+<../../results/paper/figures/fig6_ceiling.pdf, id=670, 511.16104pt x 273.09903p
 t>
 File: ../../results/paper/figures/fig6_ceiling.pdf Graphic file (type pdf)
 <use ../../results/paper/figures/fig6_ceiling.pdf>
 Package pdftex.def Info: ../../results/paper/figures/fig6_ceiling.pdf  used on 
-input line 1104.
+input line 1148.
 (pdftex.def)             Requested size: 469.75502pt x 250.97493pt.
- [22] [23 <../../results/paper/figures/fig6_ceiling.pdf>]
-[24] [25] [26]
-
-LaTeX Warning: Reference `sec:gbm' on page 27 undefined on input line 1337.
-
-[27] [28]
-Underfull \hbox (badness 1867) in paragraph at lines 1477--1479
+ [23] [24 <../../results/paper/figures/fig6_ceiling.pdf>]
+[25] [26] [27] [28] [29]
+Underfull \hbox (badness 1867) in paragraph at lines 1521--1523
 []\OT1/cmr/m/n/10 Lieber O, Lenz B, Bata H, et al. Jamba: a hy-brid Transformer
 -Mamba lan-guage model.
  []
 
-[29] (./pe_rankformer_paper.aux)
-
-LaTeX Warning: There were undefined references.
-
-
-LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
-
-
-Package rerunfilecheck Warning: File `pe_rankformer_paper.out' has changed.
-(rerunfilecheck)                Rerun to get outlines right
-(rerunfilecheck)                or use package `bookmark'.
-
-Package rerunfilecheck Info: Checksums for `pe_rankformer_paper.out':
-(rerunfilecheck)             Before: 8F60FD052EB6EB7A511B9BD82862853B;7387
-(rerunfilecheck)             After:  266A89555158C4666729E5CB084FB225;7676.
+[30] (./pe_rankformer_paper.aux)
+Package rerunfilecheck Info: File `pe_rankformer_paper.out' has not changed.
+(rerunfilecheck)             Checksum: C7A67EADFEAE42299C09FF75B9337AC6;7780.
  ) 
 Here is how much of TeX's memory you used:
- 16343 strings out of 480171
- 306623 string characters out of 5894489
- 589131 words of memory out of 5000000
- 33931 multiletter control sequences out of 15000+600000
+ 16348 strings out of 480171
+ 306694 string characters out of 5894489
+ 589975 words of memory out of 5000000
+ 33934 multiletter control sequences out of 15000+600000
  487449 words of font info for 95 fonts, out of 8000000 for 9000
  59 hyphenation exceptions out of 8191
  70i,14n,79p,1995b,914s stack positions out of 5000i,500n,10000p,200000b,80000s
@@ -693,10 +671,10 @@ f/fonts/type1/public/cm-super/sfrm0600.pfb></usr/share/texmf/fonts/type1/public
 /cm-super/sfrm0800.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfrm0900.p
 fb></usr/share/texmf/fonts/type1/public/cm-super/sfrm1000.pfb></usr/share/texmf
 /fonts/type1/public/cm-super/sfrm1095.pfb>
-Output written on pe_rankformer_paper.pdf (29 pages, 644615 bytes).
+Output written on pe_rankformer_paper.pdf (30 pages, 650752 bytes).
 PDF statistics:
- 911 PDF objects out of 1000 (max. 8388607)
- 695 compressed objects within 7 object streams
- 152 named destinations out of 1000 (max. 500000)
- 311 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 937 PDF objects out of 1000 (max. 8388607)
+ 716 compressed objects within 8 object streams
+ 154 named destinations out of 1000 (max. 500000)
+ 327 words of extra memory for PDF output out of 10000 (max. 10000000)
 

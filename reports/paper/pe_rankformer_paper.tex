@@ -54,7 +54,10 @@ $[+0.0451,+0.0564]$, ahead in 14/14 conditions). It is $+0.0804$ on the more
 experimentally diverse Kim partition and $+0.0220$ on Liu, but we show that much of
 that partition structure follows from a training-weight asymmetry rather than from
 architecture: the comparator's own released weights assign the Kim study $2.0\%$ of its
-training gradient while the study supplies $55.3\%$ of the held-out rows.
+training gradient while the study supplies $55.3\%$ of the held-out rows. A
+gradient-boosted tree ensemble on engineered design features, trained under the same
+protocol and tuned on held-out data, reaches $0.7413$, placing both models well clear of
+the standard feature set.
 
 Two components account for the gain, and a factorial analysis separates them. An
 \emph{ordinal} outcome head that predicts cumulative threshold indicators rather than
@@ -456,6 +459,41 @@ understate the intervals. Both models are evaluated on identical rows in each re
 We report the observed difference, the 95\% percentile interval, the fraction of
 resamples in which our model leads, and a two-sided empirical $p$-value.
 
+Because the two source studies differ in efficiency level, pooled rank correlation
+benefits from between-study variance that a within-experiment design task would not
+supply. We therefore also report every comparison \emph{stratified}: Spearman is
+computed inside each (source, cell line, PE system) condition and averaged with weights
+equal to condition size, and the clustered bootstrap is applied to that stratified
+difference. Strata with fewer than 50 rows or fewer than five distinct target values are
+excluded.
+
+\subsection{Baselines}
+\label{sec:baselines}
+
+\textbf{OptiPrime.} Run from the released implementation and its five released fold
+checkpoints, ensembled as its own prediction script does, on the held-out rows the
+authors supplied. The corpus's per-row \texttt{weight} column is a training weight in
+that implementation and does not enter its validation metric; \S\ref{sec:domain-weight}
+analyses what it implies for the comparison.
+
+\textbf{Gradient-boosted trees on engineered features.} A feature-based reference under
+the identical five-fold protocol (\S\ref{sec:gbm}), using 17 engineered design features
+--- PBS and RTT length and GC content, four melting temperatures, ViennaRNA folding
+energies for the protospacer, RTT, PBS and 3$'$ extension \citep{lorenz2011}, edit type,
+edit length, offset from the nick, mismatch count, and a RuleSet3 on-target score
+\citep{doench2016} --- concatenated with the same seven categorical context fields the
+network receives. Trained with scikit-learn's histogram gradient-boosting regressor.
+Four hyperparameter settings were crossed with two target parameterisations (raw
+efficiency, and the within-training-fold normalised rank), and the winner was chosen on
+held-out Spearman, deliberately giving the baseline an advantage no other model here
+receives.
+
+\textbf{Not reported.} PRIDICT2.0 and DeepPrime-FT were investigated and not completed.
+Both require reproducing a hand-engineered feature pipeline exactly, including a
+separate pretrained on-target cutting model \citep{kim2019}; a subtly mismatched
+reimplementation would yield misleading numbers rather than no numbers, and the tree
+baseline above covers the same class of information.
+
 \subsection{Ensembling}
 \label{sec:ensemble}
 
@@ -591,19 +629,25 @@ baseline is therefore a stronger claim than the absolute level.
 \includegraphics[width=\textwidth]{../../results/paper/figures/fig2_benchmark.pdf}
 \caption{\textbf{Held-out benchmark result.}
 \textbf{(A)} Spearman $\rho$ on the complete held-out set and on each source partition,
-across successive model generations. All models were trained on the identical corpus
-and cross-validation splits and evaluated on identical rows; the dotted line marks the
-baseline's overall performance. The advantage is consistently larger on the Kim
-partition, which spans more cell lines and editing systems.
+for a feature-based reference, the mechanistic baseline, and successive generations of
+our model. All were trained on the identical corpus and cross-validation splits and
+evaluated on identical rows; the dotted line marks the baseline's overall performance.
+The ordering --- engineered features, then mechanistic reaction model, then learned
+sequence representation --- places the margin in context: the tree baseline is
+$0.128$ behind the mechanistic model, which is in turn $0.039$ behind ours.
 \textbf{(B)} Distribution of the paired difference in Spearman $\rho$ under a
 protospacer-clustered bootstrap (5{,}000 resamples over 750 clusters). Protospacers
 rather than rows are resampled because many designs share a target; the solid red line
 is the observed difference, dashed lines the 95\% percentile interval, and the black
 line marks zero.
-\textbf{(C)} Held-out performance broken down by experimental condition
-($n\geq300$), coloured by source study. Performance spans $0.21$ between the weakest
-and strongest conditions, and the weakest are those with the highest fraction of
-exactly-zero measurements (cf.\ Figure~\ref{fig:ceiling}B).}
+\textbf{(C)} The same comparison \emph{within} each experimental condition
+($n\geq300$), where between-study differences in efficiency level cannot contribute to
+the correlation. Each line joins the two models on one condition. Our model leads in
+all 14, and the $n$-weighted margin is larger within condition ($+0.0506$) than pooled
+($+0.0389$), so pooling makes the reported difference conservative
+(\S\ref{sec:stratified}). Absolute levels are lower for both models here, and lowest in
+the conditions with the highest fraction of exactly-zero measurements
+(cf.\ Figure~\ref{fig:ceiling}B).}
 \label{fig:bench}
 \end{figure}
 
