@@ -94,6 +94,11 @@ class PERankFormerConfig:
     #                                 (the control isolating differentiation from capacity)
     source_conditional_head: int = 0
     tie_source_heads: bool = False
+    context_lowrank: int = 0  # round-9: rank r of a context-conditioned non-diagonal
+    # correction applied to the pooled representation (0 disables). See ContextLowRank:
+    # this is the mechanism round 7's diagnosis points at and that FiLM structurally lacks.
+    context_lowrank_control: bool = False  # capacity control: same parameters and FLOPs,
+    # gain network fed zeros, so the correction cannot depend on experimental context.
     context_strategy: str = "late"  # "late" (single FiLM after pooling) | "layerwise" (round-2
     # Family A: FiLM applied at every edit/pegRNA encoder layer and every cross-attention
     # block, so context modulates sequence representation throughout the network rather
@@ -113,6 +118,12 @@ class PERankFormerConfig:
     def __post_init__(self) -> None:
         if self.context_strategy == "layerwise" and not self.use_context:
             raise ValueError("context_strategy='layerwise' requires use_context=True")
+        if self.context_lowrank < 0:
+            raise ValueError("context_lowrank must be >= 0")
+        if self.context_lowrank > 0 and not self.use_context:
+            raise ValueError("context_lowrank>0 requires use_context=True")
+        if self.context_lowrank_control and self.context_lowrank == 0:
+            raise ValueError("context_lowrank_control set but context_lowrank is 0")
         if self.moe_experts > 0 and not self.use_context:
             raise ValueError("moe_experts>0 requires use_context=True (the gate is context-conditioned)")
         if self.sequence_mixer not in ("attention", "ssm", "hybrid_alt", "hybrid_par",
@@ -308,6 +319,59 @@ class FiLM(nn.Module):
         return (1 + gamma) * h + beta
 
 
+class ContextLowRank(nn.Module):
+    """Context-conditioned *non-diagonal* transform of the pooled representation.
+
+    Round 7 established, by a falsified prediction, that FiLM cannot reorder designs.
+    ``h' = (1 + gamma(c)) * h + beta(c)`` is a per-channel scale and shift, so it can
+    move the cross-condition *mean* but cannot change which of two designs scores
+    higher within a condition. Applying it at every block (the "layerwise" strategy)
+    moved the invariance diagnostic the *wrong* way, 0.828 -> 0.875, because the extra
+    capacity was spent on the mean-shift pathway, which explains far more variance and
+    is much easier to fit.
+
+    Reordering requires context to mix channels *differently* per condition, i.e. an
+    off-diagonal, context-dependent map. This is the cheapest such map:
+
+        h' = h + U diag(a(c)) V^T h
+
+    a rank-`r` correction whose per-mode gains ``a(c)`` are context-dependent while the
+    subspaces ``U``, ``V`` are shared. ``U`` is zero-initialised, so the block is exactly
+    the identity at initialisation and the model must earn the correction -- the
+    architecture is therefore a strict superset of the late-FiLM baseline.
+
+    The mechanism under test is *conditioning*, not capacity: the control
+    (``frozen=True``) keeps every parameter and every FLOP but feeds the gain network a
+    zero vector, so ``a`` becomes a learned constant and the same rank-`r` correction is
+    applied to every row regardless of condition.
+    """
+
+    def __init__(
+        self,
+        context_dim: int,
+        feature_dim: int,
+        rank: int,
+        hidden_dim: int = 128,
+        frozen: bool = False,
+    ):
+        super().__init__()
+        self.V = nn.Linear(feature_dim, rank, bias=False)
+        self.U = nn.Linear(rank, feature_dim, bias=False)
+        self.gain = nn.Sequential(
+            nn.Linear(context_dim, hidden_dim),
+            nn.GELU(),
+            nn.Linear(hidden_dim, rank),
+        )
+        self.rank = rank
+        self.frozen = frozen
+        nn.init.zeros_(self.U.weight)  # identity at init
+
+    def forward(self, h: torch.Tensor, context_vector: torch.Tensor) -> torch.Tensor:
+        c = torch.zeros_like(context_vector) if self.frozen else context_vector
+        a = self.gain(c)
+        return h + self.U(a * self.V(h))
+
+
 class FeatureBranch(nn.Module):
     """Round-2 Family C (§9): a small MLP over externally-computed continuous features
     (PBS/RTT length & GC, Tm, MFE, RuleSet3 activity, edit geometry -- see
@@ -462,6 +526,14 @@ class PERankFormer(nn.Module):
             )
             self.film = FiLM(self.context_encoder.out_dim, pooled_dim) if config.use_context else None
 
+        if config.context_lowrank > 0:
+            self.context_lowrank = ContextLowRank(
+                self.context_encoder.out_dim, pooled_dim, config.context_lowrank,
+                frozen=config.context_lowrank_control,
+            )
+        else:
+            self.context_lowrank = None
+
         if config.n_features > 0:
             self.feature_branch = FeatureBranch(config.n_features, config.feature_hidden_dim, config.dropout)
             pooled_dim += self.feature_branch.out_dim
@@ -554,6 +626,15 @@ class PERankFormer(nn.Module):
 
         self.apply(self._init_weights)
 
+        if self.context_lowrank is not None:
+            # `_init_weights` re-initialises every nn.Linear, which would undo the
+            # zero-init that makes the block an exact no-op at step 0. Re-zero it here so
+            # the architecture is a strict superset of the late-FiLM baseline: at
+            # initialisation the two models compute the identical function, and any
+            # difference in the trained model is attributable to the correction being
+            # learned rather than to a perturbed starting point.
+            nn.init.zeros_(self.context_lowrank.U.weight)
+
     @staticmethod
     def _init_weights(module: nn.Module) -> None:
         if isinstance(module, nn.Linear):
@@ -611,6 +692,8 @@ class PERankFormer(nn.Module):
 
         if self.film is not None:
             pooled = self.film(pooled, context_vector)
+        if self.context_lowrank is not None:
+            pooled = self.context_lowrank(pooled, context_vector)
 
         if self.feature_branch is not None:
             z_f = self.feature_branch(batch["features"], batch["features_missing"])

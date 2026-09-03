@@ -244,6 +244,46 @@ def main() -> None:
         default=None,
         help="round-4 §8: intra-sequence mixing -- Transformer attention or bidirectional SSM",
     )
+    ap.add_argument(
+        "--context-lowrank", type=int, default=None, metavar="R",
+        help="round-9 C1: rank of a context-conditioned NON-diagonal correction on the "
+             "pooled representation, h' = h + U diag(a(c)) V^T h. FiLM is a per-channel "
+             "scale and shift and so cannot reorder designs within a condition (round-7 "
+             "diagnosis); this can. 0 disables.",
+    )
+    ap.add_argument(
+        "--context-lowrank-control", action="store_true",
+        help="round-9 C1 capacity control: identical parameters and FLOPs, but the gain "
+             "network is fed zeros so the rank-R correction cannot depend on context. "
+             "Isolates conditioning from capacity.",
+    )
+    ap.add_argument(
+        "--n-cross-blocks", type=int, default=None,
+        help="round-8 A4: number of bidirectional cross-attention blocks joining the two "
+             "streams. This is where pegRNA/target complementarity is available to the "
+             "model and it has never been varied.",
+    )
+    ap.add_argument(
+        "--censor-limit", type=float, default=None, metavar="D",
+        help="round-9 C2: treat a row measured at exactly zero as CENSORED below D "
+             "efficiency, dropping the ordinal threshold terms below D from its loss. "
+             "Among exact replicate pairs, 21.4%% of rows observed at zero have a "
+             "non-zero replicate; the 90th/95th/99th percentiles of that replicate "
+             "distribution are 0.0016/0.0031/0.0110. 0 disables.",
+    )
+    ap.add_argument(
+        "--censor-shuffle-control", action="store_true",
+        help="round-9 C2 mechanism-free control: drop the same NUMBER of threshold terms "
+             "per zero row, chosen at random, matching gradient sparsity without the "
+             "censoring structure.",
+    )
+    ap.add_argument(
+        "--row-weights", action="store_true",
+        help="round-9 W1: use the corpus's own per-row `weight` column as the loss weight. "
+             "This is the column the OptiPrime authors shipped and that OptiPrime itself "
+             "consumes as a per-row loss weight (reaction/rx_model.py); every Kim row "
+             "carries weight 0.1. Enables a weighting-matched comparison against it.",
+    )
     ap.add_argument("--lr", type=float, default=None, help="override optim.lr (fine-tuning uses a small LR)")
     args = ap.parse_args()
     if args.dev_folds_file and not args.dev_fold_col:
@@ -282,6 +322,16 @@ def main() -> None:
         cfg["model"]["moe_experts"] = args.moe_experts
     if args.sequence_mixer is not None:
         cfg["model"]["sequence_mixer"] = args.sequence_mixer
+    if args.censor_limit is not None:
+        cfg["loss"]["censor_limit"] = args.censor_limit
+    if args.censor_shuffle_control:
+        cfg["loss"]["censor_shuffle_control"] = True
+    if args.context_lowrank is not None:
+        cfg["model"]["context_lowrank"] = args.context_lowrank
+    if args.context_lowrank_control:
+        cfg["model"]["context_lowrank_control"] = True
+    if args.n_cross_blocks is not None:
+        cfg["model"]["n_cross_blocks"] = args.n_cross_blocks
     if args.lr is not None:
         cfg["optim"]["lr"] = args.lr
 
@@ -379,6 +429,32 @@ def main() -> None:
             "bagging: kept %d/%d training protospacers (frac=%.2f), rows %d -> %d",
             len(keep_spacers), len(train_spacers), args.bag_frac, n_before, len(train_idx),
         )
+
+    if args.row_weights:
+        if args.source_weights:
+            raise SystemExit("--row-weights and --source-weights are mutually exclusive")
+        # The `weight` column travels with the authors' own CSVs and is what OptiPrime
+        # feeds to its loss as a per-row weight: (weights * l2_loss).sum() / n_batch in
+        # reaction/rx_model.py. Every one of the 69,635 Kim rows carries weight 0.1
+        # exactly, against ~0.97 mean for Liu and ~0.52 for Schwank, so OptiPrime trains
+        # on Kim at a tenth weight while Kim is 55.3% of the held-out set. Training with
+        # these weights is what makes the architecture comparison weighting-matched.
+        # As with --source-weights, validation stays unweighted so the selection metric
+        # is the same plain Liu+Kim Spearman we report everywhere else.
+        rw = pd.read_parquet(
+            cfg["data"].get("source_df", "data/processed/optiprime_official_318471.parquet"),
+            columns=["record_id", "weight", "source_study"],
+        ).set_index("record_id").reindex(corpus.record_id)
+        assert rw["weight"].notna().all(), "row weights missing for some corpus rows"
+        w = rw["weight"].to_numpy(dtype=np.float32)
+        corpus.sample_weight = w
+        tr_src = rw["source_study"].to_numpy()[train_idx]
+        wt = w[train_idx]
+        share = {s_: float(wt[tr_src == s_].sum() / wt.sum()) for s_ in np.unique(tr_src)}
+        logger.info("row weights from corpus `weight` column: mean=%.4f min=%.4f max=%.4f",
+                    float(wt.mean()), float(wt.min()), float(wt.max()))
+        logger.info("effective training-gradient share by source: %s",
+                    {k: round(v, 4) for k, v in share.items()})
 
     if args.source_weights:
         # Weights apply to TRAINING rows only. Validation stays unweighted so the
@@ -583,6 +659,8 @@ def main() -> None:
             if model_cfg.outcome_head == "quantile" else None
         ),
         beta_corr=cfg["loss"].get("beta_corr", 0.0),
+        censor_limit=cfg["loss"].get("censor_limit", 0.0),
+        censor_shuffle_control=cfg["loss"].get("censor_shuffle_control", False),
     )
     max_pairs_per_group = cfg["loss"]["max_pairs_per_group"]
 

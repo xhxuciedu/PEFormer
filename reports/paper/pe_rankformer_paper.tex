@@ -22,7 +22,8 @@
 \title{\textbf{Metric-matched ordinal supervision and state-space sequence mixing\\
 improve prime-editing efficiency prediction}}
 
-\author[1]{}
+% TODO(authors): replace with the real author list before submission.
+\author[1]{Author Name\thanks{Corresponding author.}}
 \affil[1]{University of California, Irvine}
 \date{}
 
@@ -46,22 +47,30 @@ context. Trained on the identical 297{,}962-row corpus, cross-validation splits 
 held-out set used by OptiPrime, PE-RankFormer attains Spearman
 $\rho = 0.9079$ on the complete 20{,}509-row held-out benchmark against OptiPrime's
 $0.8690$: a difference of $+0.0389$ (95\% CI $[+0.0286,+0.0498]$; ahead in all 5{,}000
-protospacer-clustered bootstrap resamples, $p < 0.0002$). The advantage is
-$+0.0804$ on the more experimentally diverse Kim partition and $+0.0220$ on Liu.
+protospacer-clustered bootstrap resamples, $p < 0.0002$). Recomputed \emph{within}
+each of 14 experimental conditions, where between-study differences in efficiency level
+cannot contribute, the margin is larger rather than smaller ($+0.0506$, 95\% CI
+$[+0.0451,+0.0564]$, ahead in 14/14 conditions). It is $+0.0804$ on the more
+experimentally diverse Kim partition and $+0.0220$ on Liu, but we show that much of
+that partition structure follows from a training-weight asymmetry rather than from
+architecture: the comparator's own released weights assign the Kim study $2.0\%$ of its
+training gradient while the study supplies $55.3\%$ of the held-out rows.
 
 Two components account for the gain, and a factorial analysis separates them. An
 \emph{ordinal} outcome head that predicts cumulative threshold indicators rather than
 efficiency values is matched to the rank-correlation metric and to the target's heavy
 zero inflation, contributing $+0.0092$. A \emph{bidirectional state-space} sequence
-mixer replacing self-attention contributes $+0.0192$ --- twice as much --- and the two
-combine sub-additively. A single model containing both reaches $0.9082$, matching a
-five-member ensemble. Isotonic calibration fitted purely on out-of-fold predictions
-reduces held-out mean absolute error eight-fold ($0.3869 \to 0.0478$) while leaving the
-ranking unchanged, restoring an interpretable absolute efficiency estimate.
+mixer replacing self-attention contributes $+0.0192$ --- twice as much. A single model
+containing both matches a five-member ensemble. Isotonic calibration fitted purely on out-of-fold predictions
+restores an interpretable absolute efficiency estimate while leaving the ranking
+unchanged, and on that scale the model also outperforms the baseline: mean absolute
+error $0.0478$ against $0.0590$ and RMSE $0.0912$ against $0.1026$, so the advantage is
+not confined to the rank metric.
 
 Finally, using 649 technical replicate groups we estimate an empirical
-repeatability ceiling of $0.9026$ on the Kim partition, implying roughly $+0.12$ of
-genuine remaining headroom, and we report a benchmark caveat: predictors that emit
+repeatability ceiling for the Kim partition, implying roughly $+0.10$ of genuine
+remaining headroom on both the development folds ($+0.1149$, mean of three) and the
+held-out set ($+0.1043$), and we report a benchmark caveat: predictors that emit
 tied scores in the zero-inflated regime gain $+0.013$--$0.016$ Spearman irrespective
 of quality, so comparisons between models with differing tie behaviour are not
 automatically like-for-like.
@@ -111,12 +120,26 @@ better ones.
 \item \textbf{A bidirectional state-space sequence mixer} which, by a factorial
 analysis, is the larger of the two contributions --- correcting the natural assumption
 that the novel objective mattered most.
-\item \textbf{Monotone calibration} that recovers absolute efficiency (eight-fold MAE
-reduction) at no cost to rank performance.
+\item \textbf{Monotone calibration} that recovers absolute efficiency at no cost to
+rank performance, on which the model also beats the baseline ($19\%$ lower MAE).
 \item \textbf{A replicate-based noise ceiling} showing the benchmark is \emph{not}
 saturated, together with a tie-structure artifact that affects any Spearman-based
 comparison on zero-inflated data.
 \end{enumerate}
+
+\paragraph{Scope of the comparison.}
+The comparator is a substantially broader piece of work than this one, and we state the
+asymmetry plainly rather than let a single number stand for it. OptiPrime predicts
+outcomes for nicking-guide (PE3) and dual-pegRNA (twinPE) strategies, exposes
+interpretable per-step biochemical pseudorates by construction, and was validated
+prospectively in primary human and mouse cells including \emph{in vivo} correction of a
+pathogenic allele \citep{hsu2026}. We compare on exactly one of its axes --- ranking
+editing efficiency for single-pegRNA designs on its own benchmark --- and we make no
+claim on any of the others. Our result is that on \emph{that} axis a model with no
+reaction structure is more accurate, which is a statement about how much of the
+accuracy of a mechanistic predictor is attributable to its mechanism, not a claim to
+supersede it. The mechanistic parameterisation buys generalisation to reaction variants
+and interpretability that our model does not offer and does not attempt.
 
 % =====================================================================
 \section{Methods}
@@ -227,13 +250,43 @@ constructed to match the held-out set's Liu/Kim composition. Used freely.
 protospacer with any development validation set. Consulted once, to gate a shortlist.
 \item \textbf{Official five-fold out-of-fold (OOF) predictions} --- each row scored only
 by the checkpoint that held its fold out.
-\item \textbf{Held-out set} --- evaluated once, after the model was frozen in writing,
-with the expected result recorded beforehand.
+\item \textbf{Held-out set} --- consulted four times in total, once per model
+generation, each access gated behind an explicit flag and appended to an audit log.
+The generation reported here was frozen in writing before its single evaluation, with
+the expected result recorded beforehand.
 \end{enumerate}
 
 Every development number reported is out-of-fold. The ensemble-selection protocol
 (candidate ranking, combination rule, tie-breaking) was committed to version control
 before the search was executed.
+
+We state the held-out accounting explicitly because it bears on how the margin should
+be read. Table~\ref{tab:main} reports three model generations on the held-out set, so
+the set was necessarily consulted at each: rounds~1--4 correspond to four accesses,
+recorded in the repository's audit log. Development of each generation therefore
+followed a look at the previous generation's held-out score, which is a form of
+adaptive selection across generations even though no single model was selected on
+held-out data. Two facts bound the exposure. Every architectural and objective decision
+within a generation was made on development folds and the once-consulted lockbox, never
+on held-out rows; and the comparison against the baseline is a \emph{paired} difference
+on identical rows, so a shared optimistic bias in the absolute level does not transfer
+to the margin. The post-hoc member analyses in \S\ref{sec:ens-honest} are the one place
+we examine held-out structure directly, and they are labelled as such.
+
+\subsection{Resolution of the development evaluation}
+\label{sec:resolution}
+
+Effects are reported against a stated resolution rather than a significance test,
+because the quantity that matters operationally is whether an effect survives a
+re-run. Two calibrations fix it. An unmodified re-run of the same model at a different
+batch size moved out-of-fold Spearman by $+0.0018$, and in one round fourteen distinct
+candidates all landed within $+0.0017$ to $+0.0020$ of their control. Separately, three
+interventions on orthogonal axes each reached $+0.003$ to $+0.004$ on one development
+fold and all three changed sign on a second. We therefore treat
+$\approx\!0.005$ as the resolution of the development evaluation: effects below it are
+reported as directions, and no claim in this paper rests on one. Promotion required
+same-sign replication across three development folds \emph{and} a mean of at least
+$+0.005$.
 
 \subsection{Model architecture}
 
@@ -322,9 +375,14 @@ rank-consistent ordinal regression \citep{cao2020}.
 Two properties motivate it. It is \emph{metric-matched}: a head estimating the target's
 quantile optimises the evaluated quantity, whereas regression or proportion heads are
 only incidentally monotone. And it is \emph{robust to the target's skew}: efficiency is
-heavily right-skewed with 28.4\% of rows exactly zero, so a Huber or proportion
-objective concentrates its gradient on a few high-efficiency rows, while $K-1$ balanced
-binary decisions spread supervision across the distribution.
+heavily right-skewed, with $16.0\%$ of \emph{training} rows exactly zero overall and
+$49.9\%$ within the Kim-derived partition (Table~\ref{tab:corpus}), so a Huber or
+proportion objective concentrates its gradient on a few high-efficiency rows, while
+$K-1$ balanced binary decisions spread supervision across the distribution. The zero
+mass is higher on the surfaces the model is \emph{scored} on --- $26.8\%$ of held-out
+rows and $28.4\%$ of matched development-fold rows, both of which exclude the
+low-zero-mass Schwank study --- which is why the tie structure of the metric matters
+separately (\S\ref{sec:ties}).
 
 Thresholds are computed from training rows only and stored in the checkpoint, so
 evaluation reproduces the score mapping exactly. Duplicate quantiles are removed to
@@ -341,10 +399,12 @@ AdamW, learning rate $3\times10^{-4}$, weight decay $0.01$, 5\% linear warmup fo
 by cosine decay, gradient clipping at $1.0$, batch size 512, bf16 mixed precision, 30
 epochs. Checkpoint selection is by validation Spearman.
 
-Early stopping patience is set to the full 30 epochs deliberately. In a survey of 25
-official-fold runs the best epoch had median 21 and maximum 28, with 36\% peaking in the
-final five epochs; validation Spearman on this problem genuinely improves after long
-plateaus, and aggressive early stopping costs up to $0.0012$.
+Early stopping patience is set to the full 30 epochs deliberately. Across all 64
+recorded official-fold runs given the full budget, the best epoch had median $24.5$ and
+maximum $29$, with $50\%$ peaking in the final five epochs: validation Spearman on this
+problem genuinely improves after long plateaus. Simulating a patience-5 rule on the same
+runs would have cost a mean of $0.0001$ and at most $0.0031$, so the budget is cheap
+insurance rather than a tuned choice.
 
 Batches are formed by a grouped sampler that keeps rows sharing a ranking group
 together, which is required for the optional within-group pairwise ranking loss.
@@ -372,10 +432,10 @@ Parameters                       & $\approx$25\,M & Runtime per model    & $\app
 \bottomrule
 \end{tabular}
 \begin{tablenotes}[flushleft]\footnotesize
-\item Patience equals the epoch budget, i.e.\ no early stopping. Across 25
-official-fold runs the best epoch had median 21 and maximum 28, with 36\% peaking in
-the final five epochs; validation Spearman improves after long plateaus on this
-problem, and simulating patience-5 selection costs up to $0.0012$ on individual runs.
+\item Patience equals the epoch budget, i.e.\ no early stopping. Across all 64
+recorded official-fold runs given the full budget, the best epoch had median $24.5$ and
+maximum $29$, with $50\%$ peaking in the final five epochs. Simulating patience-5
+selection on the same runs costs a mean of $0.0001$ and at most $0.0031$.
 \item Thresholds are quantiles of the training efficiency distribution, de-duplicated
 to remain strictly increasing. $K{=}20$ yields 17--18 distinct values because the
 target has a large point mass at zero.
@@ -502,6 +562,7 @@ identical corpus and cross-validation splits, and evaluated on identical rows.}
 Model & {All} & {Liu} & {Kim} \\
 & {($n{=}20{,}509$)} & {($n{=}9{,}175$)} & {($n{=}11{,}334$)} \\
 \midrule
+Gradient-boosted trees on engineered features & 0.7413 & 0.6347 & 0.5745 \\
 OptiPrime (mechanistic baseline) & 0.8690 & 0.8365 & 0.7320 \\
 PE-RankFormer, round 1           & 0.8865 & 0.8349 & 0.7751 \\
 PE-RankFormer, round 3           & 0.8933 & 0.8462 & 0.7836 \\
@@ -514,6 +575,9 @@ $\Delta\rhoS$ vs.\ OptiPrime     & {$+0.0389$} & {$+0.0220$} & {$+0.0804$} \\
 \begin{tablenotes}[flushleft]\footnotesize
 \item Liu and Kim denote the two source studies contributing to the held-out set; no
 Schwank-derived rows appear in it.
+\item The tree baseline is described in \S\ref{sec:gbm}. It is trained under the
+identical five-fold protocol on 17 engineered design features plus the same seven
+context fields the network receives.
 \item Significance for the overall comparison is given in Table~\ref{tab:boot}.
 \item The absolute figure for the final model has a bootstrap 95\% interval of
 $[0.8955, 0.9173]$, with 90.0\% of resamples exceeding $0.90$; the margin over the
@@ -579,6 +643,150 @@ We note explicitly that the absolute figure's own 95\% interval is $[0.8955,0.91
 with 90.0\% of resamples exceeding $0.90$. The \emph{margin} over OptiPrime is a
 considerably stronger claim than the absolute level.
 
+\subsection{A feature-based baseline places both models}
+\label{sec:gbm}
+
+A single external comparator leaves open the question of how much of the accuracy comes
+from sequence modelling at all. We therefore trained a gradient-boosted tree ensemble
+under the identical five-fold protocol on 17 engineered design features --- PBS and RTT
+lengths and GC content, four melting temperatures, ViennaRNA folding energies
+\citep{lorenz2011}, edit type, edit length, offset from the nick, mismatch count and a
+RuleSet3 on-target score \citep{doench2016} --- concatenated with the same seven
+categorical context fields the network receives. This is the same class of information
+the feature-based predictors we could not run end-to-end rely on
+(\S\ref{sec:limitations-baselines}), so it stands in for them.
+
+The baseline was given every advantage: four hyperparameter settings crossed with two
+target parameterisations (raw efficiency and the metric-matched rank transform), with
+the winner selected on \emph{held-out} Spearman --- the only model in this paper allowed
+to tune on the test set. Its best configuration reaches $\rhoS = 0.7413$
+(Table~\ref{tab:main}), against OptiPrime's $0.8690$ and PE-RankFormer's $0.9079$; within
+condition it reaches $0.5460$ against PE-RankFormer's $0.8111$.
+
+Two things follow. The sequence model earns its parameters: $+0.167$ pooled and
+$+0.265$ within condition over a tuned tree ensemble on the standard feature set is far
+outside anything attributable to capacity or tuning. And the mechanistic comparator is
+itself well clear of that feature set ($+0.128$), so its reaction structure is doing
+real work relative to hand-engineered summaries --- which is the more informative way to
+read our margin over it. The ordering is: engineered features $<$ mechanistic reaction
+model $<$ learned sequence representation.
+
+\subsection{The margin is not an artifact of pooling}
+\label{sec:stratified}
+
+Pooled Spearman on the held-out set ($0.9079$) exceeds both partition scores (Liu
+$0.8585$, Kim $0.8124$). That is possible because the two studies differ in efficiency
+level, so between-study variance contributes signal that no within-condition design
+task would supply, and it means the pooled figure overstates how well either model
+orders designs \emph{within} an experiment. The model is also given source study as one
+of its seven context fields, which a reader may reasonably regard as a dataset
+identifier rather than a biological covariate.
+
+Both observations bear on the absolute level. Neither weakens the margin, and the
+stratified analysis shows why (Table~\ref{tab:stratified}): recomputing the comparison
+\emph{inside} each experimental condition, where no between-condition offset can
+contribute, gives $+0.0506$ rather than $+0.0389$. The margin is larger, not smaller,
+when the pooling advantage is removed, and PE-RankFormer leads in all 14 conditions
+with $n\geq300$ and in 100\% of protospacer-clustered bootstrap resamples. Pooling
+inflates the absolute level for both models while making the reported difference
+\emph{conservative}.
+
+\begin{table}[H]
+\centering
+\begin{threeparttable}
+\caption{The advantage over the baseline under three levels of stratification.}
+\label{tab:stratified}
+\begin{tabular}{l S[table-format=2.0] S[table-format=1.4] S[table-format=1.4] S[table-format=+1.4] c}
+\toprule
+Comparison & {Strata} & {OptiPrime} & {PE-RankFormer} & {$\Delta\rhoS$} & {95\% CI} \\
+\midrule
+Pooled (as reported in Table~\ref{tab:main}) & {1} & 0.8690 & 0.9079 & +0.0389 & $[+0.0286,+0.0498]$ \\
+Within source study, $n$-weighted            & {2} & 0.7788 & 0.8331 & +0.0543 & {---} \\
+\textbf{Within condition}, $n$-weighted      & {14} & 0.7605 & 0.8111 & \bfseries +0.0506 & $[+0.0451,+0.0564]$ \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}[flushleft]\footnotesize
+\item A condition is a (source study, cell line, PE system) cell. Strata are weighted by
+row count; strata with fewer than 50 rows or fewer than 5 distinct target values are
+excluded, which removes none of the 14 reported conditions.
+\item The interval on the stratified difference is a paired bootstrap over 5{,}000
+resamples of the same 750 protospacer clusters used in Table~\ref{tab:boot};
+PE-RankFormer leads in 100\% of resamples. Per-condition margins range from $+0.0084$
+(Liu, HEK293T, PE2) to $+0.1295$ (Kim, MDA-MB-231, PE2) and are shown in
+Figure~\ref{fig:bench}C.
+\item The absolute levels fall under stratification for both models because
+between-condition differences in efficiency level no longer contribute to the
+correlation. This is the quantity relevant to prospective design, where a user ranks
+candidate pegRNAs within one intended experiment.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+
+\subsection{A training-weight asymmetry accounts for much of the partition margin}
+\label{sec:domain-weight}
+
+The margin is largest on the Kim partition ($+0.0804$), and the natural reading --- that
+a mechanistic prior generalises less well across cell lines --- turns out not to be the
+most parsimonious one. The corpus the comparator's authors supplied carries a per-row
+\texttt{weight} column, and the released training code consumes it as a per-row
+\emph{loss} weight, forming the objective as
+$\sum_i w_i \ell_i / n_{\text{batch}}$.\footnote{\texttt{reaction/rx\_model.py}, in the
+released implementation. The same column is passed to the validation loader but is used
+there only to identify padding rows, so it does not enter the reported validation
+metric.} Every one of the 69{,}635 Kim rows carries weight exactly $0.1$, against a mean
+of $0.97$ for Liu and $0.52$ for Schwank, the latter two varying continuously row by row.
+
+The consequence is a sharp mismatch between what the baseline was trained to fit and
+what the benchmark scores (Table~\ref{tab:weights}). Under its own weights the
+comparator allocates $2.0\%$ of its effective training gradient to the Kim study, which
+supplies $55.3\%$ of the held-out rows. We train uniformly, giving Kim $19.6\%$. Any
+uniformly-weighted model therefore enjoys an advantage on this benchmark's dominant
+partition that owes nothing to architecture or objective.
+
+\begin{table}[H]
+\centering
+\begin{threeparttable}
+\caption{Effective training weight by source study, against held-out composition.}
+\label{tab:weights}
+\begin{tabular}{l S[table-format=2.1] S[table-format=2.1] S[table-format=2.1] S[table-format=1.2]}
+\toprule
+& \multicolumn{2}{c}{Share of training gradient (\%)} & {Share of} & {Mean row} \\
+\cmidrule(lr){2-3}
+Source study & {OptiPrime weights} & {Uniform (ours)} & {held-out (\%)} & {weight} \\
+\midrule
+Schwank-derived & 73.2 & 58.4 &  0.0 & 0.52 \\
+Liu-derived     & 24.8 & 22.0 & 44.7 & 0.97 \\
+Kim-derived     &  2.0 & 19.6 & 55.3 & 0.10 \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}[flushleft]\footnotesize
+\item Shares are computed over the 297{,}962 training rows, as
+$\sum_{i \in \text{study}} w_i / \sum_i w_i$.
+\item Every Kim row carries weight $0.1$ exactly --- a flat per-study factor, not a
+per-row precision estimate. Liu and Schwank weights vary continuously (713 and 2{,}685
+distinct values), consistent with a depth- or precision-derived quantity clipped to
+$[0.1, 1]$.
+\item We infer that the released checkpoints were trained with these weights, since the
+released code consumes this column from the files the authors supplied. We have not
+been able to verify it independently, and flag it as an inference the comparator's
+authors could confirm or correct.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+
+WEIGHTEXPT
+
+The finding does not withdraw the comparison, and we retain the uniformly-weighted model
+as the primary result: training on all available rows at equal weight is the default a
+practitioner would adopt, it is the choice our own sweeps support
+(\S\ref{sec:domain}, where re-weighting toward the evaluated distribution was harmful
+and removing the unevaluated study cost $-0.0294$), and both models are scored on
+identical rows either way. What the finding does is relocate part of the explanation.
+The pooled margin is a genuine like-for-like result under each model's own training
+recipe; the \emph{partition} structure of that margin is substantially a consequence of
+a data-curation decision, and should not be read as evidence about mechanism versus
+architecture.
+
 \subsection{Which components are responsible}
 
 Because the ordinal head and the state-space mixer were introduced together, we
@@ -603,14 +811,15 @@ S4D $-$ Transformer & {$+0.0213$} & {$+0.0171$} & \\
 \begin{tablenotes}[flushleft]\footnotesize
 \item Out-of-fold development Spearman $\rhoS$, averaged over three matched folds.
 \item Main effect of \textbf{objective} $=+0.0092$; main effect of
-\textbf{architecture} $=+0.0192$; \textbf{interaction} $=-0.0043$. Architecture
-contributes roughly twice what the objective does, and the negative interaction
-indicates the two mechanisms partly capture the same improvement.
+\textbf{architecture} $=+0.0192$. Both exceed the $\approx0.005$ resolution of the
+development evaluation (\S\ref{sec:resolution}) and architecture contributes roughly
+twice what the objective does. The \textbf{interaction} $=-0.0043$ falls \emph{below}
+that resolution and is therefore reported as a direction, not an established effect.
 \item These are observational cells rather than a purpose-built factorial: three
 derive from one training round and the Transformer/simplex cell is an earlier frozen
 baseline. All four share corpus, splits, out-of-fold scoring, capacity and optimiser
-recipe, so the main effects are reliable at the $\pm0.002$ resolution of the
-development evaluation; the interaction term is most exposed to that mismatch.
+recipe. The interaction term is the quantity most exposed to that mismatch, which is
+a second reason not to rest any claim on it.
 \end{tablenotes}
 \end{threeparttable}
 \end{table}
@@ -640,18 +849,23 @@ against the ordinal objective's $+0.0092$. This runs against the intuitive readi
 the ordinal head is the more novel component and produced the more visible qualitative
 change --- and we record the correction explicitly.
 
-\textbf{The two combine sub-additively} ($-0.0043$): ordinal supervision is worth
-$+0.0114$ on a Transformer but only $+0.0071$ on a state-space backbone, indicating the
-mechanisms partly capture the same improvement rather than stacking.
+\textbf{The two appear to combine sub-additively} ($-0.0043$): ordinal supervision is
+worth $+0.0114$ on a Transformer but only $+0.0071$ on a state-space backbone, which
+would indicate the mechanisms partly capture the same improvement rather than stacking.
+We flag this as suggestive only. The interaction is smaller than the $\approx0.005$
+resolution of the development evaluation and it is the cell combination most exposed to
+the observational design, so we do not claim sub-additivity as a result; we note that
+the data are consistent with it and that nothing in our conclusions depends on it.
 
 \textbf{A single model suffices.} Combining both yields $\rhoS=0.9082$ out-of-fold,
 exceeding a three-member ensemble of earlier models ($0.8982$).
 
 These are observational cells rather than a purpose-built factorial: three derive from
 one training round and the Transformer/simplex cell is an earlier frozen baseline. They
-share corpus, splits, out-of-fold scoring, capacity and optimiser recipe, so the main
-effects are reliable at the $\pm0.002$ resolution of the development evaluation, but
-the interaction term is the quantity most exposed to that mismatch.
+share corpus, splits, out-of-fold scoring, capacity and optimiser recipe. Both main
+effects clear the $\approx0.005$ resolution of the development evaluation
+(\S\ref{sec:resolution}); the interaction term does not, and is additionally the
+quantity most exposed to the observational design.
 
 \subsection{The ordinal head produces decorrelated errors}
 
@@ -729,6 +943,14 @@ removed, so a positive value means the ensemble is worse without it.
 \item The strongest single member matches the full ensemble and two members contribute
 negatively. These are post-hoc analyses on held-out data and did not inform the frozen
 model choice.
+\item The ordinal$+$S4D member scores $0.9082$ here and also $0.9082$ in
+Table~\ref{tab:factorial}, which reports out-of-fold \emph{development} Spearman. This
+is a coincidence of rounding, not a transcription error: the two are computed from
+different files over disjoint row sets ($20{,}509$ held-out rows versus $107{,}041$
+development rows, intersection empty) and differ at the fifth decimal place,
+$0.908155$ against $0.908179$. We flag it because the agreement to four decimals
+otherwise invites the reasonable suspicion that one number has been copied into two
+places.
 \end{tablenotes}
 \end{threeparttable}
 \end{table}
@@ -748,40 +970,52 @@ twenty-five checkpoints. We did not re-select on held-out data to make that
 substitution official, because a model chosen by inspecting the test set carries none of
 the guarantees the frozen one does.
 
-\subsection{Calibration restores absolute efficiency}
+\subsection{Calibration restores absolute efficiency, and it beats the baseline there too}
+\label{sec:calib-results}
 
 Rank averaging yields excellent orderings but no interpretable scale. Isotonic
-calibration fitted on out-of-fold development predictions
-(\S\ref{sec:calib}) reduces held-out MAE from $0.3869$ to $0.0478$ and raises Pearson
-correlation from $0.7278$ to $0.8637$, with Spearman unchanged at $0.9079$
-(Table~\ref{tab:calib}, Figure~\ref{fig:calib}).
+calibration fitted on out-of-fold development predictions (\S\ref{sec:calib}) restores
+one, leaving Spearman unchanged at $0.9079$ (Table~\ref{tab:calib},
+Figure~\ref{fig:calib}).
+
+The comparison that establishes whether the recovered scale is any \emph{good} is
+against the baseline on identical rows, not against our own uncalibrated output: a rank
+average is not measured in efficiency units, so its nominal MAE of $0.3869$ quantifies
+a change of units rather than an error. Against OptiPrime the calibrated model is ahead
+on absolute accuracy as well as on ranking --- MAE $0.0478$ against $0.0590$
+($-19\%$), RMSE $0.0912$ against $0.1026$ ($-11\%$), Pearson $0.8637$ against $0.8270$
+--- so the advantage is not confined to the rank metric the model was designed around.
 
 \begin{table}[H]
 \centering
 \begin{threeparttable}
-\caption{Effect of monotone calibration on held-out predictions.}
+\caption{Absolute and rank accuracy on the held-out set. Monotone calibration recovers
+an efficiency scale, on which the model also outperforms the baseline.}
 \label{tab:calib}
 \begin{tabular}{l S[table-format=1.4] S[table-format=1.4] S[table-format=1.4] S[table-format=1.4]}
 \toprule
 Output & {Spearman $\rhoS$} & {Pearson $r$} & {MAE} & {RMSE} \\
 \midrule
-Rank average (uncalibrated)     & 0.9079 & 0.7278 & 0.3869 & 0.4343 \\
-\textbf{+ isotonic calibration} & \bfseries 0.9079 & \bfseries 0.8637 & \bfseries 0.0478 & \bfseries 0.0912 \\
+OptiPrime (mechanistic baseline)        & 0.8690 & 0.8270 & 0.0590 & 0.1026 \\
 \midrule
-Change & {$+0.00002$} & {$+0.1359$} & {$-0.3391$} & {$-0.3431$} \\
+PE-RankFormer, rank average             & 0.9079 & 0.7278 & \multicolumn{2}{c}{\emph{not in efficiency units}} \\
+\textbf{PE-RankFormer $+$ isotonic}     & \bfseries 0.9079 & \bfseries 0.8637 & \bfseries 0.0478 & \bfseries 0.0912 \\
+\midrule
+Advantage over baseline & {$+0.0389$} & {$+0.0367$} & {$-0.0112$} & {$-0.0114$} \\
 \bottomrule
 \end{tabular}
 \begin{tablenotes}[flushleft]\footnotesize
+\item All three rows are scored on the identical 20{,}509 held-out rows.
 \item The map is fitted by isotonic regression on out-of-fold development predictions
 only and applied once to the frozen held-out predictions; no held-out row participates
 in fitting.
 \item Because the map is non-decreasing it inverts no pair, so Spearman is preserved.
 The residual change of $2\times10^{-5}$ arises because isotonic regression is
 piecewise constant and therefore creates ties.
-\item MAE and RMSE are in units of editing efficiency (fraction of alleles edited).
-For the uncalibrated output they are not meaningful in that unit, since a rank average
-lies on an arbitrary $[0,1]$ scale; they are shown to quantify what calibration
-recovers.
+\item The uncalibrated rank average lies on an arbitrary $[0,1]$ scale, so its MAE and
+RMSE would measure the choice of units rather than an error; we omit them rather than
+report an eight-fold reduction against a quantity that has no interpretation. Its
+Pearson $r$ is shown because the calibration is what makes the relationship linear.
 \end{tablenotes}
 \end{threeparttable}
 \end{table}
@@ -795,9 +1029,9 @@ isotonic regression on out-of-fold development predictions only and then applied
 to the frozen held-out predictions.
 \textbf{(B)} Calibration curve on held-out data, binned by predicted quantile; the
 dotted line is perfect calibration.
-\textbf{(C)} Metric comparison. Because $g$ is non-decreasing it inverts no pair, so
-Spearman is unchanged, while Pearson correlation rises and absolute error falls roughly
-eight-fold.}
+\textbf{(C)} Metric comparison against the baseline on identical rows. Because $g$ is
+non-decreasing it inverts no pair, so Spearman is unchanged; on the recovered
+efficiency scale the model's absolute error is below the baseline's.}
 \label{fig:calib}
 \end{figure}
 
@@ -808,47 +1042,72 @@ piecewise constant and therefore creates ties; no pair is inverted.
 \label{sec:headroom}
 
 Using 649 technical replicate groups (\S\ref{sec:ceiling}) we estimate an empirical
-repeatability ceiling of $0.9026$ on the Kim partition, against a model score of
-$0.7869$ --- a gap of $+0.1157$ (Table~\ref{tab:ceiling}). Restricting to rows that
-actually edit still leaves $+0.1024$, so the gap is not merely the zero block.
+repeatability ceiling for the Kim partition and compare it against the model on every
+surface we score on (Table~\ref{tab:ceiling}). Averaged over the three matched
+development folds the ceiling is $0.9061$ against a model score of $0.7912$, a gap of
+$+0.1149$; on the held-out set it is $0.9167$ against $0.8124$, a gap of $+0.1043$.
+Restricting to rows that actually edit leaves $+0.1046$ and $+0.0934$ respectively, so
+the gap is not merely the zero block. The conclusion is the same on all five surfaces
+and does not depend on which one is chosen: roughly a tenth of a Spearman unit of
+reducible error remains on the benchmark's largest partition.
 
 \begin{table}[H]
 \centering
 \begin{threeparttable}
-\caption{Remaining headroom on the Kim partition against the replicate-based ceiling.}
+\caption{Remaining headroom on the Kim partition against the replicate-based ceiling,
+reported on every evaluation surface.}
 \label{tab:ceiling}
 \begin{tabular}{l S[table-format=5.0] S[table-format=1.4] S[table-format=1.4] S[table-format=+1.4]}
 \toprule
-Scope & {Rows} & {Model $\rhoS$} & {Ceiling $\rhoS$} & {Gap} \\
+Surface & {Rows} & {Model $\rhoS$} & {Ceiling $\rhoS$} & {Gap} \\
 \midrule
-All Kim rows      & 19747 & 0.7869 & 0.9026 & +0.1157 \\
-Rows with $y>0$   &  9713 & 0.8465 & 0.9489 & +0.1024 \\
+\multicolumn{5}{l}{\emph{Matched development folds, out-of-fold}} \\
+\quad fold 0                       & 19747 & 0.7869 & 0.9026 & +0.1157 \\
+\quad fold 1                       & 19740 & 0.7883 & 0.9080 & +0.1198 \\
+\quad fold 2                       & 19742 & 0.7985 & 0.9076 & +0.1092 \\
+\quad \textbf{mean of three folds} & {} & \bfseries 0.7912 & \bfseries 0.9061 & {$\mathbf{+0.1149}$} \\
+\quad mean, rows with $y>0$        & {} & 0.8472 & 0.9518 & +0.1046 \\
+\midrule
+\multicolumn{5}{l}{\emph{Official held-out set}} \\
+\quad \textbf{frozen ensemble}     & 11334 & \bfseries 0.8124 & \bfseries 0.9167 & {$\mathbf{+0.1043}$} \\
+\quad best single member           & 11334 & 0.8151 & 0.9165 & +0.1014 \\
+\quad frozen ensemble, $y>0$       &  5928 & 0.8618 & 0.9552 & +0.0934 \\
 \bottomrule
 \end{tabular}
 \begin{tablenotes}[flushleft]\footnotesize
 \item Ceiling is $\sqrt{R}$, where $R$ is the replicate--replicate reliability
 estimated from 649 groups in which all sixteen design and condition covariates and the
-target site are identical (\S\ref{sec:ceiling}).
+target site are identical (\S\ref{sec:ceiling}). The ceiling depends only on the target
+distribution of the row set and not on any model, which is why it differs between
+surfaces.
 \item Replicates are resampled non-parametrically from 1{,}298 ordered replicate pairs,
 which inherits zero-discordance, heteroscedasticity and boundedness from the data
 rather than assuming a noise model.
-\item The second row shows the gap is not merely an artifact of the zero block:
-restricting to rows that actually edit still leaves more than $+0.10$.
+\item Development-fold model scores are out-of-fold; held-out scores are the same
+prediction vectors reported in Table~\ref{tab:main}. An earlier version of this
+analysis reported the fold-0 row alone and labelled it ``all Kim rows''; we give all
+three folds and both surfaces because no other claim in this paper rests on a single
+fold (\S\ref{sec:resolution}).
+\item Rows with $y>0$ show the gap is not an artifact of the zero block. The zero rows
+alone carry no ordering to score, the target being constant on them.
 \end{tablenotes}
 \end{threeparttable}
 \end{table}
 
-Per-condition analysis (Figure~\ref{fig:ceiling}) shows the gap is present in every
-condition and scales with zero-inflation: conditions with 60--64\% exact zeros show gaps
-near $0.18$, while those near 38\% show gaps near $0.09$.
+Per-condition analysis (Figure~\ref{fig:ceiling}), shown for development fold 0 so that
+each condition retains enough rows to estimate its own ceiling, finds the gap present in
+every condition and scaling with zero-inflation: conditions with 60--64\% exact zeros
+show gaps near $0.18$, while those near 38\% show gaps near $0.09$.
 
 \begin{figure}[H]
 \centering
 \includegraphics[width=\textwidth]{../../results/paper/figures/fig6_ceiling.pdf}
 \caption{\textbf{The benchmark is not saturated.}
 \textbf{(A)} Model performance against the empirical repeatability ceiling for each Kim
-condition, ordered by zero-inflation; the annotation gives the gap. Headroom is present
-in every condition.
+condition on development fold 0, ordered by zero-inflation; the annotation gives the
+gap. Headroom is present in every condition. The pooled gap is reported on all five
+surfaces in Table~\ref{tab:ceiling}; this panel is per-condition and so is shown for a
+single fold, where each condition retains enough rows to estimate a ceiling.
 \textbf{(B)} The gap to ceiling increases with the fraction of rows measured as exactly
 zero, the regime in which a single measurement is least informative.
 \textbf{(C)} Both corrections described in \S\ref{sec:ceiling} are load-bearing. A
@@ -862,16 +1121,17 @@ corrected, censoring-aware estimate is trustworthy.}
 \subsection{A tie-structure caveat for Spearman on zero-inflated data}
 \label{sec:ties}
 
-28.4\% of rows have efficiency \emph{exactly} zero (49.9\% within Kim). A
-strictly-increasing predictor assigns all of them distinct ranks, and that internal
+$28.4\%$ of matched development-fold rows have efficiency \emph{exactly} zero
+($50.7\%$ within Kim, $0.7\%$ within Liu); the corresponding held-out figure is
+$26.8\%$. A strictly-increasing predictor assigns all of them distinct ranks, and that internal
 ordering is arbitrary; Spearman compares against a target in which those rows are
 mutually tied, so the arbitrary ordering is pure penalty.
 
 Collapsing the lowest-scoring predictions onto a single tied value therefore raises
 pooled Spearman by $+0.0044$, positive on all development folds, with the optimal
-fraction ($0.30$) coinciding with the zero-mass ($28.4\%$) and the per-partition effect
-tracking zero-mass as the mechanism predicts (Liu $-0.0154$ at 0.7\% zeros; Kim
-$+0.0066$ at 50.7\%).
+fraction ($0.30$) coinciding with the development-fold zero-mass ($28.4\%$) and the
+per-partition effect tracking zero-mass as the mechanism predicts (Liu $-0.0154$ at
+$0.7\%$ zeros; Kim $+0.0066$ at $50.7\%$).
 
 \textbf{We did not adopt this.} Applying the identical transform to five other models
 yields $+0.0127$ to $+0.0162$ irrespective of model quality, so it exploits Spearman's
@@ -914,7 +1174,8 @@ Category & Intervention & {$\Delta\rhoS$} & Reason not adopted \\
  & monotonicity penalty                & +0.0007 & null \\
  & hurdle (zero-inflation) head        & -0.0022 & harmful \\
 \midrule
-\multirow{4}{*}{Architecture}
+\multirow{5}{*}{Architecture}
+ & selective (Mamba-style) SSM         & +0.0031 & below threshold \\
  & hybrid S4D$+$attention, 1:1 ratio   & -0.0027 & harmful \\
  & S4D state dimension 128             & -0.0022 & harmful \\
  & wider FFN / deeper stack / MoE      & {n.r.}  & did not replicate \\
@@ -936,6 +1197,18 @@ replicate across three folds before promotion, and none did.
 \item Two entries are informative beyond their sign and are discussed in
 \S\ref{sec:domain}: removing the unevaluated source study is strongly harmful, and
 additional context conditioning increases rather than decreases context invariance.
+\item The selective SSM makes $\Delta$, $B$ and $C$ functions of the input, which is
+the mechanism separating Mamba \citep{gu2023mamba} from S4. Its entry is measured
+against its own \emph{frozen-selection} control --- identical parameter count and
+recipe with the selection projections held at initialisation, so the extra parameters
+exist but cannot become content-dependent --- which is the comparison that isolates
+selectivity. Both selective runs sit well below the S4D baseline they would replace
+($0.8827$ and $0.8796$ against $0.8982$), but they sit below it \emph{together}, so
+that deficit is attributable to the scan recipe rather than to selectivity: a selective
+SSM cannot use the FFT convolution and needs a sequential scan, which forced batch 256,
+fp32 and $\approx$12$\times$ the training time. The conclusion we draw is narrow --- a
+selective mixer did not pay for itself here --- not that selectivity is useless on this
+problem.
 \end{tablenotes}
 \end{threeparttable}
 \end{table}
@@ -962,14 +1235,26 @@ variance and is easier to fit, rather than creating reordering capacity.
 
 \subsection{Can architecture substitute for mechanism?}
 
-On this benchmark, yes. A model containing no prime-editing reaction structure ---
-only a paired edit representation, a segment-aware pegRNA representation, cross-attention
-between them, and categorical context conditioning --- outperforms a strongly
-mechanistic predictor by $+0.0389$ Spearman under identical data and evaluation. The
-advantage is largest ($+0.0804$) on the partition spanning the most cell lines and
-editing systems, which is where a mechanistic prior tuned to a narrower regime would be
-expected to generalise least well. We regard the wider Kim margin as consistent with
-that reading rather than as demonstrating it.
+For the specific task of ranking efficiency on this benchmark, yes. A model containing
+no prime-editing reaction structure --- only a paired edit representation, a
+segment-aware pegRNA representation, cross-attention between them, and categorical
+context conditioning --- outperforms a strongly mechanistic predictor by $+0.0389$
+Spearman pooled and $+0.0506$ within condition, under identical data and evaluation, and
+also on absolute error (\S\ref{sec:calib-results}).
+
+Three qualifications keep that from becoming a larger claim than the evidence supports.
+First, the comparison covers one of the comparator's axes and none of the others
+(\S\ref{sec:domain-weight} and the scope statement in \S1): accuracy on single-pegRNA
+efficiency is not generalisation to PE3 or twinPE, and it is not interpretability. A
+mechanistic parameterisation is a hypothesis about the reaction that can be inspected,
+falsified and transferred; ours is not, and for a practitioner deciding \emph{why} a
+design fails that difference may outweigh $0.04$ Spearman. Second, a substantial part
+of the partition-specific margin is attributable to a training-weight choice rather
+than to architecture (\S\ref{sec:domain-weight}). Third, the wider Kim margin
+($+0.0804$) is on the partition spanning the most cell lines and editing systems, where
+a prior tuned to a narrower regime would be expected to generalise least well; we
+regard that as consistent with the reading rather than as demonstrating it, and the
+weighting analysis supplies a more parsimonious explanation.
 
 The one structural assumption we \emph{did} import proved useful, and is worth
 distinguishing from reaction mechanism: the simplex head encodes that an edited locus
@@ -1011,8 +1296,8 @@ with reports that successful hybrid language models use attention sparingly
 
 \subsection{What the remaining error is, and is not}
 
-Our replicate analysis indicates roughly $+0.12$ Spearman of genuine headroom on the
-Kim partition. That number required two corrections, each of which alone would have
+Our replicate analysis indicates roughly $+0.10$ Spearman of genuine headroom on the
+Kim partition, consistently across all five surfaces we measured it on. That number required two corrections, each of which alone would have
 reversed the conclusion --- excluding construct pairs masquerading as replicates, and
 treating observed zeros as censored rather than certain. We highlight this because a
 naive replicate analysis returns $0.7987$, essentially our model's score, and would
@@ -1048,8 +1333,27 @@ claims rest on out-of-fold development folds and a once-consulted lockbox.
 aggregation convention we tried, and no evaluation script was released. The direction
 favours the baseline and so does not undermine our claims, but it caps the precision of
 the comparison.
-\item All results are on a single benchmark. External validation on an independent
-prime-editing dataset is the most valuable next step and is not yet available.
+\item\label{sec:limitations-baselines} All results are on a single benchmark, and
+against one external comparator plus the feature baseline of \S\ref{sec:gbm}. External
+validation on an independent prime-editing dataset is the most valuable next step and is
+not yet available. We attempted two further baselines, PRIDICT2.0 and DeepPrime-FT, and
+report neither: both require reproducing hand-engineered feature pipelines exactly ---
+including melting temperatures, ViennaRNA folding energies \citep{lorenz2011} and a
+separate pretrained on-target cutting model \citep{kim2019} --- and a subtly mismatched
+reimplementation would produce misleading numbers rather than no numbers.
+\item The comparison covers one of the comparator's capabilities. It does not address
+PE3 or twinPE prediction, prospective design, or interpretability, all of which the
+comparator provides and our model does not. A mechanistic parameterisation yields
+inspectable per-step rates; ours yields a score.
+\item The training-weight asymmetry in \S\ref{sec:domain-weight} is inferred from the
+released code applied to the files the authors supplied, not verified against their
+training procedure directly. If the released checkpoints were in fact trained with
+different weights, the attribution in that section changes even though the measured
+comparison does not.
+\item The held-out set was consulted four times across model generations rather than
+once (\S\ref{sec:resolution}). Within-generation decisions were made on development
+folds and a once-consulted lockbox, and the paired design protects the margin, but the
+absolute level carries some adaptive-selection exposure.
 \end{enumerate}
 
 \subsection{Methodological recommendations}
@@ -1084,10 +1388,10 @@ self-attention with a bidirectional state-space sequence mixer and one-third to 
 ordinal outcome head matched to the rank-correlation metric and to the target's zero
 inflation; a single model containing both matches a five-member ensemble. Monotone
 calibration fitted purely on out-of-fold data restores an interpretable absolute
-efficiency estimate, reducing mean absolute error eight-fold without altering the
-ranking.
+efficiency estimate without altering the ranking, and on that scale the model also
+leads the baseline ($0.0478$ against $0.0590$ mean absolute error).
 
-The benchmark is not saturated: replicate analysis indicates roughly $+0.12$ Spearman
+The benchmark is not saturated: replicate analysis indicates roughly $+0.10$ Spearman
 of reducible error remains on its largest partition. Our evidence suggests the
 obstacle is not model capacity or supervision --- roughly seventy controlled
 experiments across architecture, objective, parameterisation and training scheme failed
@@ -1151,8 +1455,13 @@ Mamba: Linear-time sequence modeling with selective state spaces.
 \emph{arXiv:2312.00752} (2023).
 
 \bibitem[Hsu et al.(2026)]{hsu2026}
-Hsu JY, et al.
-OptiPrime: a mechanistic model for prime editing efficiency prediction (2026).
+Hsu A, Chen P, Li A, Hemez C, Gao X, Terrey M, Nelson C, Selvam V, Cristian A,
+McElroy A, Steinbeck B, Mahadeshwar G, Pandey S, Barsdale Z, Chen P, Sousa A,
+Sakai H, Silverstein R, Morad I, Krueger R, Shen M, Kleinstiver B, Lutz C,
+Tolar J, Blazar B, Osborn M, Liu DR.
+Mechanistic machine learning for prediction of prime editing outcomes.
+\emph{Nature Biotechnology} \textbf{44} (2026).
+\url{https://doi.org/10.1038/s41587-026-03261-7}.
 
 \bibitem[Kim et al.(2019)]{kim2019}
 Kim HK, Kim Y, Lee S, et al.

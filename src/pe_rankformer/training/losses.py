@@ -112,6 +112,7 @@ def simplex_loss(logits: torch.Tensor, edited: torch.Tensor, indel: torch.Tensor
 def ordinal_loss(
     logits: torch.Tensor, target: torch.Tensor, thresholds: torch.Tensor,
     sample_weight: torch.Tensor | None = None, mono_penalty: float = 0.0,
+    censor_limit: float = 0.0, censor_shuffle_control: bool = False,
 ) -> torch.Tensor:
     """CORAL-style cumulative-threshold loss (round 4).
 
@@ -126,11 +127,50 @@ def ordinal_loss(
 
     Unlike `simplex_loss` this head sees no indel signal at all. That is deliberate: it
     is a different *view* of the same rows, and error decorrelation is the point.
+
+    `censor_limit > 0` enables round-9 C2: for rows measured at exactly zero, the
+    threshold terms below the limit are dropped from the mean, because a measured zero
+    is censored rather than certain. `censor_shuffle_control` drops the same number of
+    terms at random instead, which matches gradient sparsity without the mechanism.
     """
     # (B, K-1) binary targets; comparison is strict so a row exactly at a threshold
     # counts as below it, consistently with how the thresholds were derived (quantiles).
     y = (target.unsqueeze(-1) > thresholds.unsqueeze(0)).to(logits.dtype)
-    per_row = F.binary_cross_entropy_with_logits(logits, y, reduction="none").mean(dim=-1)
+    per_term = F.binary_cross_entropy_with_logits(logits, y, reduction="none")
+
+    if censor_limit > 0.0:
+        # Round-9 C2. A row measured at exactly zero is a CENSORED observation, not a
+        # certain one: among exact replicate pairs, 21.4% of rows observed at zero have
+        # a non-zero replicate (95th percentile of that replicate distribution 0.0031).
+        # For such a row the indicators at thresholds below the detection limit are not
+        # reliably zero, so supervising them as hard zeros trains the model on labels the
+        # assay cannot support. Those terms are dropped from the per-row mean rather than
+        # down-weighted, for the same reason `simplex_loss` marginalises an unmeasured
+        # indel rate instead of imputing it: an unmeasurable quantity should contribute
+        # no gradient, not a small one.
+        #
+        # This differs from the round-6 hurdle head, which models P(y>0) and therefore
+        # still treats the observed zero as a real zero. Here the zero is treated as
+        # uninformative below the limit.
+        is_zero = (target == 0).unsqueeze(-1)
+        below = (thresholds < censor_limit).unsqueeze(0).expand_as(per_term)
+        n_below = int((thresholds < censor_limit).sum())
+        if censor_shuffle_control and n_below > 0:
+            # Mechanism-free control: drop the same NUMBER of terms per zero row, chosen
+            # at random, so gradient sparsity and the count of dropped terms match while
+            # the censoring structure does not. Two rounds of this project have produced
+            # gains that a mechanism-free control reproduced exactly, so the control is
+            # mandatory rather than optional.
+            r = torch.rand_like(per_term)
+            cut = r.kthvalue(n_below, dim=-1, keepdim=True).values
+            drop = is_zero & (r <= cut)
+        else:
+            drop = is_zero & below
+        keep = (~drop).to(per_term.dtype)
+        per_row = (per_term * keep).sum(dim=-1) / keep.sum(dim=-1).clamp(min=1.0)
+    else:
+        per_row = per_term.mean(dim=-1)
+
     loss = _wmean(per_row, sample_weight)
     if mono_penalty > 0:
         # Round-6 Lead 2c: P(y > t_k) must be non-increasing in k. With independent
@@ -272,6 +312,9 @@ class LossWeights:
     # Supplied by the model rather than reconstructed here, so the objective and the
     # network cannot disagree about which logits mean what.
     beta_corr: float = 0.0  # round-2 §13: weight on `correlation_loss`
+    censor_limit: float = 0.0  # round-9 C2: treat a measured zero as censored below this
+    # efficiency, dropping the ordinal threshold terms it cannot inform. 0 disables.
+    censor_shuffle_control: bool = False  # mechanism-free control for censor_limit
 
 
 def total_loss(
@@ -301,7 +344,9 @@ def total_loss(
     elif weights.outcome_head in ("ordinal", "coral"):
         assert weights.ordinal_thresholds is not None, "ordinal head requires thresholds"
         l_reg = ordinal_loss(primary, target, weights.ordinal_thresholds.to(score.device),
-                             sample_weight=sample_weight, mono_penalty=weights.mono_penalty)
+                             sample_weight=sample_weight, mono_penalty=weights.mono_penalty,
+                             censor_limit=weights.censor_limit,
+                             censor_shuffle_control=weights.censor_shuffle_control)
     elif weights.outcome_head == "hurdle":
         assert weights.ordinal_thresholds is not None, "hurdle head requires thresholds"
         l_reg = hurdle_loss(primary[..., 0], primary[..., 1:], target,
