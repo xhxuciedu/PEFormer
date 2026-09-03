@@ -880,9 +880,11 @@ contributes roughly twice what the objective change does, and the negative inter
 indicates the two partly capture the same improvement rather than stacking.
 \textbf{(C)} Why the ordinal head is nonetheless valuable: residual correlation with
 the existing ensemble, for every candidate model of each head type (points; bars are
-group means). Ordinal-head models separate cleanly from simplex-head models, i.e.\ they
-make \emph{different errors}, which is what determines a member's value in an ensemble
-(\S\ref{sec:ensemble}). Lower is more complementary.}
+group means). Ordinal-head models are systematically more decorrelated than models
+that vary seed, capacity or data subsample --- they make \emph{different errors}, which
+is what determines a member's value in an ensemble (\S\ref{sec:ensemble}). The group
+means differ by about $0.05$; the ranges touch at one point, so the claim is about the
+axis of variation rather than about any individual model. Lower is more complementary.}
 \label{fig:fact}
 \end{figure}
 
@@ -912,12 +914,22 @@ effects clear the $\approx0.005$ resolution of the development evaluation
 quantity most exposed to the observational design.
 
 \subsection{The ordinal head produces decorrelated errors}
+\label{sec:decorrelation}
 
 The hypothesis motivating the ordinal head was that a different loss geometry would
-produce different \emph{errors}, not merely better ones. The corresponding diagnostic
-is residual correlation with the existing ensemble, and it separates the two families
-cleanly: all ordinal-head candidates fall in the range $0.686$--$0.708$, while every
-simplex-head candidate lies at $0.76$--$0.78$.
+produce different \emph{errors}, not merely better ones. The corresponding diagnostic is
+residual correlation with the existing ensemble, measured over all fifteen candidates of
+the round-4 search. Across the seven ordinal-head candidates it averages $0.705$
+(range $0.686$--$0.735$); across the six candidates that vary seed, capacity or data
+subsample instead of the objective it averages $0.756$ (range $0.686$--$0.781$).
+
+The separation is systematic but not disjoint, and we state it that way rather than as a
+clean split: one bagged simplex run reaches $0.686$, inside the ordinal range, and its
+incremental ensemble gain ($+0.0029$) was correspondingly middling rather than
+top-ranked. The transferable claim is the comparison between \emph{axes} of variation,
+not a threshold on any single model --- changing the objective moves residual
+correlation by about $0.05$, whereas changing seed, width or data subsample leaves it
+where it was.
 
 This distinction has practical consequences for ensembling
 (Figure~\ref{fig:members}). The best combination pairs models differing in
@@ -1314,11 +1326,14 @@ supervision evenly across a heavily skewed target instead of concentrating gradi
 a few high-efficiency rows.
 
 The more transferable observation is that it changed \emph{which} rows the model gets
-wrong. Residual correlations separated ordinal from simplex models cleanly, and this
-was predicted before the experiment rather than observed afterwards. For applications
-that ensemble models, varying the objective is a more reliable source of complementary
+wrong, and this was predicted before the experiment rather than observed afterwards.
+Residual correlation with the existing ensemble is about $0.05$ lower for ordinal-head
+models than for models differing only in seed, capacity or data subsample, though the
+two groups are not disjoint (\S\ref{sec:decorrelation}). For applications that ensemble
+models, varying the objective is therefore a more reliable source of complementary
 errors than varying capacity, seeds or data subsampling --- all of which we tested and
-found ineffective.
+found ineffective. We would not, on this evidence, use residual correlation to screen an
+individual candidate; we would use it to choose which axis to vary.
 
 \subsection{State-space mixing for biological sequences}
 

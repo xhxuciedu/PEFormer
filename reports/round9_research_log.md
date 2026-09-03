@@ -253,3 +253,50 @@ as an input, so pooling inflates the *absolute* level. It does not inflate the *
 Within-condition Δ = +0.0506, 95% CI [+0.0451, +0.0564] over 5,000
 protospacer-clustered resamples, ahead in 100% of them and in **14/14** conditions.
 Pooling makes the reported difference conservative. (`stratified_comparison.py`)
+
+---
+
+## 9. A tenth correction, found by checking the underlying data
+
+The manuscript claimed the residual-correlation diagnostic "separates the two families
+cleanly: all ordinal-head candidates fall in the range 0.686–0.708, while every
+simplex-head candidate lies at 0.76–0.78." Checked against
+`results/round4/diversity_dev0.json` and `diversity_wave2.json`, neither bound holds:
+
+| candidate | head | standalone | resid corr | ens. gain |
+|---|---|---:|---:|---:|
+| r4w2_rank | simplex | 0.8244 | 0.6654 | −0.0037 |
+| **r4_bag3** | **simplex** | 0.8696 | **0.6856** | +0.0029 |
+| r4_ordSSM | ordinal | 0.8972 | 0.6863 | +0.0092 |
+| r4w2_ordK8 | ordinal | 0.8774 | 0.6876 | +0.0043 |
+| r4_ordA | ordinal | 0.8763 | 0.6907 | +0.0042 |
+| r4w2_ordrank | ordinal | 0.8676 | 0.6985 | +0.0029 |
+| r4_ordB | ordinal | 0.8803 | 0.7075 | +0.0040 |
+| **r4_ordC** | **ordinal** | 0.8856 | **0.7260** | +0.0054 |
+| **r4w2_ordK50** | **ordinal** | 0.8813 | **0.7354** | +0.0039 |
+| r4_ssm | simplex | 0.8879 | 0.7564 | +0.0060 |
+| r4_bag4 | simplex | 0.8619 | 0.7610 | +0.0002 |
+| r4_fAs2 | simplex | 0.8711 | 0.7628 | +0.0022 |
+| r4_medium | simplex | 0.8724 | 0.7649 | +0.0022 |
+| r4_bag2 | simplex | 0.8611 | 0.7779 | −0.0008 |
+| r4_bag1 | simplex | 0.8541 | 0.7812 | −0.0022 |
+
+Two ordinal candidates exceed the claimed upper bound (0.726, 0.735), and one bagged
+simplex run (0.686) sits inside the claimed ordinal range. Group statistics:
+
+| group | n | range | mean |
+|---|---:|---|---:|
+| ordinal head | 7 | 0.686–0.735 | **0.705** |
+| seed / capacity / bagging variants | 6 | 0.686–0.781 | **0.756** |
+
+**The finding survives; the phrasing did not.** The transferable claim was always about
+axes of variation, and the data support it cleanly on that reading: changing the
+objective moves residual correlation by ≈0.05, while changing seed, width or data
+subsample leaves it where it was — every bagging, seed and capacity variant except one
+sits at 0.756–0.781. Rewritten as a comparison of group means with the overlap stated,
+and the Discussion no longer implies the diagnostic can screen an individual candidate.
+
+Note this does not disturb the paper's "decorrelated *and* competent" criterion, which
+the same table supports: `r4w2_rank` is the most decorrelated model measured and has the
+worst incremental gain (−0.0037), and `r4_bag3`'s low residual correlation came with a
+middling gain (+0.0029) rather than a top-ranked one.

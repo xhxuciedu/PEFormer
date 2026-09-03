@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2022/dev/Debian) (preloaded format=pdflatex 2023.6.20)  3 SEP 2026 11:49
+This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2022/dev/Debian) (preloaded format=pdflatex 2023.6.20)  3 SEP 2026 11:52
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -607,7 +607,7 @@ pt>
 File: ../../results/paper/figures/fig4_ensemble.pdf Graphic file (type pdf)
 <use ../../results/paper/figures/fig4_ensemble.pdf>
 Package pdftex.def Info: ../../results/paper/figures/fig4_ensemble.pdf  used on
- input line 930.
+ input line 942.
 (pdftex.def)             Requested size: 469.75502pt x 211.36238pt.
  [20 <../../results/paper/figures/fig4_ensemble.pdf>] [21]
 <../../results/paper/figures/fig5_calibration.pdf, id=621, 448.89894pt x 273.92
@@ -615,32 +615,32 @@ Package pdftex.def Info: ../../results/paper/figures/fig4_ensemble.pdf  used on
 File: ../../results/paper/figures/fig5_calibration.pdf Graphic file (type pdf)
 <use ../../results/paper/figures/fig5_calibration.pdf>
 Package pdftex.def Info: ../../results/paper/figures/fig5_calibration.pdf  used
- on input line 1069.
+ on input line 1081.
 (pdftex.def)             Requested size: 469.75502pt x 286.66869pt.
- [22 <../../results/paper/figures/fig5_calibration.pdf>]
-<../../results/paper/figures/fig6_ceiling.pdf, id=670, 511.16104pt x 273.09903p
+ [22] [23 <../../results/paper/figures/fig5_calibration.pdf>]
+<../../results/paper/figures/fig6_ceiling.pdf, id=675, 511.16104pt x 273.09903p
 t>
 File: ../../results/paper/figures/fig6_ceiling.pdf Graphic file (type pdf)
 <use ../../results/paper/figures/fig6_ceiling.pdf>
 Package pdftex.def Info: ../../results/paper/figures/fig6_ceiling.pdf  used on 
-input line 1148.
+input line 1160.
 (pdftex.def)             Requested size: 469.75502pt x 250.97493pt.
- [23] [24 <../../results/paper/figures/fig6_ceiling.pdf>]
-[25] [26] [27] [28] [29]
-Underfull \hbox (badness 1867) in paragraph at lines 1521--1523
+ [24] [25 <../../results/paper/figures/fig6_ceiling.pdf>] [26] [27] [28] [29] [
+30]
+Underfull \hbox (badness 1867) in paragraph at lines 1536--1538
 []\OT1/cmr/m/n/10 Lieber O, Lenz B, Bata H, et al. Jamba: a hy-brid Transformer
 -Mamba lan-guage model.
  []
 
-[30] (./pe_rankformer_paper.aux)
+[31] (./pe_rankformer_paper.aux)
 Package rerunfilecheck Info: File `pe_rankformer_paper.out' has not changed.
 (rerunfilecheck)             Checksum: C7A67EADFEAE42299C09FF75B9337AC6;7780.
  ) 
 Here is how much of TeX's memory you used:
- 16348 strings out of 480171
- 306694 string characters out of 5894489
- 589975 words of memory out of 5000000
- 33934 multiletter control sequences out of 15000+600000
+ 16350 strings out of 480171
+ 306720 string characters out of 5894489
+ 589254 words of memory out of 5000000
+ 33935 multiletter control sequences out of 15000+600000
  487449 words of font info for 95 fonts, out of 8000000 for 9000
  59 hyphenation exceptions out of 8191
  70i,14n,79p,1995b,914s stack positions out of 5000i,500n,10000p,200000b,80000s
@@ -671,10 +671,10 @@ f/fonts/type1/public/cm-super/sfrm0600.pfb></usr/share/texmf/fonts/type1/public
 /cm-super/sfrm0800.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfrm0900.p
 fb></usr/share/texmf/fonts/type1/public/cm-super/sfrm1000.pfb></usr/share/texmf
 /fonts/type1/public/cm-super/sfrm1095.pfb>
-Output written on pe_rankformer_paper.pdf (30 pages, 650752 bytes).
+Output written on pe_rankformer_paper.pdf (31 pages, 652378 bytes).
 PDF statistics:
- 937 PDF objects out of 1000 (max. 8388607)
- 716 compressed objects within 8 object streams
- 154 named destinations out of 1000 (max. 500000)
+ 943 PDF objects out of 1000 (max. 8388607)
+ 721 compressed objects within 8 object streams
+ 155 named destinations out of 1000 (max. 500000)
  327 words of extra memory for PDF output out of 10000 (max. 10000000)
 
