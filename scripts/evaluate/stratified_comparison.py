@@ -33,6 +33,7 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(mess
 logger = logging.getLogger("stratified")
 
 H2H = Path("results/heldout_full_head_to_head.parquet")
+CORPUS = Path("data/processed/optiprime_official_318471.parquet")
 CAL = Path("results/round5/heldout_calibrated.parquet")
 OUT = Path("results/round9/stratified_comparison.json")
 MIN_ROWS_TABLE = 300   # reporting threshold for the per-condition table
@@ -41,11 +42,17 @@ N_BOOT, SEED = 5000, 20260903
 
 
 def load() -> pd.DataFrame:
-    h = pd.read_parquet(H2H)[["record_id", "target_group", "source_study",
-                              "cell_type", "pe_type", "y", "op"]]
+    h = pd.read_parquet(H2H)[["record_id", "source_study", "cell_type", "pe_type", "y", "op"]]
     c = pd.read_parquet(CAL)[["record_id", "predicted_efficiency", "calibrated_efficiency"]]
-    m = h.merge(c, on="record_id", validate="1:1")
+    # Cluster on the PROTOSPACER, which is the unit of dependence the paper resamples on
+    # and which gives 750 clusters over these rows. The `target_group` column in the
+    # head-to-head file is a much finer target-site key (15,661 groups) and clustering on
+    # it would treat correlated designs as independent, understating every interval --
+    # the exact error the clustered bootstrap exists to avoid.
+    sp = pd.read_parquet(CORPUS, columns=["record_id", "spacer"])
+    m = h.merge(c, on="record_id", validate="1:1").merge(sp, on="record_id", validate="1:1")
     assert len(m) == 20509, f"expected the full held-out set, got {len(m)}"
+    assert m.spacer.nunique() == 750, f"expected 750 protospacer clusters, got {m.spacer.nunique()}"
     m["cond"] = m.source_study + "|" + m.cell_type + "|" + m.pe_type
     return m
 
@@ -147,9 +154,11 @@ def main() -> None:
 
     # Protospacers, not rows, are resampled: many designs share a target, so a row-level
     # bootstrap would treat correlated observations as independent.
-    pos = np.arange(len(m))
-    clusters = [pos[g] for g in
-                (m.target_group.to_numpy()[:, None] == np.unique(m.target_group)).T]
+    codes, uniq = pd.factorize(m.spacer)
+    order = np.argsort(codes, kind="stable")
+    bounds = np.searchsorted(codes[order], np.arange(len(uniq) + 1))
+    clusters = [order[bounds[i]:bounds[i + 1]] for i in range(len(uniq))]
+    logger.info("resampling %d protospacer clusters over %d rows", len(clusters), len(m))
     rng = np.random.default_rng(SEED)
     boots = np.empty(N_BOOT)
     for i in range(N_BOOT):

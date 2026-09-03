@@ -300,3 +300,52 @@ Note this does not disturb the paper's "decorrelated *and* competent" criterion,
 the same table supports: `r4w2_rank` is the most decorrelated model measured and has the
 worst incremental gain (−0.0037), and `r4_bag3`'s low residual correlation came with a
 middling gain (+0.0029) rather than a top-ranked one.
+
+---
+
+## 10. An error in my own round-9 analysis, and what it exposed
+
+The first version of `stratified_comparison.py` clustered the bootstrap on the
+head-to-head file's `target_group` column. That column has **15,661 distinct values over
+20,509 held-out rows** — a target-site key, not the protospacer. The protospacer
+(`spacer`) gives **750** clusters, which is what `results/round4/final_bootstrap.json`
+resamples and what Table 2 reports.
+
+Clustering on the finer key treats correlated designs as independent and understates
+every interval — precisely the error the clustered bootstrap exists to prevent, and
+which the manuscript's own methods section warns about. Corrected:
+
+| quantity | wrong clustering (15,661) | correct (750 protospacers) |
+|---|---|---|
+| within-condition Δρ CI | [+0.0451, +0.0564] | **[+0.0345, +0.0670]** |
+
+The point estimate (+0.0506) and the 14/14 result are unaffected; only the interval
+changes. `load()` now asserts `spacer.nunique() == 750` so the mistake cannot recur
+silently.
+
+**What the fix exposed.** Running the partition-wise bootstraps with correct clustering
+gives the paper's weakest claim, which had no interval anywhere in the manuscript:
+
+| surface | clusters | OptiPrime | ours | Δρ | 95% CI | ahead | p |
+|---|---:|---:|---:|---:|---|---:|---:|
+| Full held-out | 750 | 0.8690 | 0.9079 | +0.0389 | [+0.0288, +0.0498] | 100% | <0.0002 |
+| Kim only | 601 | 0.7320 | 0.8124 | +0.0803 | [+0.0632, +0.0985] | 100% | <0.0002 |
+| **Liu only** | **150** | 0.8365 | 0.8585 | **+0.0220** | **[+0.0027, +0.0427]** | 98.6% | **0.028** |
+
+Liu has only 150 protospacer clusters, so its interval is wide, and the lower bound is
++0.0027 — barely clear of zero.
+
+**Why this matters more than a missing interval.** The comparator's published held-out
+metric is reported over the Liu conditions, not the pooled set (`research_log.md`
+2026-08-18: "Paper states, for its held-out test: mean r=0.723, rho=0.775 across the
+four Liu conditions"). So **Liu is the surface OptiPrime selected**, and it is also the
+surface its 0.1 Kim training weight is coherent with: treat Kim as low-weight auxiliary
+data, evaluate on Liu.
+
+That makes the pooled 20,509-row evaluation *our* extension of its benchmark rather than
+its own headline, and the two surfaces disagree sharply about the size of the win:
++0.0803 on Kim at p<0.0002 against +0.0220 on Liu at p=0.028. Both are now in Table 2
+with intervals, the Liu row is flagged in the table notes as the paper's weakest claim,
+and the abstract states it. The conservative reading of this work is a +0.022 margin on
+the comparator's own surface; the +0.0389 headline depends on an evaluation surface we
+chose and on a training-weight asymmetry we did not.

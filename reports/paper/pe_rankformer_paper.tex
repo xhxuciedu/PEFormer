@@ -50,11 +50,13 @@ $0.8690$: a difference of $+0.0389$ (95\% CI $[+0.0286,+0.0498]$; ahead in all 5
 protospacer-clustered bootstrap resamples, $p < 0.0002$). Recomputed \emph{within}
 each of 14 experimental conditions, where between-study differences in efficiency level
 cannot contribute, the margin is larger rather than smaller ($+0.0506$, 95\% CI
-$[+0.0451,+0.0564]$, ahead in 14/14 conditions). It is $+0.0804$ on the more
+$[+0.0345,+0.0670]$, ahead in 14/14 conditions). It is $+0.0804$ on the more
 experimentally diverse Kim partition and $+0.0220$ on Liu, but we show that much of
 that partition structure follows from a training-weight asymmetry rather than from
 architecture: the comparator's own released weights assign the Kim study $2.0\%$ of its
-training gradient while the study supplies $55.3\%$ of the held-out rows. A
+training gradient while the study supplies $55.3\%$ of the held-out rows, and its own
+published held-out metric is reported over the Liu conditions, where our margin is
+$+0.0220$ ($p=0.028$) rather than $+0.0803$. A
 gradient-boosted tree ensemble on engineered design features, trained under the same
 protocol and tuned on held-out data, reaches $0.7413$, placing both models well clear of
 the standard feature set.
@@ -664,7 +666,9 @@ $[+0.0286,+0.0498]$; PE-RankFormer leads in every one of 5{,}000 resamples.
 \toprule
 Comparison & {$\Delta\rhoS$} & {95\% CI} & {Fraction ahead} & {$p$} \\
 \midrule
-Final vs.\ OptiPrime   & +0.0389 & $[+0.0286,\,+0.0498]$ & 1.000 & $<0.0002$ \\
+Final vs.\ OptiPrime, all rows   & +0.0389 & $[+0.0286,\,+0.0498]$ & 1.000 & $<0.0002$ \\
+\quad --- Kim partition only     & +0.0803 & $[+0.0632,\,+0.0985]$ & 1.000 & $<0.0002$ \\
+\quad --- \textbf{Liu partition only} & +0.0220 & $[+0.0027,\,+0.0427]$ & 0.986 & 0.028 \\
 Final vs.\ round 3     & +0.0146 & $[+0.0113,\,+0.0184]$ & 1.000 & $<0.0002$ \\
 Round 3 vs.\ OptiPrime & +0.0243 & $[+0.0138,\,+0.0346]$ & 1.000 & $<0.0002$ \\
 \bottomrule
@@ -677,6 +681,15 @@ understate the intervals.
 \item Both models are scored on identical rows within each resample. ``Fraction
 ahead'' is the proportion of resamples in which PE-RankFormer leads; $p$ is the
 two-sided empirical value, bounded below by $1/5000$.
+\item The partition rows resample the protospacer clusters present in that partition
+(601 for Kim, 150 for Liu). \textbf{The Liu result is the weakest claim in the paper}
+and we give it prominence rather than only the pooled figure: the comparator's own
+published held-out metric is reported over the Liu conditions
+\citep{hsu2026}, so Liu is the surface it selected, and there our advantage is
+$+0.0220$ with a lower bound of $+0.0027$ at $p=0.028$. The pooled and Kim results are
+far stronger, but Kim is the partition the comparator trains on at one tenth weight
+(\S\ref{sec:domain-weight}), and the full-set evaluation is our extension of its
+benchmark rather than its own headline surface.
 \end{tablenotes}
 \end{threeparttable}
 \end{table}
@@ -746,7 +759,7 @@ Comparison & {Strata} & {OptiPrime} & {PE-RankFormer} & {$\Delta\rhoS$} & {95\% 
 \midrule
 Pooled (as reported in Table~\ref{tab:main}) & {1} & 0.8690 & 0.9079 & +0.0389 & $[+0.0286,+0.0498]$ \\
 Within source study, $n$-weighted            & {2} & 0.7788 & 0.8331 & +0.0543 & {---} \\
-\textbf{Within condition}, $n$-weighted      & {14} & 0.7605 & 0.8111 & \bfseries +0.0506 & $[+0.0451,+0.0564]$ \\
+\textbf{Within condition}, $n$-weighted      & {14} & 0.7605 & 0.8111 & \bfseries +0.0506 & $[+0.0345,+0.0670]$ \\
 \bottomrule
 \end{tabular}
 \begin{tablenotes}[flushleft]\footnotesize
@@ -786,6 +799,15 @@ comparator allocates $2.0\%$ of its effective training gradient to the Kim study
 supplies $55.3\%$ of the held-out rows. We train uniformly, giving Kim $19.6\%$. Any
 uniformly-weighted model therefore enjoys an advantage on this benchmark's dominant
 partition that owes nothing to architecture or objective.
+
+The weighting is also internally consistent with how the comparator reports itself. Its
+published held-out figure is given over the Liu conditions \citep{hsu2026}, not over the
+pooled set; treating Kim as low-weight auxiliary training data and evaluating on Liu is
+a coherent pair of choices. The pooled 20{,}509-row evaluation is therefore \emph{our}
+extension of its benchmark, not its own headline surface, and the two surfaces give very
+different pictures of the margin: $+0.0803$ on Kim ($p<0.0002$) against $+0.0220$ on Liu
+($p=0.028$, lower bound $+0.0027$; Table~\ref{tab:boot}). Both are reported, and we
+regard the Liu figure as the conservative statement of the result.
 
 \begin{table}[H]
 \centering
