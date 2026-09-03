@@ -1,0 +1,77 @@
+{
+  "provenance": {
+    "git_commit": "d47d183082cb",
+    "working_tree_dirty": true,
+    "seed": 20260903,
+    "inputs": {
+      "data/processed/optiprime_official_318471.parquet": "fe62229d50a08fa3",
+      "results/heldout_full_head_to_head.parquet": "23d833dfcccb6f60",
+      "results/round5/heldout_calibrated.parquet": "9cbd7ce15f3e0c5c"
+    }
+  },
+  "n_replicate_groups": 649,
+  "n_ordered_pairs": 1298,
+  "n_boot": 400,
+  "surfaces": {
+    "dev_fold_0": {
+      "n_rows": 19747,
+      "model": 0.7869344027663455,
+      "ceiling_point": 0.902169918272283,
+      "ceiling_ci95_group_resample": [
+        0.8423688876130901,
+        0.9257304721298671
+      ],
+      "ceiling_sd_estimator_only": 0.00025004287295906334,
+      "gap_point": 0.11523551550593747,
+      "gap_ci95": [
+        0.055434484846744625,
+        0.13879606936352162
+      ]
+    },
+    "dev_fold_1": {
+      "n_rows": 19740,
+      "model": 0.7882835837706181,
+      "ceiling_point": 0.9083135611566867,
+      "ceiling_ci95_group_resample": [
+        0.8526135428403289,
+        0.9258788479470735
+      ],
+      "ceiling_sd_estimator_only": 0.00026032786919194317,
+      "gap_point": 0.12002997738606858,
+      "gap_ci95": [
+        0.06432995906971073,
+        0.1375952641764554
+      ]
+    },
+    "dev_fold_2": {
+      "n_rows": 19742,
+      "model": 0.7984666558683254,
+      "ceiling_point": 0.907080976500236,
+      "ceiling_ci95_group_resample": [
+        0.8492071151733473,
+        0.927822062383913
+      ],
+      "ceiling_sd_estimator_only": 0.0002294890240866761,
+      "gap_point": 0.10861432063191057,
+      "gap_ci95": [
+        0.05074045930502191,
+        0.12935540651558752
+      ]
+    },
+    "heldout": {
+      "n_rows": 11334,
+      "model": 0.812383882551176,
+      "ceiling_point": 0.9164042759843243,
+      "ceiling_ci95_group_resample": [
+        0.8653309394004511,
+        0.9327346358975828
+      ],
+      "ceiling_sd_estimator_only": 0.00025987066052155275,
+      "gap_point": 0.10402039343314828,
+      "gap_ci95": [
+        0.05294705684927514,
+        0.12035075334640677
+      ]
+    }
+  }
+}

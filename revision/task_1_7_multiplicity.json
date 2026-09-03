@@ -1,0 +1,228 @@
+{
+  "provenance": {
+    "git_commit": "d47d183082cb",
+    "working_tree_dirty": true,
+    "seed": 20260903,
+    "inputs": {
+      "data/processed/optiprime_official_318471.parquet": "fe62229d50a08fa3"
+    }
+  },
+  "null_pairs": [
+    {
+      "candidate": "r9_clr16c",
+      "control": "r9_ctrl",
+      "note": "capacity control vs plain control, dev fold 0",
+      "candidate_val": 0.8969177012613025,
+      "control_val": 0.8977976750813599,
+      "delta": -0.0008799738200573337
+    },
+    {
+      "candidate": "r9_clr16",
+      "control": "r9_clr16c",
+      "note": "context low-rank vs its own capacity control",
+      "candidate_val": 0.8968675907333481,
+      "control_val": 0.8969177012613025,
+      "delta": -5.0110527954450035e-05
+    },
+    {
+      "candidate": "r8_dapt",
+      "control": "r8_dapt_ctrl",
+      "note": "domain-adaptive fine-tuning vs its control",
+      "candidate_val": 0.8998340258926383,
+      "control_val": 0.8992373341056714,
+      "delta": 0.0005966917869668631
+    },
+    {
+      "candidate": "r8_srchead",
+      "control": "r8_srctied",
+      "note": "per-source head vs tied-head control",
+      "candidate_val": 0.8957804942596581,
+      "control_val": 0.8975666801565589,
+      "delta": -0.001786185896900827
+    },
+    {
+      "candidate": "r8_sel",
+      "control": "r8_selfrozen",
+      "note": "selective SSM vs frozen-selection control",
+      "candidate_val": -1.0,
+      "control_val": -1.0,
+      "delta": 0.0
+    },
+    {
+      "candidate": "r7_layerwise_f0",
+      "control": "r7_ctrl_f0",
+      "note": "layerwise context on SSM, matched control, dev fold 0 (from reports/round7_diagnosis.md)",
+      "candidate_val": 0.8963,
+      "control_val": 0.8964,
+      "delta": -9.999999999998899e-05
+    },
+    {
+      "candidate": "r7_layerwise_f1",
+      "control": "r7_ctrl_f1",
+      "note": "layerwise context on SSM, matched control, dev fold 1 (from reports/round7_diagnosis.md)",
+      "candidate_val": 0.8994,
+      "control_val": 0.8993,
+      "delta": 9.999999999998899e-05
+    },
+    {
+      "candidate": "r7_layerwise_f2",
+      "control": "r7_ctrl_f2",
+      "note": "layerwise context on SSM, matched control, dev fold 2 (from reports/round7_diagnosis.md)",
+      "candidate_val": 0.896,
+      "control_val": 0.8957,
+      "delta": 0.00029999999999996696
+    }
+  ],
+  "null_spread": {
+    "n_pairs": 7,
+    "sd": 0.0008124433634005998,
+    "mean": -0.0002599397797065401,
+    "min": -0.001786185896900827,
+    "max": 0.0005966917869668631,
+    "excluded": "r8_sel (recipe change, not mechanism-free)"
+  },
+  "detectable_effect_80pct_power_measured_sd": {
+    "1": 0.0022761291402526697,
+    "3": 0.0013141237718352304,
+    "5": 0.0010179158966346245,
+    "10": 0.0007197752331879277
+  },
+  "detectable_effect_80pct_power_manuscript_sd": {
+    "1": 0.008660254037844387,
+    "3": 0.005,
+    "5": 0.003872983346207417,
+    "10": 0.00273861278752583
+  },
+  "sd_manuscript_implied": 0.0030911980317728663,
+  "table9_holm_under_measured_sd": [
+    {
+      "intervention": "context-relative ordinal (primary)",
+      "delta": -0.0235,
+      "z": -28.925093192511703,
+      "p_raw": 0.0,
+      "p_holm": 0.0,
+      "survives_holm_0.05": true
+    },
+    {
+      "intervention": "quantile regression head",
+      "delta": -0.014,
+      "z": -17.231970412560162,
+      "p_raw": 0.0,
+      "p_holm": 0.0,
+      "survives_holm_0.05": true
+    },
+    {
+      "intervention": "training on evaluated sources only",
+      "delta": -0.0294,
+      "z": -36.18713786637634,
+      "p_raw": 0.0,
+      "p_holm": 0.0,
+      "survives_holm_0.05": true
+    },
+    {
+      "intervention": "selective (Mamba-style) SSM",
+      "delta": 0.0031,
+      "z": 3.8156505913526075,
+      "p_raw": 0.00013582458993366409,
+      "p_holm": 0.0017657196691376331,
+      "survives_holm_0.05": true
+    },
+    {
+      "intervention": "hybrid S4D+attention, 1:1",
+      "delta": -0.0027,
+      "z": -3.3233085795651744,
+      "p_raw": 0.0008895645140483133,
+      "p_holm": 0.01067477416857976,
+      "survives_holm_0.05": true
+    },
+    {
+      "intervention": "hurdle (zero-inflation) head",
+      "delta": -0.0022,
+      "z": -2.707881064830883,
+      "p_raw": 0.006771428416620484,
+      "p_holm": 0.07448571258282533,
+      "survives_holm_0.05": false
+    },
+    {
+      "intervention": "S4D state dimension 128",
+      "delta": -0.0022,
+      "z": -2.707881064830883,
+      "p_raw": 0.006771428416620484,
+      "p_holm": 0.07448571258282533,
+      "survives_holm_0.05": false
+    },
+    {
+      "intervention": "per-source output head",
+      "delta": -0.0018,
+      "z": -2.2155390530434493,
+      "p_raw": 0.026723086891838888,
+      "p_holm": 0.24050778202655,
+      "survives_holm_0.05": false
+    },
+    {
+      "intervention": "nonlinear stacking",
+      "delta": 0.0013,
+      "z": 1.600111538309158,
+      "p_raw": 0.10957384176224405,
+      "p_holm": 0.8765907340979524,
+      "survives_holm_0.05": false
+    },
+    {
+      "intervention": "auxiliary simplex head",
+      "delta": 0.0008,
+      "z": 0.9846840235748665,
+      "p_raw": 0.32477930274459155,
+      "p_holm": 1.0,
+      "survives_holm_0.05": false
+    },
+    {
+      "intervention": "multi-resolution ordinal",
+      "delta": 0.0008,
+      "z": 0.9846840235748665,
+      "p_raw": 0.32477930274459155,
+      "p_holm": 1.0,
+      "survives_holm_0.05": false
+    },
+    {
+      "intervention": "monotonicity penalty",
+      "delta": 0.0007,
+      "z": 0.8615985206280081,
+      "p_raw": 0.3889084853735305,
+      "p_holm": 1.0,
+      "survives_holm_0.05": false
+    },
+    {
+      "intervention": "residual learning on features",
+      "delta": 0.0006,
+      "z": 0.7385130176811497,
+      "p_raw": 0.4602027595937601,
+      "p_holm": 1.0,
+      "survives_holm_0.05": false
+    },
+    {
+      "intervention": "rank-consistent CORAL head",
+      "delta": 0.0005,
+      "z": 0.6154275147342916,
+      "p_raw": 0.5382724252028335,
+      "p_holm": 1.0,
+      "survives_holm_0.05": false
+    },
+    {
+      "intervention": "layerwise context conditioning",
+      "delta": 0.0001,
+      "z": 0.12308550294685831,
+      "p_raw": 0.9020393909564746,
+      "p_holm": 1.0,
+      "survives_holm_0.05": false
+    },
+    {
+      "intervention": "context-gated ensemble weights",
+      "delta": 0.0,
+      "z": 0.0,
+      "p_raw": 1.0,
+      "p_holm": 1.0,
+      "survives_holm_0.05": false
+    }
+  ],
+  "caveat": "across-fold/run spread at fixed seed; a true across-seed estimate needs the Phase 2.1 factorial. These are optimistic."
+}

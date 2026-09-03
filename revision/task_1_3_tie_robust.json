@@ -1,0 +1,221 @@
+{
+  "provenance": {
+    "git_commit": "d47d183082cb",
+    "working_tree_dirty": true,
+    "seed": 20260903,
+    "inputs": {
+      "data/processed/optiprime_official_318471.parquet": "fe62229d50a08fa3",
+      "results/heldout_full_head_to_head.parquet": "23d833dfcccb6f60",
+      "results/round5/heldout_calibrated.parquet": "9cbd7ce15f3e0c5c"
+    }
+  },
+  "n_rows": 20509,
+  "tie_structure": {
+    "ours": {
+      "n_distinct": 19794,
+      "frac_in_largest_tie": 0.00029255448827344093
+    },
+    "optiprime": {
+      "n_distinct": 20437,
+      "frac_in_largest_tie": 0.00024379540689453412
+    },
+    "target": {
+      "n_distinct": 14887,
+      "frac_in_largest_tie": 0.26822370666536643
+    }
+  },
+  "metrics": {
+    "all": {
+      "n": 20509,
+      "n_editing": 15008,
+      "frac_zero": 0.26822370666536643,
+      "ours": {
+        "spearman": 0.9078742230815919,
+        "kendall_tau_b": 0.7478498774484813,
+        "auroc_edits_at_all": 0.9464696269121838,
+        "spearman_editing_only": 0.8724863093804393
+      },
+      "optiprime": {
+        "spearman": 0.8690026435974381,
+        "kendall_tau_b": 0.6931350698285497,
+        "auroc_edits_at_all": 0.9172569454807403,
+        "spearman_editing_only": 0.8256173633104549
+      },
+      "delta": {
+        "spearman": 0.03887157948415387,
+        "kendall_tau_b": 0.05471480761993164,
+        "auroc_edits_at_all": 0.02921268143144351,
+        "spearman_editing_only": 0.046868946069984374
+      },
+      "bootstrap": {
+        "kendall_tau_b": {
+          "observed": 0.05471480761993164,
+          "ci95": [
+            0.04263615872320119,
+            0.06744869964022843
+          ],
+          "bootstrap_mean": 0.05488750422407836,
+          "frac_above_zero": 1.0,
+          "two_sided_p": 0.0005,
+          "n_valid": 2000,
+          "n_boot": 2000,
+          "n_clusters": 750
+        },
+        "auroc_edits_at_all": {
+          "observed": 0.02921268143144351,
+          "ci95": [
+            0.022000797234869925,
+            0.036687108332238864
+          ],
+          "bootstrap_mean": 0.02922606132563338,
+          "frac_above_zero": 1.0,
+          "two_sided_p": 0.0005,
+          "n_valid": 2000,
+          "n_boot": 2000,
+          "n_clusters": 750
+        },
+        "spearman_editing_only": {
+          "observed": 0.046868946069984374,
+          "ci95": [
+            0.034002367512438236,
+            0.061282634921733824
+          ],
+          "bootstrap_mean": 0.04697797850755235,
+          "frac_above_zero": 1.0,
+          "two_sided_p": 0.0005,
+          "n_valid": 2000,
+          "n_boot": 2000,
+          "n_clusters": 683
+        }
+      }
+    },
+    "Liu": {
+      "n": 9175,
+      "n_editing": 9080,
+      "frac_zero": 0.010354223433242507,
+      "ours": {
+        "spearman": 0.8584994751725863,
+        "kendall_tau_b": 0.6741123701629704,
+        "auroc_edits_at_all": 0.8410433572919082,
+        "spearman_editing_only": 0.8582165080359966
+      },
+      "optiprime": {
+        "spearman": 0.8364817168285197,
+        "kendall_tau_b": 0.6497360446595037,
+        "auroc_edits_at_all": 0.8174623232089033,
+        "spearman_editing_only": 0.8365217608689861
+      },
+      "delta": {
+        "spearman": 0.022017758344066607,
+        "kendall_tau_b": 0.02437632550346669,
+        "auroc_edits_at_all": 0.023581034083004826,
+        "spearman_editing_only": 0.021694747167010475
+      },
+      "bootstrap": {
+        "kendall_tau_b": {
+          "observed": 0.02437632550346669,
+          "ci95": [
+            0.0015350974673743246,
+            0.04893577990330556
+          ],
+          "bootstrap_mean": 0.02550750097981282,
+          "frac_above_zero": 0.98,
+          "two_sided_p": 0.040000000000000036,
+          "n_valid": 2000,
+          "n_boot": 2000,
+          "n_clusters": 150
+        },
+        "auroc_edits_at_all": {
+          "observed": 0.023581034083004826,
+          "ci95": [
+            -0.01091868610431689,
+            0.04958625511940366
+          ],
+          "bootstrap_mean": 0.02184995735130497,
+          "frac_above_zero": 0.909,
+          "two_sided_p": 0.18199999999999994,
+          "n_valid": 2000,
+          "n_boot": 2000,
+          "n_clusters": 150
+        },
+        "spearman_editing_only": {
+          "observed": 0.021694747167010475,
+          "ci95": [
+            0.0020525457434249056,
+            0.041917071915140186
+          ],
+          "bootstrap_mean": 0.022470535256245257,
+          "frac_above_zero": 0.985,
+          "two_sided_p": 0.030000000000000027,
+          "n_valid": 2000,
+          "n_boot": 2000,
+          "n_clusters": 150
+        }
+      }
+    },
+    "Kim": {
+      "n": 11334,
+      "n_editing": 5928,
+      "frac_zero": 0.47697194282689254,
+      "ours": {
+        "spearman": 0.812383882551176,
+        "kendall_tau_b": 0.6619830851328704,
+        "auroc_edits_at_all": 0.8973792770615745,
+        "spearman_editing_only": 0.8618033174795012
+      },
+      "optiprime": {
+        "spearman": 0.7320386288818668,
+        "kendall_tau_b": 0.5716957382120755,
+        "auroc_edits_at_all": 0.8457499988766418,
+        "spearman_editing_only": 0.7743608498917415
+      },
+      "delta": {
+        "spearman": 0.08034525366930922,
+        "kendall_tau_b": 0.09028734692079488,
+        "auroc_edits_at_all": 0.05162927818493268,
+        "spearman_editing_only": 0.08744246758775975
+      },
+      "bootstrap": {
+        "kendall_tau_b": {
+          "observed": 0.09028734692079488,
+          "ci95": [
+            0.07510062630580391,
+            0.10670875382527703
+          ],
+          "bootstrap_mean": 0.09055471379555147,
+          "frac_above_zero": 1.0,
+          "two_sided_p": 0.0005,
+          "n_valid": 2000,
+          "n_boot": 2000,
+          "n_clusters": 601
+        },
+        "auroc_edits_at_all": {
+          "observed": 0.05162927818493268,
+          "ci95": [
+            0.04109391097893504,
+            0.06318833123932892
+          ],
+          "bootstrap_mean": 0.05179897989736627,
+          "frac_above_zero": 1.0,
+          "two_sided_p": 0.0005,
+          "n_valid": 2000,
+          "n_boot": 2000,
+          "n_clusters": 601
+        },
+        "spearman_editing_only": {
+          "observed": 0.08744246758775975,
+          "ci95": [
+            0.06535585777238669,
+            0.10820361117078013
+          ],
+          "bootstrap_mean": 0.08749016335912402,
+          "frac_above_zero": 1.0,
+          "two_sided_p": 0.0005,
+          "n_valid": 2000,
+          "n_boot": 2000,
+          "n_clusters": 534
+        }
+      }
+    }
+  }
+}

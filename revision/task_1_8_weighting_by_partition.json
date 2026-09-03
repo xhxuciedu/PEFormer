@@ -1,0 +1,178 @@
+{
+  "provenance": {
+    "git_commit": "d47d183082cb",
+    "working_tree_dirty": true,
+    "seed": 20260903,
+    "inputs": {
+      "data/processed/optiprime_official_318471.parquet": "fe62229d50a08fa3"
+    }
+  },
+  "runs": {
+    "uniform": "r9_ctrl",
+    "optiprime_weights": "r9_opw",
+    "matched_on": "seed, dev fold 0, recipe, code state"
+  },
+  "n_rows": 35649,
+  "partitions": {
+    "all": {
+      "n": 35649,
+      "frac_zero": 0.28443995624000673,
+      "uniform": 0.8977813122264092,
+      "optiprime_weights": 0.8829779268347333,
+      "delta": 0.014803385391675916,
+      "bootstrap": {
+        "observed": 0.014803385391675916,
+        "ci95": [
+          0.009111501906685734,
+          0.021754690021001135
+        ],
+        "bootstrap_mean": 0.01488324851532143,
+        "frac_above_zero": 1.0,
+        "two_sided_p": 0.0002,
+        "n_valid": 5000,
+        "n_boot": 5000,
+        "n_clusters": 795
+      }
+    },
+    "deepprime": {
+      "n": 19747,
+      "frac_zero": 0.5081278168835772,
+      "uniform": 0.7636155867426081,
+      "optiprime_weights": 0.7388694441821754,
+      "delta": 0.024746142560432727,
+      "bootstrap": {
+        "observed": 0.024746142560432727,
+        "ci95": [
+          0.014385807994724723,
+          0.03552303929938791
+        ],
+        "bootstrap_mean": 0.024844390121330103,
+        "frac_above_zero": 1.0,
+        "two_sided_p": 0.0002,
+        "n_valid": 5000,
+        "n_boot": 5000,
+        "n_clusters": 539
+      }
+    },
+    "hsu2026": {
+      "n": 15902,
+      "frac_zero": 0.00666582819771098,
+      "uniform": 0.8555579779806284,
+      "optiprime_weights": 0.849214694867477,
+      "delta": 0.0063432831131513545,
+      "bootstrap": {
+        "observed": 0.0063432831131513545,
+        "ci95": [
+          -0.005207715548087605,
+          0.01790329298183211
+        ],
+        "bootstrap_mean": 0.0063236361501230656,
+        "frac_above_zero": 0.8584,
+        "two_sided_p": 0.2831999999999999,
+        "n_valid": 5000,
+        "n_boot": 5000,
+        "n_clusters": 256
+      }
+    }
+  },
+  "per_condition": [
+    {
+      "cond": "deepprime|DLD1|PE2",
+      "n": 1157,
+      "uniform": 0.826139770814435,
+      "optiprime_weights": 0.7800199251920805,
+      "delta": 0.046119845622354494
+    },
+    {
+      "cond": "deepprime|HeLa|PE2",
+      "n": 1142,
+      "uniform": 0.7752453080027765,
+      "optiprime_weights": 0.7385383176633112,
+      "delta": 0.03670699033946523
+    },
+    {
+      "cond": "deepprime|HEK293T|PE2",
+      "n": 5601,
+      "uniform": 0.7843771188644652,
+      "optiprime_weights": 0.7495375011529304,
+      "delta": 0.034839617711534765
+    },
+    {
+      "cond": "deepprime|A549|PE2",
+      "n": 2249,
+      "uniform": 0.5875227265946188,
+      "optiprime_weights": 0.5553375575662379,
+      "delta": 0.03218516902838087
+    },
+    {
+      "cond": "deepprime|DLD1|PE4",
+      "n": 2079,
+      "uniform": 0.8227058362330605,
+      "optiprime_weights": 0.7946394636607454,
+      "delta": 0.028066372572315035
+    },
+    {
+      "cond": "deepprime|MDA-MB-231|PE2",
+      "n": 1063,
+      "uniform": 0.6528740665537796,
+      "optiprime_weights": 0.6271746478756913,
+      "delta": 0.025699418678088226
+    },
+    {
+      "cond": "deepprime|HCT116|PE2",
+      "n": 1130,
+      "uniform": 0.7678014369962137,
+      "optiprime_weights": 0.7439396690218312,
+      "delta": 0.023861767974382553
+    },
+    {
+      "cond": "deepprime|HEK293T|PE4",
+      "n": 1983,
+      "uniform": 0.8170413909748616,
+      "optiprime_weights": 0.7980006517774391,
+      "delta": 0.01904073919742255
+    },
+    {
+      "cond": "deepprime|NIH3T3|PE4",
+      "n": 1119,
+      "uniform": 0.7436311260543107,
+      "optiprime_weights": 0.7272143730032272,
+      "delta": 0.016416753051083477
+    },
+    {
+      "cond": "hsu2026|HeLa|PE2",
+      "n": 4161,
+      "uniform": 0.8329549044513908,
+      "optiprime_weights": 0.8208762417220887,
+      "delta": 0.012078662729302025
+    },
+    {
+      "cond": "hsu2026|HEK293T|PE2",
+      "n": 3803,
+      "uniform": 0.8160356081218139,
+      "optiprime_weights": 0.8056327954641183,
+      "delta": 0.010402812657695604
+    },
+    {
+      "cond": "hsu2026|HEK293T|PE4",
+      "n": 3777,
+      "uniform": 0.8044644868394235,
+      "optiprime_weights": 0.7943553887398277,
+      "delta": 0.010109098099595815
+    },
+    {
+      "cond": "deepprime|A549|PE4",
+      "n": 2224,
+      "uniform": 0.6731093178417494,
+      "optiprime_weights": 0.6660779610800869,
+      "delta": 0.007031356761662555
+    },
+    {
+      "cond": "hsu2026|HeLa|PE4",
+      "n": 4161,
+      "uniform": 0.8147659493372849,
+      "optiprime_weights": 0.8094652388701287,
+      "delta": 0.005300710467156189
+    }
+  ]
+}
