@@ -1,0 +1,90 @@
+{
+  "provenance": {
+    "git_commit": "5cc6fe93a649",
+    "working_tree_dirty": true,
+    "seed": 20260903,
+    "inputs": {}
+  },
+  "censoring": {
+    "control": {
+      "run": "r9_ctrl",
+      "best_val": 0.8977976750813599,
+      "best_epoch": 13,
+      "epochs": 30,
+      "params": 24686418
+    },
+    "r9_cen_shuf": {
+      "label": "shuffle control (3 random terms)",
+      "censor_limit": null,
+      "thresholds_masked_of_18": 3,
+      "best_val": 0.8989662905582628,
+      "best_epoch": 19,
+      "epochs": 30,
+      "params": 24686418,
+      "delta_vs_control": 0.0011686154769029455
+    },
+    "r9_cen_p90": {
+      "label": "censor below p90",
+      "censor_limit": 0.00159,
+      "thresholds_masked_of_18": 2,
+      "best_val": 0.8945626816206909,
+      "best_epoch": 19,
+      "epochs": 30,
+      "params": 24686418,
+      "delta_vs_control": -0.0032349934606690223
+    },
+    "r9_cen_p95": {
+      "label": "censor below p95",
+      "censor_limit": 0.00307,
+      "thresholds_masked_of_18": 3,
+      "best_val": 0.889905687853291,
+      "best_epoch": 16,
+      "epochs": 30,
+      "params": 24686418,
+      "delta_vs_control": -0.00789198722806883
+    },
+    "r9_cen_p99": {
+      "label": "censor below p99",
+      "censor_limit": 0.01095,
+      "thresholds_masked_of_18": 4,
+      "best_val": 0.8897174425926789,
+      "best_epoch": 16,
+      "epochs": 30,
+      "params": 24686418,
+      "delta_vs_control": -0.00808023248868095
+    },
+    "p95_vs_shuffle_control": -0.009060602704971776
+  },
+  "weighting": {
+    "per_fold": [
+      {
+        "fold": 0,
+        "opw_run": "r9_opw",
+        "control_run": "r9_ctrl",
+        "opw": 0.8829827536046343,
+        "control": 0.8977976750813599,
+        "delta": 0.014814921476725584
+      },
+      {
+        "fold": 1,
+        "status": "pending",
+        "opw": 0.8904612407870017,
+        "control": null
+      },
+      {
+        "fold": 2,
+        "status": "pending",
+        "opw": 0.8814160992475957,
+        "control": null
+      }
+    ],
+    "summary": {
+      "n_folds": 1,
+      "mean_delta": 0.014814921476725584,
+      "sd": null,
+      "min": 0.014814921476725584,
+      "max": 0.014814921476725584,
+      "same_sign_all_folds": true
+    }
+  }
+}
