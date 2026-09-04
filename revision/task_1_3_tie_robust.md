@@ -1,7 +1,7 @@
 # Task 1.3 — tie-robust and decomposed metrics
 
 Protospacer-clustered bootstrap, 2000 resamples, seed 20260903.
-Commit `d47d183082cb`.
+Commit `b35febf9a24f`.
 
 ## Tie structure: is the comparison like-for-like?
 

@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2022/dev/Debian) (preloaded format=pdflatex 2023.6.20)  4 SEP 2026 13:01
+This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2022/dev/Debian) (preloaded format=pdflatex 2023.6.20)  4 SEP 2026 13:10
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -589,8 +589,8 @@ Package pdftex.def Info: ../../results/paper/figures/fig2_benchmark.pdf  used o
 n input line 647.
 (pdftex.def)             Requested size: 469.75502pt x 369.4224pt.
  [15] [16 <../../results/paper/figures/fig2_benchmark.pdf>]
-(./tables/tab_utility.tex) [17] (./tables/tab_tierobust.tex) [18]
-(./tables/tab_leakage.tex) [19] (./tables/tab_stratified.tex) [20] [21]
+(./tables/tab_stratified.tex) [17] (./tables/tab_utility.tex) [18]
+(./tables/tab_tierobust.tex) [19] (./tables/tab_leakage.tex) [20] [21]
 Underfull \hbox (badness 4168) in paragraph at lines 945--947
 []\OT1/cmr/m/n/9 Reproduce with $\OT1/cmtt/m/n/9 revision / task _ 2 _ round9 _
  wave _ results . py$ \OT1/cmr/m/n/9 and $\OT1/cmtt/m/n/9 revision / task _ 1 _
@@ -633,24 +633,24 @@ Package pdftex.def Info: ../../results/paper/figures/fig6_ceiling.pdf  used on
 input line 1272.
 (pdftex.def)             Requested size: 469.75502pt x 250.97493pt.
  [29] [30 <../../results/paper/figures/fig6_ceiling.pdf>] [31] [32] [33] [34] [
-35] [36]
-Underfull \hbox (badness 1867) in paragraph at lines 1699--1701
+35] [36] [37]
+Underfull \hbox (badness 1867) in paragraph at lines 1741--1743
 []\OT1/cmr/m/n/10 Lieber O, Lenz B, Bata H, et al. Jamba: a hy-brid Transformer
 -Mamba lan-guage model.
  []
 
-[37] (./pe_rankformer_paper.aux)
+[38] (./pe_rankformer_paper.aux)
 Package rerunfilecheck Info: File `pe_rankformer_paper.out' has not changed.
-(rerunfilecheck)             Checksum: 335C04BD1B2C07AA3348B172F484D22B;8653.
+(rerunfilecheck)             Checksum: 9BC8520F0F9E22E5CFE85ED0235E3DE5;8653.
  ) 
 Here is how much of TeX's memory you used:
- 16455 strings out of 480171
- 308695 string characters out of 5894489
+ 16459 strings out of 480171
+ 308735 string characters out of 5894489
  600732 words of memory out of 5000000
  33990 multiletter control sequences out of 15000+600000
  488669 words of font info for 99 fonts, out of 8000000 for 9000
  59 hyphenation exceptions out of 8191
- 70i,14n,79p,1995b,910s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 70i,14n,79p,1995b,918s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/share/texmf/fonts/enc/dvips/cm-super/cm-super-ts1.enc}</usr/share/texli
 ve/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></usr/share/texlive/tex
 mf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/share/texlive/texmf-dis
@@ -679,10 +679,10 @@ e/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt9.pfb></usr/share/texmf
 cm-super/sfrm0800.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfrm0900.pf
 b></usr/share/texmf/fonts/type1/public/cm-super/sfrm1000.pfb></usr/share/texmf/
 fonts/type1/public/cm-super/sfrm1095.pfb>
-Output written on pe_rankformer_paper.pdf (37 pages, 702510 bytes).
+Output written on pe_rankformer_paper.pdf (38 pages, 708082 bytes).
 PDF statistics:
- 1041 PDF objects out of 1200 (max. 8388607)
- 811 compressed objects within 9 object streams
- 182 named destinations out of 1000 (max. 500000)
+ 1057 PDF objects out of 1200 (max. 8388607)
+ 826 compressed objects within 9 object streams
+ 186 named destinations out of 1000 (max. 500000)
  351 words of extra memory for PDF output out of 10000 (max. 10000000)
 

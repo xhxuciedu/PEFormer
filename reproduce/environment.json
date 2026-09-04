@@ -3,7 +3,7 @@
     "python": "3.11.15",
     "torch": "2.11.0+cu128",
     "cuda_available": true,
-    "git_commit": "12cf2858e7f8"
+    "git_commit": "b35febf9a24f280c1e0e00c98f2b1b9013bb14a4"
   },
   "sha256": {
     "data/processed/optiprime_official_318471.parquet": "fe62229d50a08fa3",

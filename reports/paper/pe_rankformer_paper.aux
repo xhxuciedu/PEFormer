@@ -86,32 +86,32 @@
 \citation{hsu2026}
 \@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces \textbf  {Held-out benchmark result.} \textbf  {(A)} Spearman $\rho $ on the complete held-out set and on each source partition, for a feature-based reference, the mechanistic baseline, and successive generations of our model. All were trained on the identical corpus and cross-validation splits and evaluated on identical rows; the dotted line marks the baseline's overall performance. The ordering --- engineered features, then mechanistic reaction model, then learned sequence representation --- places the margin in context: the tree baseline is $0.128$ behind the mechanistic model, which is in turn $0.039$ behind ours. \textbf  {(B)} Distribution of the paired difference in Spearman $\rho $ under a protospacer-clustered bootstrap (5{,}000 resamples over 750 clusters). Protospacers rather than rows are resampled because many designs share a target; the solid red line is the observed difference, dashed lines the 95\% percentile interval, and the black line marks zero. \textbf  {(C)} The same comparison \emph  {within} each experimental condition ($n\geq 300$), where between-study differences in efficiency level cannot contribute to the correlation. Each line joins the two models on one condition. Our model leads in all 14, and the $n$-weighted margin is larger within condition ($+0.0506$) than pooled ($+0.0389$), so pooling makes the reported difference conservative (\S  \ref  {sec:stratified}). Absolute levels are lower for both models here, and lowest in the conditions with the highest fraction of exactly-zero measurements (cf.\ Figure\nobreakspace  {}\ref  {fig:ceiling}B).\relax }}{16}{figure.caption.21}\protected@file@percent }
 \newlabel{fig:bench}{{2}{16}{\textbf {Held-out benchmark result.} \textbf {(A)} Spearman $\rho $ on the complete held-out set and on each source partition, for a feature-based reference, the mechanistic baseline, and successive generations of our model. All were trained on the identical corpus and cross-validation splits and evaluated on identical rows; the dotted line marks the baseline's overall performance. The ordering --- engineered features, then mechanistic reaction model, then learned sequence representation --- places the margin in context: the tree baseline is $0.128$ behind the mechanistic model, which is in turn $0.039$ behind ours. \textbf {(B)} Distribution of the paired difference in Spearman $\rho $ under a protospacer-clustered bootstrap (5{,}000 resamples over 750 clusters). Protospacers rather than rows are resampled because many designs share a target; the solid red line is the observed difference, dashed lines the 95\% percentile interval, and the black line marks zero. \textbf {(C)} The same comparison \emph {within} each experimental condition ($n\geq 300$), where between-study differences in efficiency level cannot contribute to the correlation. Each line joins the two models on one condition. Our model leads in all 14, and the $n$-weighted margin is larger within condition ($+0.0506$) than pooled ($+0.0389$), so pooling makes the reported difference conservative (\S \ref {sec:stratified}). Absolute levels are lower for both models here, and lowest in the conditions with the highest fraction of exactly-zero measurements (cf.\ Figure~\ref {fig:ceiling}B).\relax }{figure.caption.21}{}}
-\citation{jarvelin2002}
 \@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces Paired significance testing on the held-out set.\relax }}{17}{table.caption.23}\protected@file@percent }
 \newlabel{tab:boot}{{4}{17}{Paired significance testing on the held-out set.\relax }{table.caption.23}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}What the model is worth at the bench}{17}{subsection.3.2}\protected@file@percent }
-\newlabel{sec:utility}{{3.2}{17}{What the model is worth at the bench}{subsection.3.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}What the pooled metric measures, and what it hides}{17}{subsection.3.2}\protected@file@percent }
+\newlabel{sec:stratified}{{3.2}{17}{What the pooled metric measures, and what it hides}{subsection.3.2}{}}
+\citation{jarvelin2002}
+\@writefile{lot}{\contentsline {table}{\numberline {5}{\ignorespaces The comparison at three levels of stratification. The absolute level falls as the locus effect is removed; the margin grows.\relax }}{18}{table.caption.25}\protected@file@percent }
+\newlabel{tab:stratified}{{5}{18}{The comparison at three levels of stratification. The absolute level falls as the locus effect is removed; the margin grows.\relax }{table.caption.25}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3}What the model is worth at the bench}{18}{subsection.3.3}\protected@file@percent }
+\newlabel{sec:utility}{{3.3}{18}{What the model is worth at the bench}{subsection.3.3}{}}
 \citation{kendall1945}
 \citation{kendall1945}
-\@writefile{lot}{\contentsline {table}{\numberline {5}{\ignorespaces Deployment utility per target on the held-out set. A user selects designs for one locus, so every metric is computed within a protospacer group and averaged over groups.\relax }}{18}{table.caption.25}\protected@file@percent }
-\newlabel{tab:utility}{{5}{18}{Deployment utility per target on the held-out set. A user selects designs for one locus, so every metric is computed within a protospacer group and averaged over groups.\relax }{table.caption.25}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.3}Tie-robust and decomposed metrics}{18}{subsection.3.3}\protected@file@percent }
-\newlabel{sec:tierobust}{{3.3}{18}{Tie-robust and decomposed metrics}{subsection.3.3}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {6}{\ignorespaces Deployment utility per target on the held-out set. A user selects designs for one locus, so every metric is computed within a protospacer group and averaged over groups.\relax }}{19}{table.caption.27}\protected@file@percent }
+\newlabel{tab:utility}{{6}{19}{Deployment utility per target on the held-out set. A user selects designs for one locus, so every metric is computed within a protospacer group and averaged over groups.\relax }{table.caption.27}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.4}Tie-robust and decomposed metrics}{19}{subsection.3.4}\protected@file@percent }
+\newlabel{sec:tierobust}{{3.4}{19}{Tie-robust and decomposed metrics}{subsection.3.4}{}}
 \citation{lorenz2011}
 \citation{doench2016}
-\@writefile{lot}{\contentsline {table}{\numberline {6}{\ignorespaces Tie-robust and decomposed metrics. Kendall $\tau _b$ corrects for ties in both variables; AUROC isolates detection and $\rho $ over editing rows isolates quantification.\relax }}{19}{table.caption.27}\protected@file@percent }
-\newlabel{tab:tierobust}{{6}{19}{Tie-robust and decomposed metrics. Kendall $\tau _b$ corrects for ties in both variables; AUROC isolates detection and $\rhoS $ over editing rows isolates quantification.\relax }{table.caption.27}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.4}Design-and-condition twins do not carry the result}{19}{subsection.3.4}\protected@file@percent }
-\newlabel{sec:leakage}{{3.4}{19}{Design-and-condition twins do not carry the result}{subsection.3.4}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {7}{\ignorespaces The comparison with train/held-out design-and-condition twins removed.\relax }}{19}{table.caption.29}\protected@file@percent }
-\newlabel{tab:leakage}{{7}{19}{The comparison with train/held-out design-and-condition twins removed.\relax }{table.caption.29}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.5}A feature-based baseline places both models}{19}{subsection.3.5}\protected@file@percent }
-\newlabel{sec:gbm}{{3.5}{19}{A feature-based baseline places both models}{subsection.3.5}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.6}What the pooled metric measures, and what it hides}{20}{subsection.3.6}\protected@file@percent }
-\newlabel{sec:stratified}{{3.6}{20}{What the pooled metric measures, and what it hides}{subsection.3.6}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {7}{\ignorespaces Tie-robust and decomposed metrics. Kendall $\tau _b$ corrects for ties in both variables; AUROC isolates detection and $\rho $ over editing rows isolates quantification.\relax }}{20}{table.caption.29}\protected@file@percent }
+\newlabel{tab:tierobust}{{7}{20}{Tie-robust and decomposed metrics. Kendall $\tau _b$ corrects for ties in both variables; AUROC isolates detection and $\rhoS $ over editing rows isolates quantification.\relax }{table.caption.29}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.5}Design-and-condition twins do not carry the result}{20}{subsection.3.5}\protected@file@percent }
+\newlabel{sec:leakage}{{3.5}{20}{Design-and-condition twins do not carry the result}{subsection.3.5}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {8}{\ignorespaces The comparison with train/held-out design-and-condition twins removed.\relax }}{20}{table.caption.31}\protected@file@percent }
+\newlabel{tab:leakage}{{8}{20}{The comparison with train/held-out design-and-condition twins removed.\relax }{table.caption.31}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.6}A feature-based baseline places both models}{20}{subsection.3.6}\protected@file@percent }
+\newlabel{sec:gbm}{{3.6}{20}{A feature-based baseline places both models}{subsection.3.6}{}}
 \citation{hsu2026}
-\@writefile{lot}{\contentsline {table}{\numberline {8}{\ignorespaces The comparison at three levels of stratification. The absolute level falls as the locus effect is removed; the margin grows.\relax }}{21}{table.caption.31}\protected@file@percent }
-\newlabel{tab:stratified}{{8}{21}{The comparison at three levels of stratification. The absolute level falls as the locus effect is removed; the margin grows.\relax }{table.caption.31}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.7}A training-weight asymmetry accounts for much of the partition margin}{21}{subsection.3.7}\protected@file@percent }
 \newlabel{sec:domain-weight}{{3.7}{21}{A training-weight asymmetry accounts for much of the partition margin}{subsection.3.7}{}}
 \@writefile{lot}{\contentsline {table}{\numberline {9}{\ignorespaces Effective training weight by source study, against held-out composition.\relax }}{22}{table.caption.33}\protected@file@percent }
@@ -171,6 +171,11 @@
 \citation{kim2019}
 \newlabel{sec:limitations-baselines}{{6}{35}{Limitations}{Item.15}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.6}Methodological recommendations}{35}{subsection.4.6}\protected@file@percent }
+\citation{kim2021,mathis2023,yu2023,mathis2024}
+\citation{hsu2026}
+\@writefile{toc}{\contentsline {section}{\numberline {5}Conclusions}{36}{section.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Code.}{36}{section*.54}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Reproducing the reported results.}{36}{section*.55}\protected@file@percent }
 \bibcite{anzalone2019}{{1}{2019}{{Anzalone et al.}}{{}}}
 \bibcite{cao2020}{{2}{2020}{{Cao et al.}}{{}}}
 \bibcite{cameron2008}{{3}{2008}{{Cameron et al.}}{{}}}
@@ -179,11 +184,11 @@
 \bibcite{efron1993}{{6}{1993}{{Efron \& Tibshirani}}{{}}}
 \bibcite{gu2022s4}{{7}{2022a}{{Gu et al.}}{{}}}
 \bibcite{gu2022s4d}{{8}{2022b}{{Gu et al.}}{{}}}
-\@writefile{toc}{\contentsline {section}{\numberline {5}Conclusions}{36}{section.5}\protected@file@percent }
 \bibcite{gu2023mamba}{{9}{2023}{{Gu \& Dao}}{{}}}
 \bibcite{guo2017}{{10}{2017}{{Guo et al.}}{{}}}
 \bibcite{hsu2026}{{11}{2026}{{Hsu et al.}}{{}}}
 \bibcite{holm1979}{{12}{1979}{{Holm}}{{}}}
+\@writefile{toc}{\contentsline {paragraph}{Data.}{37}{section*.56}\protected@file@percent }
 \bibcite{jarvelin2002}{{13}{2002}{{J\"arvelin \& Kek\"al\"ainen}}{{}}}
 \bibcite{kendall1945}{{14}{1945}{{Kendall}}{{}}}
 \bibcite{kim2019}{{15}{2019}{{Kim et al.}}{{}}}
@@ -199,4 +204,4 @@
 \bibcite{vaswani2017}{{25}{2017}{{Vaswani et al.}}{{}}}
 \bibcite{yu2023}{{26}{2023}{{Yu et al.}}{{}}}
 \bibcite{zadrozny2002}{{27}{2002}{{Zadrozny \& Elkan}}{{}}}
-\gdef \@abspage@last{37}
+\gdef \@abspage@last{38}

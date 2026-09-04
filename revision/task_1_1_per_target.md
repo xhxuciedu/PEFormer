@@ -1,7 +1,7 @@
 # Task 1.1 — per-target and per-condition Spearman
 
 Frozen-prediction re-analysis. Protospacer-clustered bootstrap, 5000 resamples,
-seed 20260903. Commit `d47d183082cb`.
+seed 20260903. Commit `b35febf9a24f`.
 
 ## The headline number falls a long way when the locus effect is removed
 

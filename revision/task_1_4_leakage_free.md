@@ -14,4 +14,4 @@ condition covariates **and** the target site — the same key the replicate anal
 | Twinned rows only | 196 | 11 | 0.8445 | 0.8970 | +0.0525 | [-0.0360, +0.1845] | [0.6159, 0.9687] |
 
 Protospacer-clustered bootstrap, 5000 resamples, seed 20260903.
-Commit `d47d183082cb`.
+Commit `b35febf9a24f`.

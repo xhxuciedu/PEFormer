@@ -28,11 +28,11 @@
 \contentsline {subsection}{\numberline {2.10}Implementation and reproducibility}{14}{subsection.2.10}%
 \contentsline {section}{\numberline {3}Results}{14}{section.3}%
 \contentsline {subsection}{\numberline {3.1}Held-out performance against OptiPrime}{14}{subsection.3.1}%
-\contentsline {subsection}{\numberline {3.2}What the model is worth at the bench}{17}{subsection.3.2}%
-\contentsline {subsection}{\numberline {3.3}Tie-robust and decomposed metrics}{18}{subsection.3.3}%
-\contentsline {subsection}{\numberline {3.4}Design-and-condition twins do not carry the result}{19}{subsection.3.4}%
-\contentsline {subsection}{\numberline {3.5}A feature-based baseline places both models}{19}{subsection.3.5}%
-\contentsline {subsection}{\numberline {3.6}What the pooled metric measures, and what it hides}{20}{subsection.3.6}%
+\contentsline {subsection}{\numberline {3.2}What the pooled metric measures, and what it hides}{17}{subsection.3.2}%
+\contentsline {subsection}{\numberline {3.3}What the model is worth at the bench}{18}{subsection.3.3}%
+\contentsline {subsection}{\numberline {3.4}Tie-robust and decomposed metrics}{19}{subsection.3.4}%
+\contentsline {subsection}{\numberline {3.5}Design-and-condition twins do not carry the result}{20}{subsection.3.5}%
+\contentsline {subsection}{\numberline {3.6}A feature-based baseline places both models}{20}{subsection.3.6}%
 \contentsline {subsection}{\numberline {3.7}A training-weight asymmetry accounts for much of the partition margin}{21}{subsection.3.7}%
 \contentsline {paragraph}{A weighting-matched comparison.}{22}{section*.34}%
 \contentsline {subsection}{\numberline {3.8}Which components are responsible}{23}{subsection.3.8}%
@@ -51,3 +51,6 @@
 \contentsline {subsection}{\numberline {4.5}Limitations}{34}{subsection.4.5}%
 \contentsline {subsection}{\numberline {4.6}Methodological recommendations}{35}{subsection.4.6}%
 \contentsline {section}{\numberline {5}Conclusions}{36}{section.5}%
+\contentsline {paragraph}{Code.}{36}{section*.54}%
+\contentsline {paragraph}{Reproducing the reported results.}{36}{section*.55}%
+\contentsline {paragraph}{Data.}{37}{section*.56}%

@@ -3,7 +3,7 @@
 735 targets with >= 5 designs, covering
 20,474 of the 20,509 held-out rows. Bootstrap resamples targets
 (= protospacer clusters), 5000 resamples, seed 20260903. Commit
-`d47d183082cb`.
+`b35febf9a24f`.
 
 Random selection is the expectation over designs at that target, computed exactly rather
 than simulated, except NDCG@5 which is averaged over 40 random permutations.

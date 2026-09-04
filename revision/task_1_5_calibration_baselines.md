@@ -1,7 +1,7 @@
 # Task 1.5 — calibration against a floor
 
 Protospacer-clustered bootstrap, 5000 resamples, seed 20260903.
-Commit `d47d183082cb`. Constant baselines are fitted on the
+Commit `b35febf9a24f`. Constant baselines are fitted on the
 297,962 training rows (median 0.0856, mean 0.2211); the held-out
 mean 0.1133 is shown as an oracle floor no honest model could use.
 

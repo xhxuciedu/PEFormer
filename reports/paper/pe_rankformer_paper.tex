@@ -716,6 +716,37 @@ We note explicitly that the absolute figure's own 95\% interval is $[0.8955,0.91
 with 90.0\% of resamples exceeding $0.90$. The \emph{margin} over OptiPrime is a
 considerably stronger claim than the absolute level.
 
+\subsection{What the pooled metric measures, and what it hides}
+\label{sec:stratified}
+
+Pooled Spearman on the held-out set ($0.9079$) exceeds both partition scores (Liu
+$0.8585$, Kim $0.8124$). That is arithmetically possible because the two studies differ
+in efficiency level, so between-study variance contributes signal, and it is a warning:
+the pooled figure conflates two questions. \emph{Which locus is easy to edit} and
+\emph{which pegRNA is best at this locus} are different problems, and only the second is
+what a predictor is deployed to answer. The model is also given source study as one of
+its seven context fields, which a reader may reasonably regard as a dataset identifier
+rather than a biological covariate.
+
+We therefore report the comparison at three levels of stratification
+(Table~\ref{tab:stratified}), and the two findings point in opposite directions.
+
+\textbf{The absolute level falls a long way.} Within a protospacer group --- the actual
+design problem --- our model reaches $\rhoS = 0.6356$, not $0.9079$. Choosing among
+pegRNAs at a fixed locus is a substantially harder task than the headline number
+suggests, and we regard $0.64$, not $0.91$, as the honest statement of what the model
+does for a user with one target in hand. The pooled figure should not be read as a
+design-ranking capability.
+
+\textbf{The margin more than doubles.} Against the same rows, the advantage over
+OptiPrime grows from $+0.0389$ pooled to $+0.0506$ within condition to $+0.0884$ within
+target, ahead on $78.4\%$ of the 670 scorable targets. Removing the locus effect removes
+signal that \emph{both} models exploit equally, and what remains is the part attributable
+to modelling. Pooling therefore inflates the absolute level while making the reported
+\emph{difference} conservative.
+
+\input{tables/tab_stratified}
+
 \subsection{What the model is worth at the bench}
 \label{sec:utility}
 
@@ -801,37 +832,6 @@ itself well clear of that feature set ($+0.128$), so its reaction structure is d
 real work relative to hand-engineered summaries --- which is the more informative way to
 read our margin over it. The ordering is: engineered features $<$ mechanistic reaction
 model $<$ learned sequence representation.
-
-\subsection{What the pooled metric measures, and what it hides}
-\label{sec:stratified}
-
-Pooled Spearman on the held-out set ($0.9079$) exceeds both partition scores (Liu
-$0.8585$, Kim $0.8124$). That is arithmetically possible because the two studies differ
-in efficiency level, so between-study variance contributes signal, and it is a warning:
-the pooled figure conflates two questions. \emph{Which locus is easy to edit} and
-\emph{which pegRNA is best at this locus} are different problems, and only the second is
-what a predictor is deployed to answer. The model is also given source study as one of
-its seven context fields, which a reader may reasonably regard as a dataset identifier
-rather than a biological covariate.
-
-We therefore report the comparison at three levels of stratification
-(Table~\ref{tab:stratified}), and the two findings point in opposite directions.
-
-\textbf{The absolute level falls a long way.} Within a protospacer group --- the actual
-design problem --- our model reaches $\rhoS = 0.6356$, not $0.9079$. Choosing among
-pegRNAs at a fixed locus is a substantially harder task than the headline number
-suggests, and we regard $0.64$, not $0.91$, as the honest statement of what the model
-does for a user with one target in hand. The pooled figure should not be read as a
-design-ranking capability.
-
-\textbf{The margin more than doubles.} Against the same rows, the advantage over
-OptiPrime grows from $+0.0389$ pooled to $+0.0506$ within condition to $+0.0884$ within
-target, ahead on $78.4\%$ of the 670 scorable targets. Removing the locus effect removes
-signal that \emph{both} models exploit equally, and what remains is the part attributable
-to modelling. Pooling therefore inflates the absolute level while making the reported
-\emph{difference} conservative.
-
-\input{tables/tab_stratified}
 
 \subsection{A training-weight asymmetry accounts for much of the partition margin}
 \label{sec:domain-weight}
@@ -1499,7 +1499,7 @@ treating observed zeros as censored rather than certain. We highlight this becau
 naive replicate analysis returns $0.7987$, essentially our model's score, and would
 have supported a confident and incorrect claim of saturation.
 
-Given the headroom is real, the natural question is why roughly seventy subsequent
+Given the headroom is real, the natural question is why roughly seventy-five subsequent
 experiments failed to capture it. Our diagnostic points at design $\times$ context
 interaction: the model applies a nearly universal design ranking, while the data show
 substantial context-dependent reordering. Direct attacks on this failed, including one
@@ -1577,31 +1577,73 @@ alone would have.
 \section{Conclusions}
 
 A minimally mechanistic relational model matches and exceeds a strongly mechanistic
-predictor of prime-editing efficiency on its own benchmark, reaching Spearman $0.9079$
-against $0.8690$ ($\Delta=+0.0389$, ahead in all 5{,}000 protospacer-clustered bootstrap
-resamples). A factorial analysis attributes roughly two-thirds of the gain to replacing
-self-attention with a bidirectional state-space sequence mixer and one-third to an
-ordinal outcome head matched to the rank-correlation metric and to the target's zero
-inflation; a single model containing both matches a five-member ensemble. Monotone
-calibration fitted purely on out-of-fold data restores an interpretable absolute
-efficiency estimate without altering the ranking, and on that scale the model also
-leads the baseline ($0.0478$ against $0.0590$ mean absolute error).
+predictor of prime-editing efficiency on that predictor's own benchmark, reaching
+Spearman $0.9079$ against $0.8690$ ($\Delta=+0.0389$, ahead in all 5{,}000
+protospacer-clustered bootstrap resamples). A factorial analysis attributes roughly
+two-thirds of the gain to replacing self-attention with a bidirectional state-space
+sequence mixer and one-third to an ordinal outcome head matched to the rank-correlation
+metric and to the target's zero inflation; a single model containing both matches a
+five-member ensemble, and the same model also leads on absolute error once calibrated
+($0.0478$ against $0.0590$ MAE, against a trivial floor of $0.1227$).
 
-The benchmark is not saturated: replicate analysis indicates roughly $+0.10$ Spearman
-of reducible error remains on its largest partition. Our evidence suggests the
-obstacle is not model capacity or supervision --- roughly seventy controlled
-experiments across architecture, objective, parameterisation and training scheme failed
-to close it --- but the absence of covariates describing how experimental context
-reorders designs. Progress will likely require richer context annotation rather than
+Three qualifications belong in any summary of that result, and we would rather state
+them than have them found. Evaluated \emph{within} a target --- the design problem a
+user actually faces --- both models score far lower than the pooled figure implies
+($0.6356$ against $0.5472$), though the margin there more than doubles to $+0.0884$;
+pooling flatters the level while making the difference conservative. On the
+partition the comparator itself reports, the margin is $+0.0220$ at $p=0.028$, and the
+much larger Kim margin is substantially explained by a training-weight asymmetry rather
+than by modelling: the comparator's own released weights allocate the Kim study $2.0\%$
+of its training gradient while that study supplies $55.3\%$ of the evaluation rows, and
+adopting those weights costs us $+0.0136$ across three folds, essentially all of it on
+Kim. And the gain concentrates in identifying a target's \emph{best} design
+(precision@1 $0.367$ against $0.224$) rather than in avoiding a failed one, where the
+improvement is $+0.011$ and not statistically distinguishable from zero.
+
+The benchmark is not saturated: replicate analysis indicates roughly $+0.10$ Spearman of
+reducible error remains on its largest partition (95\% CI $[+0.05,+0.12]$). Our evidence
+suggests the obstacle is neither capacity nor supervision --- around seventy-five
+controlled experiments across architecture, objective, parameterisation and training
+scheme have failed to close it, including a context-conditioned non-diagonal transform
+built specifically to supply the capacity our own diagnostics said was missing, which
+scored identically to a control that cannot see context at all. What remains is most
+likely the absence of covariates describing how experimental context reorders designs,
+and no objective over a categorical label can recover biology the label does not encode.
+Progress will require richer context annotation, or an independent dataset, rather than
 further architectural search.
 
 % =====================================================================
 \section*{Data and code availability}
 
-All code, configurations, per-run metadata, the complete research log including every
-negative result, and the frozen model specification are maintained in the project
-repository. The training corpus was provided by the authors of the comparator method
-and is not redistributed here.
+\paragraph{Code.} All model code, configurations, per-run metadata, the complete research
+log including every negative result, and the frozen model specification are in the
+project repository, together with 232 unit tests.
+
+\paragraph{Reproducing the reported results.} A single command,
+\path{reproduce/run_all.sh}, regenerates every number, table and figure in this paper
+from the frozen prediction files, in roughly 25 minutes on one CPU and with no GPU. It
+also runs \path{reproduce/verify_manuscript.py}, which checks 44 numeric claims made in
+the body text against the artifacts that produced them and fails if any has drifted; and
+\path{revision/make_paper_tables.py}, which generates every result table from the
+analysis JSON so that no tabulated number is stored twice. Each analysis script records
+its git commit, random seed, and a SHA-256 prefix of every input file into its output.
+Retraining from scratch is documented separately in \path{reproduce/README.md} and takes
+approximately 60 GPU-hours.
+
+\paragraph{Data.} The corpus is a harmonisation of measurements from three previously
+published studies \citep{kim2021,mathis2023,yu2023,mathis2024}, assembled by the authors
+of the comparator method \citep{hsu2026} and shared with us privately. We do not
+redistribute it: the decision to release that harmonisation is theirs, not ours. The
+repository contains the build script that reconstructs the processed corpus from those
+files and asserts its 297{,}962-row training count, so a reader who obtains them from
+the original authors can rebuild our inputs exactly and verify the dataset hash our runs
+record. The frozen per-row prediction vectors for both models on the held-out set
+\emph{are} included, which is what the re-analyses in \S\ref{sec:stratified}--
+\S\ref{sec:leakage} and Tables~\ref{tab:stratified}--\ref{tab:ceiling} operate on, so
+every comparison in this paper can be checked without access to the training data.
+
+We regard the absence of a public corpus as the most significant limitation on the
+reproducibility of this work, and we note that it is not ours to remove.
 
 \section*{Acknowledgements}
 
