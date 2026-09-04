@@ -1,6 +1,6 @@
 # Task 1.7 — multiplicity and power for the negative-results table
 
-Commit `d47d183082cb`.
+Commit `40e0d7f67627`.
 
 ## The empirical null
 

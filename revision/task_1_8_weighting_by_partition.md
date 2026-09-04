@@ -4,7 +4,7 @@ Two matched runs on development fold 0: `r9_ctrl` (uniform weights) and `r9_opw`
 (the corpus `weight` column, i.e. OptiPrime's own per-row loss weights). Same seed, same
 fold, same recipe, same code state, so the only difference is the weighting.
 Protospacer-clustered bootstrap, 5000 resamples, seed 20260903.
-Commit `d47d183082cb`.
+Commit `40e0d7f67627`.
 
 Positive Δ means uniform weighting is better.
 

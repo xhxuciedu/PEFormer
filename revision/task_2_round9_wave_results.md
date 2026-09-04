@@ -1,7 +1,7 @@
 # Round-9 experimental waves
 
 Matched development folds, controls run in the same wave at the identical recipe and
-seed. Commit `12cf2858e7f8`.
+seed. Commit `40e0d7f67627`.
 
 ## C2 — censoring-aware ordinal loss: falsified, and the control beat it
 

@@ -3,7 +3,7 @@
 Ceiling estimated from **649 replicate groups**
 (1298 ordered pairs after symmetrisation). Interval from resampling
 the groups with replacement, 400 resamples, seed 20260903. Commit
-`d47d183082cb`.
+`b35febf9a24f`.
 
 | surface | Kim rows | model ρ | ceiling | 95% CI on ceiling | gap | 95% CI on gap |
 |---|---:|---:|---:|---|---:|---|
