@@ -1,5 +1,11 @@
 """Replicate-based noise ceiling for Kim, on every evaluation surface.
 
+SUPERSEDED by revision/task_1_6_ceiling_uncertainty.py, which computes the same point
+estimates and additionally puts a bootstrap interval on them. The manuscript quotes task
+1.6. This script is kept because it is what the round-9 audit ran, but two scripts
+computing one quantity is exactly the drift hazard that reproduce/verify_manuscript.py
+exists to catch -- do not quote this one in the paper.
+
 Round-9 correction. `noise_ceiling_empirical.py` reported a single number computed on
 **development fold 0 alone** (n=19,747), which the manuscript then labelled "all Kim
 rows" and compared against a Kim score that appears elsewhere as a held-out figure. Two

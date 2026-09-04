@@ -1,0 +1,16 @@
+{
+  "env": {
+    "python": "3.11.15",
+    "torch": "2.11.0+cu128",
+    "cuda_available": true,
+    "git_commit": "12cf2858e7f8"
+  },
+  "sha256": {
+    "data/processed/optiprime_official_318471.parquet": "fe62229d50a08fa3",
+    "data/processed/featurized_official.npz": "2e475a6a0cdc98c4",
+    "data/processed/round3_dev_assignments.parquet": "6f1cfe4cbf9ae612",
+    "results/round4/heldout/predictions_round4_final.parquet": "cdc7bf9407fd5fff",
+    "results/round5/heldout_calibrated.parquet": "9cbd7ce15f3e0c5c",
+    "results/heldout_full_head_to_head.parquet": "23d833dfcccb6f60"
+  }
+}

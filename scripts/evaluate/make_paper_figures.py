@@ -29,6 +29,8 @@ from matplotlib.patches import FancyArrowPatch, FancyBboxPatch
 from scipy.stats import rankdata, spearmanr
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
+for _noisy in ("fontTools", "fontTools.subset", "fontTools.ttLib", "matplotlib.font_manager"):
+    logging.getLogger(_noisy).setLevel(logging.WARNING)
 logger = logging.getLogger("figures")
 
 OUT = Path("results/paper/figures")
@@ -350,18 +352,28 @@ def fig3_factorial():
     ax.set_yticks([0, 1]); ax.set_yticklabels(["Transformer", "S4D"])
     ax.set_xlabel("outcome head"); ax.set_ylabel("sequence mixer")
     ax.set_title("Out-of-fold $\\rho$", fontsize=8.4)
-    cb = fig.colorbar(im, ax=ax, fraction=0.046, pad=0.04); cb.ax.tick_params(labelsize=6)
+    # No colourbar: every cell is annotated with its value, so the bar carried no
+    # information and its tick labels overlapped panel B's category labels.
 
     ax = fig.add_subplot(gs[1])
     panel_label(ax, "B", dx=-0.28)
-    labs = ["architecture\nS4D $-$ Transformer", "objective\nordinal $-$ simplex",
-            "interaction"]
+    labs = ["architecture", "objective", "interaction"]
+    sublabs = ["S4D $-$ Transformer", "ordinal $-$ simplex", ""]
     vals = [e["architecture"], e["objective"], e["interaction"]]
-    ax.barh(labs, vals, color=[C_EDIT, C_HEAD, C_GREY])
-    for i, v in enumerate(vals):
-        ax.text(v + (0.0008 if v > 0 else -0.0008), i, f"{v:+.4f}", va="center",
-                ha="left" if v > 0 else "right", fontsize=7.2)
+    yy = np.arange(len(labs))
+    ax.barh(yy, vals, color=[C_EDIT, C_HEAD, C_GREY])
+    for i, (v, lab, sub_) in enumerate(zip(vals, labs, sublabs)):
+        # Negative bars get their value label to the RIGHT of zero, where there is
+        # always clear space; putting it left of the bar end collided with the name.
+        ax.text(v + 0.0009 if v > 0 else 0.0009, i, f"{v:+.4f}", va="center",
+                ha="left", fontsize=7.2)
+        ax.text(-0.0095, i + 0.36, lab, va="center", ha="left", fontsize=6.8,
+                color="#2d3748", fontweight="semibold")
+        if sub_:
+            ax.text(-0.0095, i + 0.16, sub_, va="center", ha="left", fontsize=6.0,
+                    color="#718096")
     ax.axvline(0, c="k", lw=0.9)
+    ax.set_yticks(yy); ax.set_yticklabels([])
     ax.set_xlim(-0.010, 0.028); ax.set_xlabel("effect on Spearman $\\rho$")
     ax.set_title("Main effects and interaction", fontsize=8.4)
     ax.text(0.98, 0.06, "architecture contributes\n$\\approx2\\times$ the objective",
@@ -369,15 +381,24 @@ def fig3_factorial():
 
     ax = fig.add_subplot(gs[2])
     panel_label(ax, "C", dx=-0.26)
-    ordv = [0.686, 0.691, 0.708, 0.686]
-    simv = [0.764, 0.765, 0.777, 0.781]
+    # Read from the diversity artifacts rather than hard-coding. An earlier version
+    # carried four stale values per group that disagreed with the corrected text: the
+    # groups overlap at one point, which a hand-picked subset had hidden.
+    cand = []
+    for f_ in ("results/round4/diversity_dev0.json", "results/round4/diversity_wave2.json"):
+        cand += json.load(open(f_))["candidates"]
+    ordv = [c["S2r_residual_corr"] for c in cand if "ord" in c["candidate"]]
+    # models varying seed, capacity or data subsample rather than the objective
+    simv = [c["S2r_residual_corr"] for c in cand
+            if any(t in c["candidate"] for t in ("bag", "fAs2", "medium"))]
     ax.scatter(np.random.default_rng(0).normal(1, 0.045, len(ordv)), ordv,
                color=C_HEAD, s=26, label="ordinal head", zorder=3)
     ax.scatter(np.random.default_rng(1).normal(2, 0.045, len(simv)), simv,
-               color=C_GREY, s=26, label="simplex head", zorder=3)
+               color=C_GREY, s=26, label="seed / capacity / bagging", zorder=3)
     ax.plot([0.75, 1.25], [np.mean(ordv)] * 2, color=C_HEAD, lw=2)
     ax.plot([1.75, 2.25], [np.mean(simv)] * 2, color=C_GREY, lw=2)
-    ax.set_xticks([1, 2]); ax.set_xticklabels(["ordinal", "simplex"])
+    ax.set_xticks([1, 2])
+    ax.set_xticklabels(["ordinal\nhead", "seed /\ncapacity"], fontsize=7.0)
     ax.set_ylabel("residual correlation\nwith existing ensemble")
     ax.set_xlim(0.6, 2.4); ax.set_ylim(0.65, 0.81)
     ax.set_title("Ordinal models make\ndifferent errors", fontsize=8.4)
@@ -425,7 +446,7 @@ def fig4_ensemble():
     ax.barh([labs[i] for i in order], [solo[i] for i in order], color=C_OURS)
     ens = spearmanr(d.true_efficiency, d.predicted_efficiency).statistic
     ax.axvline(ens, color=C_HEAD, ls="--", lw=1.1)
-    ax.text(ens - 0.0008, -0.45, f"ensemble {ens:.4f}", color=C_HEAD,
+    ax.text(ens - 0.0008, -0.72, f"ensemble {ens:.4f}", color=C_HEAD,
             fontsize=6.2, ha="right")
     for i, idx in enumerate(order):
         ax.text(solo[idx] - 0.0012, i, f"{solo[idx]:.4f}", va="center", ha="right",
@@ -560,7 +581,9 @@ def fig6_ceiling():
         ax.text(c_ + 0.006, i, f"+{c_-m_:.3f}", va="center", fontsize=5.8, color="#4a5568")
     ax.set_yticks(yy); ax.set_yticklabels(labs, fontsize=6.2)
     ax.set_xlim(0.5, 1.06); ax.set_xlabel("Spearman $\\rho$")
-    ax.legend(frameon=False, fontsize=6.4, loc="lower right")
+    # Below the axes: every in-panel position collided with a bar or a gap label.
+    ax.legend(frameon=False, fontsize=6.2, loc="upper center",
+              bbox_to_anchor=(0.5, -0.22), ncol=2, columnspacing=1.0, handlelength=1.2)
     ax.set_title("Headroom in every Kim condition\n(ordered by zero-inflation)", fontsize=8.2)
 
     ax = fig.add_subplot(gs[1])
@@ -576,10 +599,12 @@ def fig6_ceiling():
 
     ax = fig.add_subplot(gs[2])
     panel_label(ax, "C", dx=-0.46)
-    cats = ["naive\nreplicate key", "correct key,\nzeros noiseless", "correct key,\nzeros censored"]
+    # Very short labels; the three estimators are named in full in the caption.
+    cats = ["naive\nkey", "exact\nzeros", "censored\nzeros"]
     vals = [0.7987, 0.9676, 0.9026]
     cols = ["#c53030", "#dd6b20", C_OURS]
     ax.bar(cats, vals, color=cols)
+    ax.tick_params(axis="x", labelsize=6.2)
     ax.axhline(0.7869, ls="--", c="k", lw=1)
     ax.text(2.45, 0.792, "model", fontsize=6.2, ha="right")
     for i, v in enumerate(vals):

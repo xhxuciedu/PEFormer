@@ -1,49 +1,53 @@
-\contentsline {section}{\numberline {1}Introduction}{3}{section.1}%
-\contentsline {paragraph}{Contributions.}{3}{section*.2}%
-\contentsline {paragraph}{Scope of the comparison.}{3}{section*.3}%
-\contentsline {section}{\numberline {2}Methods}{6}{section.2}%
-\contentsline {subsection}{\numberline {2.1}Data}{7}{subsection.2.1}%
-\contentsline {subsubsection}{\numberline {2.1.1}Sequence representation}{7}{subsubsection.2.1.1}%
-\contentsline {subsubsection}{\numberline {2.1.2}Splits and evaluation surfaces}{7}{subsubsection.2.1.2}%
-\contentsline {subsection}{\numberline {2.2}Resolution of the development evaluation}{8}{subsection.2.2}%
-\contentsline {subsection}{\numberline {2.3}Model architecture}{8}{subsection.2.3}%
-\contentsline {paragraph}{(1) Edit encoder.}{8}{section*.7}%
-\contentsline {paragraph}{(2) pegRNA encoder.}{8}{section*.8}%
-\contentsline {paragraph}{(3) Bidirectional cross-attention.}{8}{section*.9}%
-\contentsline {paragraph}{(4) Context conditioning.}{9}{section*.10}%
-\contentsline {paragraph}{(5) Output head.}{9}{section*.11}%
-\contentsline {subsubsection}{\numberline {2.3.1}Sequence mixing: attention versus state space}{9}{subsubsection.2.3.1}%
-\contentsline {subsubsection}{\numberline {2.3.2}Outcome heads}{9}{subsubsection.2.3.2}%
-\contentsline {paragraph}{Scalar head (baseline).}{9}{section*.12}%
-\contentsline {paragraph}{Simplex head.}{9}{section*.13}%
-\contentsline {paragraph}{Ordinal head (this work).}{9}{section*.14}%
-\contentsline {subsection}{\numberline {2.4}Training}{10}{subsection.2.4}%
-\contentsline {subsection}{\numberline {2.5}Evaluation and statistics}{11}{subsection.2.5}%
-\contentsline {subsection}{\numberline {2.6}Baselines}{11}{subsection.2.6}%
-\contentsline {subsection}{\numberline {2.7}Ensembling}{12}{subsection.2.7}%
-\contentsline {paragraph}{Composition of the frozen system.}{12}{section*.17}%
-\contentsline {paragraph}{Selection protocol, fixed in advance.}{12}{section*.18}%
-\contentsline {subsection}{\numberline {2.8}Calibration}{12}{subsection.2.8}%
-\contentsline {subsection}{\numberline {2.9}Replicate-based noise ceiling}{13}{subsection.2.9}%
-\contentsline {subsection}{\numberline {2.10}Implementation and reproducibility}{13}{subsection.2.10}%
-\contentsline {section}{\numberline {3}Results}{13}{section.3}%
-\contentsline {subsection}{\numberline {3.1}Held-out performance against OptiPrime}{13}{subsection.3.1}%
-\contentsline {subsection}{\numberline {3.2}A feature-based baseline places both models}{16}{subsection.3.2}%
-\contentsline {subsection}{\numberline {3.3}The margin is not an artifact of pooling}{16}{subsection.3.3}%
-\contentsline {subsection}{\numberline {3.4}A training-weight asymmetry accounts for much of the partition margin}{17}{subsection.3.4}%
-\contentsline {subsection}{\numberline {3.5}Which components are responsible}{18}{subsection.3.5}%
-\contentsline {subsection}{\numberline {3.6}The ordinal head produces decorrelated errors}{20}{subsection.3.6}%
-\contentsline {subsection}{\numberline {3.7}Decorrelation is necessary but not sufficient}{20}{subsection.3.7}%
-\contentsline {subsection}{\numberline {3.8}Ensemble versus single model}{21}{subsection.3.8}%
-\contentsline {subsection}{\numberline {3.9}Calibration restores absolute efficiency, and it beats the baseline there too}{21}{subsection.3.9}%
-\contentsline {subsection}{\numberline {3.10}The benchmark is not saturated}{23}{subsection.3.10}%
-\contentsline {subsection}{\numberline {3.11}A tie-structure caveat for Spearman on zero-inflated data}{24}{subsection.3.11}%
-\contentsline {subsection}{\numberline {3.12}Interventions that did not help}{25}{subsection.3.12}%
-\contentsline {section}{\numberline {4}Discussion}{26}{section.4}%
-\contentsline {subsection}{\numberline {4.1}Can architecture substitute for mechanism?}{26}{subsection.4.1}%
-\contentsline {subsection}{\numberline {4.2}Metric-matched supervision}{26}{subsection.4.2}%
-\contentsline {subsection}{\numberline {4.3}State-space mixing for biological sequences}{27}{subsection.4.3}%
-\contentsline {subsection}{\numberline {4.4}What the remaining error is, and is not}{27}{subsection.4.4}%
-\contentsline {subsection}{\numberline {4.5}Limitations}{27}{subsection.4.5}%
-\contentsline {subsection}{\numberline {4.6}Methodological recommendations}{28}{subsection.4.6}%
-\contentsline {section}{\numberline {5}Conclusions}{28}{section.5}%
+\contentsline {section}{\numberline {1}Introduction}{4}{section.1}%
+\contentsline {paragraph}{Contributions.}{4}{section*.2}%
+\contentsline {paragraph}{Scope of the comparison.}{4}{section*.3}%
+\contentsline {section}{\numberline {2}Methods}{7}{section.2}%
+\contentsline {subsection}{\numberline {2.1}Data}{8}{subsection.2.1}%
+\contentsline {subsubsection}{\numberline {2.1.1}Sequence representation}{8}{subsubsection.2.1.1}%
+\contentsline {subsubsection}{\numberline {2.1.2}Splits and evaluation surfaces}{8}{subsubsection.2.1.2}%
+\contentsline {subsection}{\numberline {2.2}Resolution of the development evaluation}{9}{subsection.2.2}%
+\contentsline {subsection}{\numberline {2.3}Model architecture}{9}{subsection.2.3}%
+\contentsline {paragraph}{(1) Edit encoder.}{9}{section*.7}%
+\contentsline {paragraph}{(2) pegRNA encoder.}{9}{section*.8}%
+\contentsline {paragraph}{(3) Bidirectional cross-attention.}{9}{section*.9}%
+\contentsline {paragraph}{(4) Context conditioning.}{10}{section*.10}%
+\contentsline {paragraph}{(5) Output head.}{10}{section*.11}%
+\contentsline {subsubsection}{\numberline {2.3.1}Sequence mixing: attention versus state space}{10}{subsubsection.2.3.1}%
+\contentsline {subsubsection}{\numberline {2.3.2}Outcome heads}{10}{subsubsection.2.3.2}%
+\contentsline {paragraph}{Scalar head (baseline).}{10}{section*.12}%
+\contentsline {paragraph}{Simplex head.}{10}{section*.13}%
+\contentsline {paragraph}{Ordinal head (this work).}{10}{section*.14}%
+\contentsline {subsection}{\numberline {2.4}Training}{11}{subsection.2.4}%
+\contentsline {subsection}{\numberline {2.5}Evaluation and statistics}{12}{subsection.2.5}%
+\contentsline {subsection}{\numberline {2.6}Baselines}{12}{subsection.2.6}%
+\contentsline {subsection}{\numberline {2.7}Ensembling}{13}{subsection.2.7}%
+\contentsline {paragraph}{Composition of the frozen system.}{13}{section*.17}%
+\contentsline {paragraph}{Selection protocol, fixed in advance.}{13}{section*.18}%
+\contentsline {subsection}{\numberline {2.8}Calibration}{13}{subsection.2.8}%
+\contentsline {subsection}{\numberline {2.9}Replicate-based noise ceiling}{14}{subsection.2.9}%
+\contentsline {subsection}{\numberline {2.10}Implementation and reproducibility}{14}{subsection.2.10}%
+\contentsline {section}{\numberline {3}Results}{14}{section.3}%
+\contentsline {subsection}{\numberline {3.1}Held-out performance against OptiPrime}{14}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.2}What the model is worth at the bench}{17}{subsection.3.2}%
+\contentsline {subsection}{\numberline {3.3}Tie-robust and decomposed metrics}{18}{subsection.3.3}%
+\contentsline {subsection}{\numberline {3.4}Design-and-condition twins do not carry the result}{19}{subsection.3.4}%
+\contentsline {subsection}{\numberline {3.5}A feature-based baseline places both models}{19}{subsection.3.5}%
+\contentsline {subsection}{\numberline {3.6}What the pooled metric measures, and what it hides}{20}{subsection.3.6}%
+\contentsline {subsection}{\numberline {3.7}A training-weight asymmetry accounts for much of the partition margin}{21}{subsection.3.7}%
+\contentsline {paragraph}{A weighting-matched comparison.}{22}{section*.34}%
+\contentsline {subsection}{\numberline {3.8}Which components are responsible}{23}{subsection.3.8}%
+\contentsline {subsection}{\numberline {3.9}The ordinal head produces decorrelated errors}{25}{subsection.3.9}%
+\contentsline {subsection}{\numberline {3.10}Decorrelation is necessary but not sufficient}{25}{subsection.3.10}%
+\contentsline {subsection}{\numberline {3.11}Ensemble versus single model}{26}{subsection.3.11}%
+\contentsline {subsection}{\numberline {3.12}Calibration restores absolute efficiency, and it beats the baseline there too}{26}{subsection.3.12}%
+\contentsline {subsection}{\numberline {3.13}The benchmark is not saturated}{29}{subsection.3.13}%
+\contentsline {subsection}{\numberline {3.14}A tie-structure caveat for Spearman on zero-inflated data}{30}{subsection.3.14}%
+\contentsline {subsection}{\numberline {3.15}Interventions that did not help}{31}{subsection.3.15}%
+\contentsline {section}{\numberline {4}Discussion}{33}{section.4}%
+\contentsline {subsection}{\numberline {4.1}Can architecture substitute for mechanism?}{33}{subsection.4.1}%
+\contentsline {subsection}{\numberline {4.2}Metric-matched supervision}{33}{subsection.4.2}%
+\contentsline {subsection}{\numberline {4.3}State-space mixing for biological sequences}{34}{subsection.4.3}%
+\contentsline {subsection}{\numberline {4.4}What the remaining error is, and is not}{34}{subsection.4.4}%
+\contentsline {subsection}{\numberline {4.5}Limitations}{34}{subsection.4.5}%
+\contentsline {subsection}{\numberline {4.6}Methodological recommendations}{35}{subsection.4.6}%
+\contentsline {section}{\numberline {5}Conclusions}{36}{section.5}%

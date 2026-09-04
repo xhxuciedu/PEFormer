@@ -47,10 +47,17 @@ context. Trained on the identical 297{,}962-row corpus, cross-validation splits 
 held-out set used by OptiPrime, PE-RankFormer attains Spearman
 $\rho = 0.9079$ on the complete 20{,}509-row held-out benchmark against OptiPrime's
 $0.8690$: a difference of $+0.0389$ (95\% CI $[+0.0286,+0.0498]$; ahead in all 5{,}000
-protospacer-clustered bootstrap resamples, $p < 0.0002$). Recomputed \emph{within}
-each of 14 experimental conditions, where between-study differences in efficiency level
-cannot contribute, the margin is larger rather than smaller ($+0.0506$, 95\% CI
-$[+0.0345,+0.0670]$, ahead in 14/14 conditions). It is $+0.0804$ on the more
+protospacer-clustered bootstrap resamples, $p < 0.0002$).
+
+That pooled figure conflates which locus is easy to edit with which pegRNA is best at a
+locus, and only the second is the design problem. Evaluated \emph{within} a protospacer
+--- the deployment-relevant task --- absolute performance is far lower for both models
+($\rho = 0.6356$ against $0.5472$) while the margin more than doubles to $+0.0884$
+(95\% CI $[+0.0761,+0.1007]$, ahead on $78.4\%$ of 670 targets). We report both, because
+the first tempers the headline and the second strengthens the comparison. On the
+retrieval metric a user cares about, the model identifies a target's best design in
+$36.7\%$ of cases against the baseline's $22.4\%$; the efficiency actually obtained from
+its top pick, however, improves by only $+0.015$. It is $+0.0804$ on the more
 experimentally diverse Kim partition and $+0.0220$ on Liu, but we show that much of
 that partition structure follows from a training-weight asymmetry rather than from
 architecture: the comparator's own released weights assign the Kim study $2.0\%$ of its
@@ -74,8 +81,7 @@ not confined to the rank metric.
 
 Finally, using 649 technical replicate groups we estimate an empirical
 repeatability ceiling for the Kim partition, implying roughly $+0.10$ of genuine
-remaining headroom on both the development folds ($+0.1149$, mean of three) and the
-held-out set ($+0.1043$), and we report a benchmark caveat: predictors that emit
+remaining headroom (held-out gap $+0.1040$, 95\% CI $[+0.0529,+0.1204]$), and we report a benchmark caveat: predictors that emit
 tied scores in the zero-inflated regime gain $+0.013$--$0.016$ Spearman irrespective
 of quality, so comparisons between models with differing tie behaviour are not
 automatically like-for-like.
@@ -448,21 +454,25 @@ selection on the same runs costs a mean of $0.0001$ and at most $0.0031$.
 to remain strictly increasing. $K{=}20$ yields 17 distinct values in all twenty
 official-fold checkpoints, because the target has a large point mass at zero; the
 matched development folds retain 18. Counts were read back from the checkpoints rather
-than assumed (\texttt{revision/audit\_00\_consistency.py}).
+than assumed (\path{revision/audit_00_consistency.py}).
 \end{tablenotes}
 \end{threeparttable}
 \end{table}
 
 \subsection{Evaluation and statistics}
 
-The primary metric is Spearman $\rho$ between predicted and observed efficiency,
+The primary metric is Spearman's rank correlation $\rho$ \citep{spearman1904} between
+predicted and observed efficiency,
 reported for the full held-out set and separately for the Liu and Kim partitions, since
 they differ substantially in composition.
 
-All model comparisons use a \textbf{paired protospacer-clustered bootstrap} with 5{,}000
-resamples. Protospacers, not rows, are resampled: many designs share a protospacer, so
-a row-level bootstrap would treat correlated observations as independent and materially
-understate the intervals. Both models are evaluated on identical rows in each resample.
+All model comparisons use a \textbf{paired protospacer-clustered bootstrap}
+\citep{efron1993,cameron2008} with 5{,}000 resamples. Protospacers, not rows, are
+resampled: many designs share a protospacer, so a row-level bootstrap would treat
+correlated observations as independent and materially understate the intervals. That is
+not hypothetical here: clustering instead on a finer target-site key narrows the
+interval on the within-condition margin from $[+0.0345,+0.0670]$ to
+$[+0.0451,+0.0564]$, a spurious halving. Both models are evaluated on identical rows in each resample.
 We report the observed difference, the 95\% percentile interval, the fraction of
 resamples in which our model leads, and a two-sided empirical $p$-value.
 
@@ -563,7 +573,8 @@ observation.
 Identifying genuine replicates requires care. Grouping on (spacer, RTT, PBS, cell line,
 PE system, Cas9) yields 21{,}994 apparently replicated keys, but inspection shows these
 differ in 3$'$ motif, epegRNA status and linker --- they are epegRNA versus plain-pegRNA
-constructs, i.e.\ \emph{different molecules}. Treating them as replicates gives
+constructs, i.e.\ \emph{different molecules}, and the structured 3$'$ extension is known
+to change efficiency substantially \citep{nelson2022}. Treating them as replicates gives
 $R=0.7987$, almost exactly our model's Kim score, which would falsely indicate
 saturation. We therefore require all sixteen design and condition covariates
 \emph{and} the target site to match, leaving 649 clean groups.
@@ -705,6 +716,64 @@ We note explicitly that the absolute figure's own 95\% interval is $[0.8955,0.91
 with 90.0\% of resamples exceeding $0.90$. The \emph{margin} over OptiPrime is a
 considerably stronger claim than the absolute level.
 
+\subsection{What the model is worth at the bench}
+\label{sec:utility}
+
+Rank correlation measures how well a whole list is ordered. A user asks something
+narrower: if I synthesise the design this model puts first, do I get an edit? We
+therefore report per-target retrieval and regret metrics
+(Table~\ref{tab:utility}), computed within a protospacer group and averaged over groups,
+against OptiPrime and against selecting a design at random.
+
+The ranking metrics and the outcome metrics disagree, and the disagreement is the
+result. PE-RankFormer identifies the single best design at a target far more often than
+the comparator --- precision@1 of $0.367$ against $0.224$, a $64\%$ relative gain --- and
+its regret, the efficiency forgone by taking its first pick instead of the target's best
+design, falls from $0.049$ to $0.033$. But the efficiency actually obtained from the top
+pick rises only $+0.015$, and the probability that the top pick works at all
+($\geq5\%$ efficiency) rises $+0.011$ with an interval spanning zero. Both models'
+first picks are usually already viable, so the gain is concentrated in finding the
+\emph{best} design rather than in avoiding a failed one. A reader deciding whether to
+adopt the model should weigh $+0.143$ precision@1 against $+0.011$ on "does the first
+pick work", and we give both rather than the flattering one.
+
+\input{tables/tab_utility}
+
+\subsection{Tie-robust and decomposed metrics}
+\label{sec:tierobust}
+
+Section~\ref{sec:ties} shows that Spearman's tie convention rewards a predictor that
+emits ties on this zero-inflated target, by $+0.013$ to $+0.016$ irrespective of quality.
+That makes the tie structure of the two prediction vectors a precondition for the
+comparison rather than a footnote to it, and it is satisfied: both are effectively
+tie-free, with 20{,}509 and 20{,}504 distinct values over 20{,}509 rows.
+Kendall $\tau_b$ \citep{kendall1945}, which corrects for ties in both variables, agrees
+with Spearman in direction and gives a larger margin ($+0.0547$ against $+0.0389$).
+
+Decomposing the target separates two abilities the pooled metric conflates
+(Table~\ref{tab:tierobust}). On \emph{detection} --- telling an edit from no edit at all
+--- AUROC improves by $+0.0292$. On \emph{quantification} --- ordering only the rows that
+do edit --- Spearman improves by $+0.0469$. The advantage is therefore not an artifact of
+the zero block: it is present in both components, and larger in the harder one. Liu is
+again the weakest partition on every metric, with an AUROC interval spanning zero.
+
+\input{tables/tab_tierobust}
+
+\subsection{Design-and-condition twins do not carry the result}
+\label{sec:leakage}
+
+Because the official split partitions protospacers rather than experiments, a held-out
+row can in principle have an exact twin in training --- a row matching it on all sixteen
+design and condition covariates \emph{and} the target site. We identified every such row
+and recomputed the comparison without them (Table~\ref{tab:leakage}).
+
+There are 196, or $1.0\%$ of the held-out set. Removing them moves the headline from
+$0.9079$ to $0.9075$ and the margin from $+0.0389$ to $+0.0385$. The exposure is
+therefore real and negligible, and we report it as a measurement rather than, as an
+earlier draft did, as an unquantified caveat.
+
+\input{tables/tab_leakage}
+
 \subsection{A feature-based baseline places both models}
 \label{sec:gbm}
 
@@ -733,56 +802,36 @@ real work relative to hand-engineered summaries --- which is the more informativ
 read our margin over it. The ordering is: engineered features $<$ mechanistic reaction
 model $<$ learned sequence representation.
 
-\subsection{The margin is not an artifact of pooling}
+\subsection{What the pooled metric measures, and what it hides}
 \label{sec:stratified}
 
 Pooled Spearman on the held-out set ($0.9079$) exceeds both partition scores (Liu
-$0.8585$, Kim $0.8124$). That is possible because the two studies differ in efficiency
-level, so between-study variance contributes signal that no within-condition design
-task would supply, and it means the pooled figure overstates how well either model
-orders designs \emph{within} an experiment. The model is also given source study as one
-of its seven context fields, which a reader may reasonably regard as a dataset
-identifier rather than a biological covariate.
+$0.8585$, Kim $0.8124$). That is arithmetically possible because the two studies differ
+in efficiency level, so between-study variance contributes signal, and it is a warning:
+the pooled figure conflates two questions. \emph{Which locus is easy to edit} and
+\emph{which pegRNA is best at this locus} are different problems, and only the second is
+what a predictor is deployed to answer. The model is also given source study as one of
+its seven context fields, which a reader may reasonably regard as a dataset identifier
+rather than a biological covariate.
 
-Both observations bear on the absolute level. Neither weakens the margin, and the
-stratified analysis shows why (Table~\ref{tab:stratified}): recomputing the comparison
-\emph{inside} each experimental condition, where no between-condition offset can
-contribute, gives $+0.0506$ rather than $+0.0389$. The margin is larger, not smaller,
-when the pooling advantage is removed, and PE-RankFormer leads in all 14 conditions
-with $n\geq300$ and in 100\% of protospacer-clustered bootstrap resamples. Pooling
-inflates the absolute level for both models while making the reported difference
-\emph{conservative}.
+We therefore report the comparison at three levels of stratification
+(Table~\ref{tab:stratified}), and the two findings point in opposite directions.
 
-\begin{table}[H]
-\centering
-\begin{threeparttable}
-\caption{The advantage over the baseline under three levels of stratification.}
-\label{tab:stratified}
-\begin{tabular}{l S[table-format=2.0] S[table-format=1.4] S[table-format=1.4] S[table-format=+1.4] c}
-\toprule
-Comparison & {Strata} & {OptiPrime} & {PE-RankFormer} & {$\Delta\rhoS$} & {95\% CI} \\
-\midrule
-Pooled (as reported in Table~\ref{tab:main}) & {1} & 0.8690 & 0.9079 & +0.0389 & $[+0.0286,+0.0498]$ \\
-Within source study, $n$-weighted            & {2} & 0.7788 & 0.8331 & +0.0543 & {---} \\
-\textbf{Within condition}, $n$-weighted      & {14} & 0.7605 & 0.8111 & \bfseries +0.0506 & $[+0.0345,+0.0670]$ \\
-\bottomrule
-\end{tabular}
-\begin{tablenotes}[flushleft]\footnotesize
-\item A condition is a (source study, cell line, PE system) cell. Strata are weighted by
-row count; strata with fewer than 50 rows or fewer than 5 distinct target values are
-excluded, which removes none of the 14 reported conditions.
-\item The interval on the stratified difference is a paired bootstrap over 5{,}000
-resamples of the same 750 protospacer clusters used in Table~\ref{tab:boot};
-PE-RankFormer leads in 100\% of resamples. Per-condition margins range from $+0.0084$
-(Liu, HEK293T, PE2) to $+0.1295$ (Kim, MDA-MB-231, PE2) and are shown in
-Figure~\ref{fig:bench}C.
-\item The absolute levels fall under stratification for both models because
-between-condition differences in efficiency level no longer contribute to the
-correlation. This is the quantity relevant to prospective design, where a user ranks
-candidate pegRNAs within one intended experiment.
-\end{tablenotes}
-\end{threeparttable}
-\end{table}
+\textbf{The absolute level falls a long way.} Within a protospacer group --- the actual
+design problem --- our model reaches $\rhoS = 0.6356$, not $0.9079$. Choosing among
+pegRNAs at a fixed locus is a substantially harder task than the headline number
+suggests, and we regard $0.64$, not $0.91$, as the honest statement of what the model
+does for a user with one target in hand. The pooled figure should not be read as a
+design-ranking capability.
+
+\textbf{The margin more than doubles.} Against the same rows, the advantage over
+OptiPrime grows from $+0.0389$ pooled to $+0.0506$ within condition to $+0.0884$ within
+target, ahead on $78.4\%$ of the 670 scorable targets. Removing the locus effect removes
+signal that \emph{both} models exploit equally, and what remains is the part attributable
+to modelling. Pooling therefore inflates the absolute level while making the reported
+\emph{difference} conservative.
+
+\input{tables/tab_stratified}
 
 \subsection{A training-weight asymmetry accounts for much of the partition margin}
 \label{sec:domain-weight}
@@ -845,7 +894,59 @@ authors could confirm or correct.
 \end{threeparttable}
 \end{table}
 
-WEIGHTEXPT
+\paragraph{A weighting-matched comparison.} We trained PE-RankFormer under the
+comparator's own per-row weights, against matched controls on all three development
+folds --- same seed, same fold, same recipe, same code state, so the weighting is the
+only difference. Uniform weighting wins on every fold: $+0.0148$, $+0.0108$, $+0.0151$,
+mean $\mathbf{+0.0136}$, same sign on 3/3, which clears the promotion bar this paper
+applies to its own candidate mechanisms (\S\ref{sec:resolution}).
+
+The loss is where the mechanism predicts it, and only there
+(Table~\ref{tab:weightexpt}). On the Kim partition, adopting the comparator's weights
+costs $+0.0247$ (95\% CI $[+0.0144,+0.0355]$); on Liu it costs $+0.0063$ with an interval
+spanning zero ($[-0.0052,+0.0179]$), which is expected because Liu's effective share
+\emph{rises} slightly under those weights. Two consequences follow, and we state both.
+
+Roughly a third of the $+0.0803$ Kim margin is attributable to the weighting choice
+rather than to architecture or objective. And the $+0.0220$ Liu margin is
+weighting-independent --- making it simultaneously the most conservative statement of
+our result, the one measured on the surface the comparator itself reports, and the one
+that most cleanly isolates the modelling contribution.
+
+\begin{table}[H]
+\centering
+\begin{threeparttable}
+\caption{Effect of training under the comparator's own per-row weights.}
+\label{tab:weightexpt}
+\begin{tabular}{l S[table-format=1.4] S[table-format=1.4] S[table-format=+1.4] c}
+\toprule
+& {OptiPrime weights} & {Uniform} & {$\Delta\rhoS$} & {95\% CI} \\
+\midrule
+\multicolumn{5}{l}{\emph{Development folds, matched controls}} \\
+\quad fold 0 & 0.8830 & 0.8978 & +0.0148 & {---} \\
+\quad fold 1 & 0.8905 & 0.9013 & +0.0108 & {---} \\
+\quad fold 2 & 0.8814 & 0.8965 & +0.0151 & {---} \\
+\quad \textbf{mean of three folds} & \bfseries 0.8850 & \bfseries 0.8985 & {$\mathbf{+0.0136}$} & {---} \\
+\midrule
+\multicolumn{5}{l}{\emph{Fold 0, split by source study}} \\
+\quad Kim partition & 0.7389 & 0.7636 & +0.0247 & $[+0.0144,+0.0355]$ \\
+\quad Liu partition & 0.8492 & 0.8556 & +0.0063 & $[-0.0052,+0.0179]$ \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}[flushleft]\footnotesize
+\item Positive $\Delta\rhoS$ means uniform weighting is better. Each pair shares seed,
+fold, recipe and code state, so the weighting is the only difference.
+\item Intervals are protospacer-clustered bootstraps over 5{,}000 resamples. Per-fold
+rows are single matched differences and carry no interval; their evidence is the
+same-sign replication across three folds.
+\item The Liu interval spanning zero is the prediction, not a failure to detect: Liu's
+effective share of the training gradient \emph{rises} from $22.0\%$ to $24.8\%$ under
+the comparator's weights, so no loss is expected there.
+\item Reproduce with \path{revision/task_2_round9_wave_results.py} and
+\path{revision/task_1_8_weighting_by_partition.py}.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
 
 The finding does not withdraw the comparison, and we retain the uniformly-weighted model
 as the primary result: training on all available rows at equal weight is the default a
@@ -1103,6 +1204,22 @@ Pearson $r$ is shown because the calibration is what makes the relationship line
 \end{threeparttable}
 \end{table}
 
+An absolute error of $0.0478$ is only interpretable against a floor, because the target
+is small-valued: a constant predictor is already close in absolute terms. The best
+trivial predictor --- a constant at the training median --- reaches MAE $0.1227$, so the
+calibrated model represents a $61\%$ reduction against that floor and the figure reflects
+skill rather than the scale of the target (Table~\ref{tab:calibfloor}).
+
+The same table records a limitation of the calibration that matters for design. The
+isotonic map \emph{over-predicts its own tail}: in the model's top-scoring $1\%$ it
+predicts $0.799$ against $0.733$ observed. Isotonic regression has the least data there
+and is monotone-constrained, so the final bin absorbs the whole upper range. Ranking is
+unaffected, but a user reading an absolute prediction in the tail --- which is exactly
+where a design decision is most likely to rest on the number rather than the rank ---
+should treat it as optimistic \citep{guo2017}.
+
+\input{tables/tab_calibfloor}
+
 \begin{figure}[H]
 \centering
 \includegraphics[width=\textwidth]{../../results/paper/figures/fig5_calibration.pdf}
@@ -1127,55 +1244,23 @@ piecewise constant and therefore creates ties; no pair is inverted.
 Using 649 technical replicate groups (\S\ref{sec:ceiling}) we estimate an empirical
 repeatability ceiling for the Kim partition and compare it against the model on every
 surface we score on (Table~\ref{tab:ceiling}). Averaged over the three matched
-development folds the ceiling is $0.9061$ against a model score of $0.7912$, a gap of
-$+0.1149$; on the held-out set it is $0.9167$ against $0.8124$, a gap of $+0.1043$.
+development folds the gap is $+0.1146$ (mean of three); on the held-out set the ceiling is $0.9164$ against a model score of $0.8124$, a gap of $+0.1040$.
 Restricting to rows that actually edit leaves $+0.1046$ and $+0.0934$ respectively, so
-the gap is not merely the zero block. The conclusion is the same on all five surfaces
-and does not depend on which one is chosen: roughly a tenth of a Spearman unit of
-reducible error remains on the benchmark's largest partition.
+the gap is not merely the zero block. The conclusion is the same on every surface and
+does not depend on which is chosen: roughly a tenth of a Spearman unit of reducible error
+remains on the benchmark's largest partition.
 
-\begin{table}[H]
-\centering
-\begin{threeparttable}
-\caption{Remaining headroom on the Kim partition against the replicate-based ceiling,
-reported on every evaluation surface.}
-\label{tab:ceiling}
-\begin{tabular}{l S[table-format=5.0] S[table-format=1.4] S[table-format=1.4] S[table-format=+1.4]}
-\toprule
-Surface & {Rows} & {Model $\rhoS$} & {Ceiling $\rhoS$} & {Gap} \\
-\midrule
-\multicolumn{5}{l}{\emph{Matched development folds, out-of-fold}} \\
-\quad fold 0                       & 19747 & 0.7869 & 0.9026 & +0.1157 \\
-\quad fold 1                       & 19740 & 0.7883 & 0.9080 & +0.1198 \\
-\quad fold 2                       & 19742 & 0.7985 & 0.9076 & +0.1092 \\
-\quad \textbf{mean of three folds} & {} & \bfseries 0.7912 & \bfseries 0.9061 & {$\mathbf{+0.1149}$} \\
-\quad mean, rows with $y>0$        & {} & 0.8472 & 0.9518 & +0.1046 \\
-\midrule
-\multicolumn{5}{l}{\emph{Official held-out set}} \\
-\quad \textbf{frozen ensemble}     & 11334 & \bfseries 0.8124 & \bfseries 0.9167 & {$\mathbf{+0.1043}$} \\
-\quad best single member           & 11334 & 0.8151 & 0.9165 & +0.1014 \\
-\quad frozen ensemble, $y>0$       &  5928 & 0.8618 & 0.9552 & +0.0934 \\
-\bottomrule
-\end{tabular}
-\begin{tablenotes}[flushleft]\footnotesize
-\item Ceiling is $\sqrt{R}$, where $R$ is the replicate--replicate reliability
-estimated from 649 groups in which all sixteen design and condition covariates and the
-target site are identical (\S\ref{sec:ceiling}). The ceiling depends only on the target
-distribution of the row set and not on any model, which is why it differs between
-surfaces.
-\item Replicates are resampled non-parametrically from 1{,}298 ordered replicate pairs,
-which inherits zero-discordance, heteroscedasticity and boundedness from the data
-rather than assuming a noise model.
-\item Development-fold model scores are out-of-fold; held-out scores are the same
-prediction vectors reported in Table~\ref{tab:main}. An earlier version of this
-analysis reported the fold-0 row alone and labelled it ``all Kim rows''; we give all
-three folds and both surfaces because no other claim in this paper rests on a single
-fold (\S\ref{sec:resolution}).
-\item Rows with $y>0$ show the gap is not an artifact of the zero block. The zero rows
-alone carry no ordering to score, the target being constant on them.
-\end{tablenotes}
-\end{threeparttable}
-\end{table}
+The ceiling itself carries real uncertainty, which an earlier version of this analysis
+did not report. Resampling the 649 replicate groups gives a 95\% interval on the
+held-out gap of $[+0.0529,+0.1204]$ (Table~\ref{tab:ceiling}). The lower bound stays
+clear of zero on all four surfaces, so the qualitative claim --- the benchmark is not
+saturated --- survives; what the interval removes is the precision with which the
+headroom can be quoted. ``Roughly $+0.10$'' is supportable and a third decimal place is
+not. Noise in the estimator itself, holding the group set fixed, is an order of magnitude
+smaller than the group-resampling interval, so the binding constraint is that the corpus
+contains only 649 clean replicate groups.
+
+\input{tables/tab_ceiling_uncertainty}
 
 Per-condition analysis (Figure~\ref{fig:ceiling}), shown for development fold 0 so that
 each condition retains enough rows to estimate its own ceiling, finds the gap present in
@@ -1193,11 +1278,14 @@ surfaces in Table~\ref{tab:ceiling}; this panel is per-condition and so is shown
 single fold, where each condition retains enough rows to estimate a ceiling.
 \textbf{(B)} The gap to ceiling increases with the fraction of rows measured as exactly
 zero, the regime in which a single measurement is least informative.
-\textbf{(C)} Both corrections described in \S\ref{sec:ceiling} are load-bearing. A
-naive replicate key merges epegRNA with plain-pegRNA constructs and returns a ceiling
-essentially equal to the model's own score (dashed line), which would wrongly indicate
-saturation; treating observed zeros as noiseless instead over-estimates it. Only the
-corrected, censoring-aware estimate is trustworthy.}
+\textbf{(C)} Both corrections described in \S\ref{sec:ceiling} are load-bearing, for
+three estimators of the same ceiling. \emph{naive key}: grouping on six covariates,
+which merges epegRNA with plain-pegRNA constructs and returns a ceiling essentially
+equal to the model's own score (dashed line), wrongly indicating saturation.
+\emph{exact zeros}: the full seventeen-covariate key but treating an observed zero as
+noiseless, which over-estimates the ceiling. \emph{censored zeros}: the full key with
+zeros treated as censored, which is the estimate we use. Panel~C is shown for
+development fold 0, as is panel~A.}
 \label{fig:ceiling}
 \end{figure}
 
@@ -1237,6 +1325,7 @@ $\approx0.005$ were required to replicate across three development folds.
 \begin{threeparttable}
 \caption{Interventions tested under matched controls and not adopted.}
 \label{tab:neg}
+\footnotesize
 \begin{tabular}{l l S[table-format=+1.4] l}
 \toprule
 Category & Intervention & {$\Delta\rhoS$} & Reason not adopted \\
@@ -1252,13 +1341,16 @@ Category & Intervention & {$\Delta\rhoS$} & Reason not adopted \\
  & context-relative ordinal (primary)  & -0.0235 & harmful \\
  & quantile regression head            & -0.0140 & harmful \\
 \midrule
-\multirow{3}{*}{Parameterisation}
+\multirow{4}{*}{Parameterisation}
  & rank-consistent CORAL head          & +0.0005 & null \\
  & monotonicity penalty                & +0.0007 & null \\
  & hurdle (zero-inflation) head        & -0.0022 & harmful \\
+ & censoring-aware ordinal loss        & -0.0079 & control beat it \\
 \midrule
-\multirow{5}{*}{Architecture}
+\multirow{7}{*}{Architecture}
  & selective (Mamba-style) SSM         & +0.0031 & below threshold \\
+ & context-conditioned low-rank map    & +0.0000 & null vs.\ own control \\
+ & cross-attention blocks 2$\to$4      & -0.0012 & harmful, $+29\%$ params \\
  & hybrid S4D$+$attention, 1:1 ratio   & -0.0027 & harmful \\
  & S4D state dimension 128             & -0.0022 & harmful \\
  & wider FFN / deeper stack / MoE      & {n.r.}  & did not replicate \\
@@ -1277,6 +1369,21 @@ per-source head it ties the heads; for supervision changes it is an unmodified r
 \item ``n.r.'' denotes a candidate that reached $+0.003$ to $+0.004$ on one development
 fold but changed sign on another. Effects below $\approx0.005$ were required to
 replicate across three folds before promotion, and none did.
+\item \textbf{These entries are bounds, not zeroes.} At the resolution established in
+\S\ref{sec:resolution} a single-fold null excludes effects larger than
+$\approx\pm0.008$ and a three-fold null excludes $\approx\pm0.005$ at $80\%$ power, so
+the defensible statement is that no intervention produced a replicated gain above
+$\approx0.005$ --- not that these mechanisms have no effect. Under Holm correction
+\citep{holm1979} across the twenty entries only the three with $|\Delta\rhoS|>0.01$
+survive, all of which the table already marks as harmful rather than null.
+\item Two round-9 entries are informative about method rather than architecture. The
+context-conditioned low-rank map is the instrument \S\ref{sec:domain} argues FiLM lacks
+--- a non-diagonal, context-dependent transform --- and it scored identically to a
+capacity-matched control that cannot see context ($0.8969$ both), which closes the
+context-conditioning family by direct test rather than by inference. The
+censoring-aware loss drops the ordinal threshold terms a measured zero cannot inform;
+it was beaten by a shuffle control dropping the same \emph{number} of terms at random
+($-0.0091$), so the zero boundary carries ranking signal that the correction discards.
 \item Two entries are informative beyond their sign and are discussed in
 \S\ref{sec:domain}: removing the unevaluated source study is strongly harmful, and
 additional context conditioning increases rather than decreases context invariance.
@@ -1374,8 +1481,11 @@ domain where interactions are governed by relative position along the molecule
 lookup among distant tokens.
 
 This suggests state-space mixers deserve broader evaluation on short biological
-sequences, where they are currently uncommon, and where their inductive bias may be a
-better match than attention's. We note one negative constraint from our results: naive
+sequences. Long-convolution and state-space architectures have been applied to genomic
+sequence chiefly to reach very long context --- HyenaDNA extends to $10^6$ nucleotides
+\citep{nguyen2023} --- which is the opposite regime from ours. Our sequences are 100 and
+90 tokens, so the benefit we observe cannot be about context length and must be about
+the inductive bias itself, which is the more transferable claim of the two. We note one negative constraint from our results: naive
 hybridisation at a 1:1 ratio of attention to state-space blocks was harmful, consistent
 with reports that successful hybrid language models use attention sparingly
 \citep{lieber2024jamba}. Sparse hybridisation at published ratios remains untested here.
@@ -1409,10 +1519,10 @@ context annotation rather than further architectural search.
 robust claim.
 \item The ensemble does not outperform its best single member on held-out data; the
 development-fold advantage did not transfer.
-\item 196 of 649 replicate groups straddle the official train/held-out split, so some
-held-out rows have an exact design-and-condition twin in training. This affects any
-model trained on this split equally and so does not distort the comparison, but it
-makes absolute held-out scores slightly optimistic.
+\item 196 held-out rows ($1.0\%$) have an exact design-and-condition twin in training,
+because the split partitions protospacers rather than experiments. Measured rather than
+assumed: removing them moves the headline by $0.0004$ (\S\ref{sec:leakage}), so this is
+a bounded non-issue rather than an open caveat.
 \item The Kim partition has no unused evaluation surface remaining, so Kim-specific
 claims rest on out-of-fold development folds and a once-consulted lockbox.
 \item Our reproduction of the comparator scores above its published figure under every
@@ -1511,6 +1621,11 @@ Cao W, Mirjalili V, Raschka S.
 Rank consistent ordinal regression for neural networks with application to age
 estimation. \emph{Pattern Recognition Letters} \textbf{140}, 325--331 (2020).
 
+\bibitem[Cameron et al.(2008)]{cameron2008}
+Cameron AC, Gelbach JB, Miller DL.
+Bootstrap-based improvements for inference with clustered errors.
+\emph{The Review of Economics and Statistics} \textbf{90}(3), 414--427 (2008).
+
 \bibitem[Chen et al.(2021)]{chen2021}
 Chen PJ, Hussmann JA, Yan J, et al.
 Enhanced prime editing systems by manipulating cellular determinants of editing
@@ -1540,6 +1655,12 @@ Gu A, Dao T.
 Mamba: Linear-time sequence modeling with selective state spaces.
 \emph{arXiv:2312.00752} (2023).
 
+\bibitem[Guo et al.(2017)]{guo2017}
+Guo C, Pleiss G, Sun Y, Weinberger KQ.
+On calibration of modern neural networks.
+\emph{Proceedings of the 34th International Conference on Machine Learning},
+PMLR \textbf{70}, 1321--1330 (2017).
+
 \bibitem[Hsu et al.(2026)]{hsu2026}
 Hsu A, Chen P, Li A, Hemez C, Gao X, Terrey M, Nelson C, Selvam V, Cristian A,
 McElroy A, Steinbeck B, Mahadeshwar G, Pandey S, Barsdale Z, Chen P, Sousa A,
@@ -1548,6 +1669,21 @@ Tolar J, Blazar B, Osborn M, Liu DR.
 Mechanistic machine learning for prediction of prime editing outcomes.
 \emph{Nature Biotechnology} \textbf{44} (2026).
 \url{https://doi.org/10.1038/s41587-026-03261-7}.
+
+\bibitem[Holm(1979)]{holm1979}
+Holm S.
+A simple sequentially rejective multiple test procedure.
+\emph{Scandinavian Journal of Statistics} \textbf{6}(2), 65--70 (1979).
+
+\bibitem[J\"arvelin \& Kek\"al\"ainen(2002)]{jarvelin2002}
+J\"arvelin K, Kek\"al\"ainen J.
+Cumulated gain-based evaluation of IR techniques.
+\emph{ACM Transactions on Information Systems} \textbf{20}(4), 422--446 (2002).
+
+\bibitem[Kendall(1945)]{kendall1945}
+Kendall MG.
+The treatment of ties in ranking problems.
+\emph{Biometrika} \textbf{33}(3), 239--251 (1945).
 
 \bibitem[Kim et al.(2019)]{kim2019}
 Kim HK, Kim Y, Lee S, et al.
@@ -1576,6 +1712,18 @@ Predicting prime editing efficiency and product purity by deep learning.
 Mathis N, Allam A, Tálas A, et al.
 Machine learning prediction of prime editing efficiency across diverse chromatin
 contexts. \emph{Nature Biotechnology} (2024).
+\url{https://doi.org/10.1038/s41587-024-02268-2}.
+
+\bibitem[Nelson et al.(2022)]{nelson2022}
+Nelson JW, Randolph PB, Shen SP, et al.
+Engineered pegRNAs improve prime editing efficiency.
+\emph{Nature Biotechnology} \textbf{40}, 402--410 (2022).
+
+\bibitem[Nguyen et al.(2023)]{nguyen2023}
+Nguyen E, Poli M, Faizi M, et al.
+HyenaDNA: long-range genomic sequence modeling at single nucleotide resolution.
+\emph{Advances in Neural Information Processing Systems} (2023).
+\url{https://arxiv.org/abs/2306.15794}.
 
 \bibitem[P\'erez et al.(2018)]{perez2018}
 P\'erez E, Strub F, de Vries H, Dumoulin V, Courville A.

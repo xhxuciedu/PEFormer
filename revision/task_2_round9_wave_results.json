@@ -1,6 +1,6 @@
 {
   "provenance": {
-    "git_commit": "5cc6fe93a649",
+    "git_commit": "12cf2858e7f8",
     "working_tree_dirty": true,
     "seed": 20260903,
     "inputs": {}
@@ -67,23 +67,27 @@
       },
       {
         "fold": 1,
-        "status": "pending",
+        "opw_run": "r9_opw_f1",
+        "control_run": "r9_ctrl_f1",
         "opw": 0.8904612407870017,
-        "control": null
+        "control": 0.9013056747682255,
+        "delta": 0.010844433981223811
       },
       {
         "fold": 2,
-        "status": "pending",
+        "opw_run": "r9_opw_f2",
+        "control_run": "r9_ctrl_f2",
         "opw": 0.8814160992475957,
-        "control": null
+        "control": 0.8965322550338806,
+        "delta": 0.01511615578628489
       }
     ],
     "summary": {
-      "n_folds": 1,
-      "mean_delta": 0.014814921476725584,
-      "sd": null,
-      "min": 0.014814921476725584,
-      "max": 0.014814921476725584,
+      "n_folds": 3,
+      "mean_delta": 0.013591837081411429,
+      "sd": 0.0023840833403017433,
+      "min": 0.010844433981223811,
+      "max": 0.01511615578628489,
       "same_sign_all_folds": true
     }
   }

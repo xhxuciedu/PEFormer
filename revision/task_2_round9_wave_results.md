@@ -1,7 +1,7 @@
 # Round-9 experimental waves
 
 Matched development folds, controls run in the same wave at the identical recipe and
-seed. Commit `5cc6fe93a649`.
+seed. Commit `12cf2858e7f8`.
 
 ## C2 — censoring-aware ordinal loss: falsified, and the control beat it
 
@@ -41,7 +41,7 @@ Positive Δ means uniform weighting beats OptiPrime's row weights.
 | dev fold | control (uniform) | OptiPrime weights | Δρ |
 |---:|---:|---:|---:|
 | 0 | 0.8978 | 0.8830 | +0.0148 |
-| 1 | pending | pending | pending |
-| 2 | pending | pending | pending |
+| 1 | 0.9013 | 0.8905 | +0.0108 |
+| 2 | 0.8965 | 0.8814 | +0.0151 |
 
-Mean over 1 fold(s): **+0.0148**, range [+0.0148, +0.0148], same sign on every fold.
+Mean over 3 fold(s): **+0.0136**, SD 0.0024, range [+0.0108, +0.0151], same sign on every fold.
