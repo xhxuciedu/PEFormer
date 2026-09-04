@@ -1,8 +1,8 @@
 {
-  "git_commit": "d0b842e73205",
+  "git_commit": "427194e3fc34",
   "seed": 20260903,
   "inputs": {
-    "reports/paper/pe_rankformer_paper.tex": "7aefaab156233cf0",
+    "reports/paper/pe_rankformer_paper.tex": "28568c691403562a",
     "data/processed/optiprime_official_318471.parquet": "16b83acd41e0c7bf",
     "data/processed/round3_dev_assignments.parquet": "6f1cfe4cbf9ae612",
     "results/round5/heldout_calibrated.parquet": "9cbd7ce15f3e0c5c",
@@ -88,7 +88,7 @@
   "suspect_3_kim_zero_fraction": "covered by suspect_1 (per-population Kim zero-mass)",
   "suspect_4_ordinal_thresholds": {
     "all_ordinal_checkpoints": {
-      "18": 69,
+      "18": 77,
       "17": 20,
       "43": 1,
       "7": 1,
@@ -102,568 +102,643 @@
   "duplicated_numbers_in_manuscript": [
     {
       "value": "0.9079",
-      "occurrences": 13,
+      "occurrences": 14,
       "tex_lines": [
-        46,
-        117,
-        584,
-        604,
-        715,
-        729,
-        755,
-        1008,
-        1033,
-        1051,
-        1074,
-        1075,
-        1458
+        47,
+        124,
+        601,
+        621,
+        718,
+        731,
+        798,
+        821,
+        1115,
+        1140,
+        1158,
+        1181,
+        1182,
+        1575
       ]
     },
     {
       "value": "0.0389",
-      "occurrences": 11,
+      "occurrences": 12,
       "tex_lines": [
-        47,
-        118,
-        607,
-        644,
-        652,
-        664,
-        740,
-        755,
-        1077,
-        1313,
-        1459
+        48,
+        125,
+        624,
+        661,
+        669,
+        681,
+        738,
+        778,
+        798,
+        1184,
+        1426,
+        1575
+      ]
+    },
+    {
+      "value": "0.0220",
+      "occurrences": 8,
+      "tex_lines": [
+        60,
+        65,
+        624,
+        683,
+        701,
+        858,
+        907,
+        1588
       ]
     },
     {
       "value": "0.8690",
-      "occurrences": 8,
+      "occurrences": 7,
       "tex_lines": [
-        47,
-        117,
-        584,
+        48,
+        124,
         601,
-        715,
-        755,
-        1072,
-        1459
+        618,
+        821,
+        1179,
+        1575
       ]
     },
     {
       "value": "0.0002",
       "occurrences": 7,
       "tex_lines": [
-        48,
-        664,
-        665,
-        667,
-        668,
-        803,
-        1442
-      ]
-    },
-    {
-      "value": "0.0220",
-      "occurrences": 6,
-      "tex_lines": [
-        52,
-        57,
-        607,
-        666,
+        49,
+        681,
+        682,
         684,
-        803
+        685,
+        858,
+        1558
       ]
     },
     {
       "value": "0.9082",
       "occurrences": 6,
       "tex_lines": [
-        867,
-        923,
-        1002,
-        1019,
-        1019,
-        1032
+        974,
+        1030,
+        1109,
+        1126,
+        1126,
+        1139
       ]
     },
     {
-      "value": "0.0506",
+      "value": "0.0478",
       "occurrences": 5,
       "tex_lines": [
-        50,
-        643,
-        740,
-        757,
-        1314
-      ]
-    },
-    {
-      "value": "0.8124",
-      "occurrences": 5,
-      "tex_lines": [
-        604,
-        730,
-        1008,
-        1121,
-        1145
-      ]
-    },
-    {
-      "value": "0.0286",
-      "occurrences": 4,
-      "tex_lines": [
-        47,
-        653,
-        664,
-        755
-      ]
-    },
-    {
-      "value": "0.0498",
-      "occurrences": 4,
-      "tex_lines": [
-        47,
-        653,
-        664,
-        755
+        78,
+        1165,
+        1182,
+        1203,
+        1581
       ]
     },
     {
       "value": "0.0804",
       "occurrences": 4,
       "tex_lines": [
-        51,
-        607,
-        780,
-        1326
+        59,
+        624,
+        835,
+        1439
       ]
     },
     {
-      "value": "0.0478",
+      "value": "0.0803",
       "occurrences": 4,
       "tex_lines": [
-        70,
-        1058,
-        1075,
-        1466
+        65,
+        682,
+        858,
+        906
       ]
     },
     {
       "value": "0.0590",
       "occurrences": 4,
       "tex_lines": [
-        70,
-        1058,
-        1072,
-        1466
+        78,
+        1165,
+        1179,
+        1581
       ]
     },
     {
       "value": "0.0294",
       "occurrences": 4,
       "tex_lines": [
-        211,
-        844,
-        1260,
-        1292
+        218,
+        951,
+        1358,
+        1405
       ]
     },
     {
       "value": "0.0031",
       "occurrences": 4,
       "tex_lines": [
-        407,
-        439,
-        1002,
-        1251
+        417,
+        449,
+        1109,
+        1347
+      ]
+    },
+    {
+      "value": "0.8124",
+      "occurrences": 4,
+      "tex_lines": [
+        621,
+        719,
+        1115,
+        1243
       ]
     },
     {
       "value": "0.0027",
       "occurrences": 4,
       "tex_lines": [
-        666,
-        684,
-        804,
-        1252
+        683,
+        701,
+        859,
+        1350
       ]
     },
     {
       "value": "0.0013",
       "occurrences": 4,
       "tex_lines": [
-        1003,
-        1006,
-        1038,
-        1236
+        1110,
+        1113,
+        1145,
+        1331
       ]
     },
     {
-      "value": "0.0803",
+      "value": "0.0286",
       "occurrences": 3,
       "tex_lines": [
-        57,
-        665,
-        803
+        48,
+        670,
+        681
+      ]
+    },
+    {
+      "value": "0.0498",
+      "occurrences": 3,
+      "tex_lines": [
+        48,
+        670,
+        681
+      ]
+    },
+    {
+      "value": "0.6356",
+      "occurrences": 3,
+      "tex_lines": [
+        54,
+        731,
+        1586
+      ]
+    },
+    {
+      "value": "0.0884",
+      "occurrences": 3,
+      "tex_lines": [
+        54,
+        738,
+        1586
       ]
     },
     {
       "value": "0.7413",
       "occurrences": 3,
       "tex_lines": [
-        59,
-        600,
-        714
+        67,
+        617,
+        820
       ]
     },
     {
       "value": "0.0092",
       "occurrences": 3,
       "tex_lines": [
-        65,
-        874,
-        911
+        73,
+        981,
+        1018
       ]
     },
     {
       "value": "0.0192",
       "occurrences": 3,
       "tex_lines": [
-        66,
-        875,
-        910
+        74,
+        982,
+        1017
       ]
     },
     {
       "value": "0.0912",
       "occurrences": 3,
       "tex_lines": [
-        70,
-        1059,
-        1075
+        78,
+        1166,
+        1182
       ]
     },
     {
       "value": "0.1026",
       "occurrences": 3,
       "tex_lines": [
-        70,
-        1059,
-        1072
-      ]
-    },
-    {
-      "value": "0.1149",
-      "occurrences": 3,
-      "tex_lines": [
-        75,
-        1121,
-        1141
-      ]
-    },
-    {
-      "value": "0.1043",
-      "occurrences": 3,
-      "tex_lines": [
-        76,
-        1121,
-        1145
+        78,
+        1166,
+        1179
       ]
     },
     {
       "value": "0.0018",
       "occurrences": 3,
       "tex_lines": [
-        283,
-        1259,
-        1441
+        290,
+        1357,
+        1557
       ]
     },
     {
       "value": "0.0001",
       "occurrences": 3,
       "tex_lines": [
-        407,
-        439,
-        1255
+        417,
+        449,
+        1353
       ]
     },
     {
       "value": "0.8585",
       "occurrences": 3,
       "tex_lines": [
-        604,
-        730,
-        1008
+        621,
+        719,
+        1115
       ]
     },
     {
       "value": "0.8955",
       "occurrences": 3,
       "tex_lines": [
-        618,
-        694,
-        1397
+        635,
+        711,
+        1513
       ]
     },
     {
       "value": "0.9173",
       "occurrences": 3,
       "tex_lines": [
-        618,
-        694,
-        1397
+        635,
+        711,
+        1513
+      ]
+    },
+    {
+      "value": "0.0506",
+      "occurrences": 3,
+      "tex_lines": [
+        660,
+        738,
+        1427
+      ]
+    },
+    {
+      "value": "0.0136",
+      "occurrences": 3,
+      "tex_lines": [
+        897,
+        925,
+        1592
       ]
     },
     {
       "value": "0.0114",
       "occurrences": 3,
       "tex_lines": [
-        866,
-        916,
-        1077
+        973,
+        1023,
+        1184
+      ]
+    },
+    {
+      "value": "2.0%",
+      "occurrences": 3,
+      "tex_lines": [
+        62,
+        848,
+        1590
+      ]
+    },
+    {
+      "value": "55.3%",
+      "occurrences": 3,
+      "tex_lines": [
+        63,
+        849,
+        1591
       ]
     },
     {
       "value": "28.4%",
       "occurrences": 3,
       "tex_lines": [
-        384,
-        1197,
-        1205
+        391,
+        1291,
+        1299
       ]
     },
     {
-      "value": "0.0345",
+      "value": "0.5472",
       "occurrences": 2,
       "tex_lines": [
-        51,
-        757
+        54,
+        1586
       ]
     },
     {
-      "value": "0.0670",
+      "value": "0.1040",
       "occurrences": 2,
       "tex_lines": [
-        51,
-        757
+        83,
+        1243
+      ]
+    },
+    {
+      "value": "0.0529",
+      "occurrences": 2,
+      "tex_lines": [
+        83,
+        1251
+      ]
+    },
+    {
+      "value": "0.1204",
+      "occurrences": 2,
+      "tex_lines": [
+        83,
+        1251
       ]
     },
     {
       "value": "0.0017",
       "occurrences": 2,
       "tex_lines": [
-        284,
-        1440
+        291,
+        1556
       ]
     },
     {
       "value": "0.0020",
       "occurrences": 2,
       "tex_lines": [
-        284,
-        1440
+        291,
+        1556
       ]
     },
     {
       "value": "0.7987",
       "occurrences": 2,
       "tex_lines": [
-        558,
-        1378
+        575,
+        1494
       ]
     },
     {
-      "value": "0.8111",
+      "value": "0.0148",
       "occurrences": 2,
       "tex_lines": [
-        716,
-        757
+        896,
+        922
+      ]
+    },
+    {
+      "value": "0.0108",
+      "occurrences": 2,
+      "tex_lines": [
+        896,
+        923
+      ]
+    },
+    {
+      "value": "0.0151",
+      "occurrences": 2,
+      "tex_lines": [
+        896,
+        924
+      ]
+    },
+    {
+      "value": "0.0247",
+      "occurrences": 2,
+      "tex_lines": [
+        902,
+        928
+      ]
+    },
+    {
+      "value": "0.0144",
+      "occurrences": 2,
+      "tex_lines": [
+        902,
+        928
+      ]
+    },
+    {
+      "value": "0.0355",
+      "occurrences": 2,
+      "tex_lines": [
+        902,
+        928
+      ]
+    },
+    {
+      "value": "0.0063",
+      "occurrences": 2,
+      "tex_lines": [
+        902,
+        929
+      ]
+    },
+    {
+      "value": "0.0052",
+      "occurrences": 2,
+      "tex_lines": [
+        903,
+        929
+      ]
+    },
+    {
+      "value": "0.0179",
+      "occurrences": 2,
+      "tex_lines": [
+        903,
+        929
       ]
     },
     {
       "value": "0.0071",
       "occurrences": 2,
       "tex_lines": [
-        867,
-        916
+        974,
+        1023
       ]
     },
     {
       "value": "0.0043",
       "occurrences": 2,
       "tex_lines": [
-        877,
-        915
+        984,
+        1022
       ]
     },
     {
       "value": "0.8982",
       "occurrences": 2,
       "tex_lines": [
-        924,
-        1279
-      ]
-    },
-    {
-      "value": "0.8151",
-      "occurrences": 2,
-      "tex_lines": [
-        1002,
-        1146
+        1031,
+        1392
       ]
     },
     {
       "value": "0.0006",
       "occurrences": 2,
       "tex_lines": [
-        1004,
-        1237
+        1111,
+        1332
       ]
     },
     {
       "value": "0.0007",
       "occurrences": 2,
       "tex_lines": [
-        1005,
-        1247
+        1112,
+        1342
       ]
     },
     {
       "value": "0.0003",
       "occurrences": 2,
       "tex_lines": [
-        1035,
-        1038
+        1142,
+        1145
       ]
     },
     {
       "value": "0.8637",
       "occurrences": 2,
       "tex_lines": [
-        1059,
-        1075
+        1166,
+        1182
       ]
     },
     {
       "value": "0.8270",
       "occurrences": 2,
       "tex_lines": [
-        1059,
-        1072
+        1166,
+        1179
       ]
     },
     {
-      "value": "0.9061",
+      "value": "0.1227",
       "occurrences": 2,
       "tex_lines": [
-        1120,
-        1141
+        1205,
+        1581
       ]
     },
     {
-      "value": "0.7912",
+      "value": "0.0000",
       "occurrences": 2,
       "tex_lines": [
-        1120,
-        1141
-      ]
-    },
-    {
-      "value": "0.9167",
-      "occurrences": 2,
-      "tex_lines": [
-        1121,
-        1145
-      ]
-    },
-    {
-      "value": "0.1046",
-      "occurrences": 2,
-      "tex_lines": [
-        1122,
-        1142
-      ]
-    },
-    {
-      "value": "0.0934",
-      "occurrences": 2,
-      "tex_lines": [
-        1122,
-        1147
+        1330,
+        1348
       ]
     },
     {
       "value": "0.0008",
       "occurrences": 2,
       "tex_lines": [
-        1240,
-        1241
+        1335,
+        1336
       ]
     },
     {
       "value": "0.0022",
       "occurrences": 2,
       "tex_lines": [
-        1248,
-        1253
+        1343,
+        1351
       ]
     },
     {
-      "value": "2.0%",
-      "occurrences": 2,
-      "tex_lines": [
-        54,
-        793
-      ]
-    },
-    {
-      "value": "55.3%",
+      "value": "78.4%",
       "occurrences": 2,
       "tex_lines": [
         55,
-        794
+        739
       ]
     },
     {
       "value": "58.4%",
       "occurrences": 2,
       "tex_lines": [
-        171,
-        1292
+        178,
+        1405
       ]
     },
     {
       "value": "26.8%",
       "occurrences": 2,
       "tex_lines": [
-        383,
-        1199
+        390,
+        1293
       ]
     },
     {
       "value": "90.0%",
       "occurrences": 2,
       "tex_lines": [
-        618,
-        695
+        635,
+        712
+      ]
+    },
+    {
+      "value": "1.0%",
+      "occurrences": 2,
+      "tex_lines": [
+        797,
+        1517
       ]
     },
     {
       "value": "50.7%",
       "occurrences": 2,
       "tex_lines": [
-        1198,
-        1207
+        1292,
+        1301
       ]
     },
     {
       "value": "0.7%",
       "occurrences": 2,
       "tex_lines": [
-        1198,
-        1207
+        1292,
+        1301
       ]
     }
   ]
