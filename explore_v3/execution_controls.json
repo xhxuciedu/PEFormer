@@ -1,0 +1,22 @@
+[
+  {
+    "tag": "C_frozen_b200_sub20260910_s20260910",
+    "gpu": 2,
+    "returncode": 0
+  },
+  {
+    "tag": "C_frozen_b1000_sub20260910_s20260910",
+    "gpu": 2,
+    "returncode": 0
+  },
+  {
+    "tag": "F_replay_b200_sub20260910_s20260910",
+    "gpu": 7,
+    "returncode": 0
+  },
+  {
+    "tag": "F_replay_b1000_sub20260910_s20260910",
+    "gpu": 7,
+    "returncode": 0
+  }
+]

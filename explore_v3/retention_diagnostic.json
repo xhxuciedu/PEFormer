@@ -1,0 +1,353 @@
+{
+  "note": "Post-fit, first-seed diagnostic only; not causal proof or a new hyperparameter selection rule.",
+  "rows": [
+    {
+      "arm": "E",
+      "surface": "source_replay",
+      "study": "all",
+      "groups": 3410,
+      "informative_groups": 2947,
+      "teacher_top_gap_quantiles": {
+        "0.1": 0.004493284225463869,
+        "0.5": 0.19804704189300537,
+        "0.9": 1.3152707815170286
+      },
+      "teacher_top_pair_probability_median": 0.5493505609084235,
+      "teacher_top_pair_probability_below_0p55": 0.5029325513196481,
+      "mean_pair_kl": 0.04339637591900804,
+      "choice_change_fraction": 0.29853372434017594,
+      "informative_utility_change": -0.007321403513588673
+    },
+    {
+      "arm": "E",
+      "surface": "source_replay",
+      "study": "deepprime",
+      "groups": 732,
+      "informative_groups": 486,
+      "teacher_top_gap_quantiles": {
+        "0.1": 0.002477645874023439,
+        "0.5": 0.13397881388664246,
+        "0.9": 1.1158611178398132
+      },
+      "teacher_top_pair_probability_median": 0.5334446892956433,
+      "teacher_top_pair_probability_below_0p55": 0.5710382513661202,
+      "mean_pair_kl": 0.026815831622501396,
+      "choice_change_fraction": 0.4180327868852459,
+      "informative_utility_change": -0.002616542928950616
+    },
+    {
+      "arm": "E",
+      "surface": "source_replay",
+      "study": "pridict_pridict2",
+      "groups": 2678,
+      "informative_groups": 2461,
+      "teacher_top_gap_quantiles": {
+        "0.1": 0.0056718230247497555,
+        "0.5": 0.21707338094711304,
+        "0.9": 1.3817916035652165
+      },
+      "teacher_top_pair_probability_median": 0.5540562470198662,
+      "teacher_top_pair_probability_below_0p55": 0.4843166542195668,
+      "mean_pair_kl": 0.04792847391192921,
+      "choice_change_fraction": 0.2658700522778193,
+      "informative_utility_change": -0.008250522670083632
+    },
+    {
+      "arm": "E",
+      "surface": "source_val",
+      "study": "all",
+      "groups": 779,
+      "informative_groups": 685,
+      "teacher_top_gap_quantiles": {
+        "0.1": 0.006322073936462406,
+        "0.5": 0.21367669105529785,
+        "0.9": 1.4141610622406007
+      },
+      "teacher_top_pair_probability_median": 0.553216846649043,
+      "teacher_top_pair_probability_below_0p55": 0.4865211810012837,
+      "mean_pair_kl": 0.047579573842070316,
+      "choice_change_fraction": 0.2631578947368421,
+      "informative_utility_change": -0.007089516318612786
+    },
+    {
+      "arm": "E",
+      "surface": "source_val",
+      "study": "deepprime",
+      "groups": 113,
+      "informative_groups": 72,
+      "teacher_top_gap_quantiles": {
+        "0.1": 0.0055535554885864265,
+        "0.5": 0.08082115650177002,
+        "0.9": 0.9943809628486633
+      },
+      "teacher_top_pair_probability_median": 0.5201942977926975,
+      "teacher_top_pair_probability_below_0p55": 0.6106194690265486,
+      "mean_pair_kl": 0.031957162848459765,
+      "choice_change_fraction": 0.504424778761062,
+      "informative_utility_change": -0.011120255456944447
+    },
+    {
+      "arm": "E",
+      "surface": "source_val",
+      "study": "pridict_pridict2",
+      "groups": 666,
+      "informative_groups": 613,
+      "teacher_top_gap_quantiles": {
+        "0.1": 0.006489992141723633,
+        "0.5": 0.22666466236114502,
+        "0.9": 1.5445995926856995
+      },
+      "teacher_top_pair_probability_median": 0.5564247946699183,
+      "teacher_top_pair_probability_below_0p55": 0.46546546546546547,
+      "mean_pair_kl": 0.05023022315480003,
+      "choice_change_fraction": 0.2222222222222222,
+      "informative_utility_change": -0.0066160852942084136
+    },
+    {
+      "arm": "E",
+      "surface": "source_audit",
+      "study": "all",
+      "groups": 2412,
+      "informative_groups": 1463,
+      "teacher_top_gap_quantiles": {
+        "0.1": 0.002940094470977783,
+        "0.5": 0.08789962530136108,
+        "0.9": 0.6833314776420596
+      },
+      "teacher_top_pair_probability_median": 0.5219607683665746,
+      "teacher_top_pair_probability_below_0p55": 0.6318407960199005,
+      "mean_pair_kl": 0.01825110903438414,
+      "choice_change_fraction": 0.4224709784411277,
+      "informative_utility_change": -0.0005494114988243326
+    },
+    {
+      "arm": "E",
+      "surface": "source_audit",
+      "study": "deepprime",
+      "groups": 2412,
+      "informative_groups": 1463,
+      "teacher_top_gap_quantiles": {
+        "0.1": 0.002940094470977783,
+        "0.5": 0.08789962530136108,
+        "0.9": 0.6833314776420596
+      },
+      "teacher_top_pair_probability_median": 0.5219607683665746,
+      "teacher_top_pair_probability_below_0p55": 0.6318407960199005,
+      "mean_pair_kl": 0.01825110903438414,
+      "choice_change_fraction": 0.4224709784411277,
+      "informative_utility_change": -0.0005494114988243326
+    },
+    {
+      "arm": "E",
+      "surface": "target_outer_val",
+      "study": "all",
+      "groups": 5561,
+      "informative_groups": 4656,
+      "teacher_top_gap_quantiles": {
+        "0.1": 0.032172441482543945,
+        "0.5": 0.23426377773284912,
+        "0.9": 1.1585209369659424
+      },
+      "teacher_top_pair_probability_median": 0.5582995669730957,
+      "teacher_top_pair_probability_below_0p55": 0.4562129113468801,
+      "mean_pair_kl": 0.11567204784078387,
+      "choice_change_fraction": 0.22945513396871067,
+      "informative_utility_change": 0.0020034982171273624
+    },
+    {
+      "arm": "E",
+      "surface": "target_outer_val",
+      "study": "deepprime",
+      "groups": 5561,
+      "informative_groups": 4656,
+      "teacher_top_gap_quantiles": {
+        "0.1": 0.032172441482543945,
+        "0.5": 0.23426377773284912,
+        "0.9": 1.1585209369659424
+      },
+      "teacher_top_pair_probability_median": 0.5582995669730957,
+      "teacher_top_pair_probability_below_0p55": 0.4562129113468801,
+      "mean_pair_kl": 0.11567204784078387,
+      "choice_change_fraction": 0.22945513396871067,
+      "informative_utility_change": 0.0020034982171273624
+    },
+    {
+      "arm": "F",
+      "surface": "source_replay",
+      "study": "all",
+      "groups": 3410,
+      "informative_groups": 2947,
+      "teacher_top_gap_quantiles": {
+        "0.1": 0.004493284225463869,
+        "0.5": 0.19804704189300537,
+        "0.9": 1.3152707815170286
+      },
+      "teacher_top_pair_probability_median": 0.5493505609084235,
+      "teacher_top_pair_probability_below_0p55": 0.5029325513196481,
+      "mean_pair_kl": 0.00578141764566541,
+      "choice_change_fraction": 0.22375366568914956,
+      "informative_utility_change": -0.0039929063188268105
+    },
+    {
+      "arm": "F",
+      "surface": "source_replay",
+      "study": "deepprime",
+      "groups": 732,
+      "informative_groups": 486,
+      "teacher_top_gap_quantiles": {
+        "0.1": 0.002477645874023439,
+        "0.5": 0.13397881388664246,
+        "0.9": 1.1158611178398132
+      },
+      "teacher_top_pair_probability_median": 0.5334446892956433,
+      "teacher_top_pair_probability_below_0p55": 0.5710382513661202,
+      "mean_pair_kl": 0.010094179356338315,
+      "choice_change_fraction": 0.34289617486338797,
+      "informative_utility_change": -0.005188518306687243
+    },
+    {
+      "arm": "F",
+      "surface": "source_replay",
+      "study": "pridict_pridict2",
+      "groups": 2678,
+      "informative_groups": 2461,
+      "teacher_top_gap_quantiles": {
+        "0.1": 0.0056718230247497555,
+        "0.5": 0.21707338094711304,
+        "0.9": 1.3817916035652165
+      },
+      "teacher_top_pair_probability_median": 0.5540562470198662,
+      "teacher_top_pair_probability_below_0p55": 0.4843166542195668,
+      "mean_pair_kl": 0.004602574638864601,
+      "choice_change_fraction": 0.19118745332337567,
+      "informative_utility_change": -0.003756796027847466
+    },
+    {
+      "arm": "F",
+      "surface": "source_val",
+      "study": "all",
+      "groups": 779,
+      "informative_groups": 685,
+      "teacher_top_gap_quantiles": {
+        "0.1": 0.006322073936462406,
+        "0.5": 0.21367669105529785,
+        "0.9": 1.4141610622406007
+      },
+      "teacher_top_pair_probability_median": 0.553216846649043,
+      "teacher_top_pair_probability_below_0p55": 0.4865211810012837,
+      "mean_pair_kl": 0.005938516013242089,
+      "choice_change_fraction": 0.2336328626444159,
+      "informative_utility_change": -0.00642604624293409
+    },
+    {
+      "arm": "F",
+      "surface": "source_val",
+      "study": "deepprime",
+      "groups": 113,
+      "informative_groups": 72,
+      "teacher_top_gap_quantiles": {
+        "0.1": 0.0055535554885864265,
+        "0.5": 0.08082115650177002,
+        "0.9": 0.9943809628486633
+      },
+      "teacher_top_pair_probability_median": 0.5201942977926975,
+      "teacher_top_pair_probability_below_0p55": 0.6106194690265486,
+      "mean_pair_kl": 0.0112294838448777,
+      "choice_change_fraction": 0.39823008849557523,
+      "informative_utility_change": -0.015118238656805557
+    },
+    {
+      "arm": "F",
+      "surface": "source_val",
+      "study": "pridict_pridict2",
+      "groups": 666,
+      "informative_groups": 613,
+      "teacher_top_gap_quantiles": {
+        "0.1": 0.006489992141723633,
+        "0.5": 0.22666466236114502,
+        "0.9": 1.5445995926856995
+      },
+      "teacher_top_pair_probability_median": 0.5564247946699183,
+      "teacher_top_pair_probability_below_0p55": 0.46546546546546547,
+      "mean_pair_kl": 0.005040799249015627,
+      "choice_change_fraction": 0.2057057057057057,
+      "informative_utility_change": -0.005405103577683282
+    },
+    {
+      "arm": "F",
+      "surface": "source_audit",
+      "study": "all",
+      "groups": 2412,
+      "informative_groups": 1463,
+      "teacher_top_gap_quantiles": {
+        "0.1": 0.002940094470977783,
+        "0.5": 0.08789962530136108,
+        "0.9": 0.6833314776420596
+      },
+      "teacher_top_pair_probability_median": 0.5219607683665746,
+      "teacher_top_pair_probability_below_0p55": 0.6318407960199005,
+      "mean_pair_kl": 0.012374390201565921,
+      "choice_change_fraction": 0.412106135986733,
+      "informative_utility_change": -0.00364330317810663
+    },
+    {
+      "arm": "F",
+      "surface": "source_audit",
+      "study": "deepprime",
+      "groups": 2412,
+      "informative_groups": 1463,
+      "teacher_top_gap_quantiles": {
+        "0.1": 0.002940094470977783,
+        "0.5": 0.08789962530136108,
+        "0.9": 0.6833314776420596
+      },
+      "teacher_top_pair_probability_median": 0.5219607683665746,
+      "teacher_top_pair_probability_below_0p55": 0.6318407960199005,
+      "mean_pair_kl": 0.012374390201565921,
+      "choice_change_fraction": 0.412106135986733,
+      "informative_utility_change": -0.00364330317810663
+    },
+    {
+      "arm": "F",
+      "surface": "target_outer_val",
+      "study": "all",
+      "groups": 5561,
+      "informative_groups": 4656,
+      "teacher_top_gap_quantiles": {
+        "0.1": 0.032172441482543945,
+        "0.5": 0.23426377773284912,
+        "0.9": 1.1585209369659424
+      },
+      "teacher_top_pair_probability_median": 0.5582995669730957,
+      "teacher_top_pair_probability_below_0p55": 0.4562129113468801,
+      "mean_pair_kl": 0.08670354210870246,
+      "choice_change_fraction": 0.2643409458730444,
+      "informative_utility_change": 0.0018277366034181704
+    },
+    {
+      "arm": "F",
+      "surface": "target_outer_val",
+      "study": "deepprime",
+      "groups": 5561,
+      "informative_groups": 4656,
+      "teacher_top_gap_quantiles": {
+        "0.1": 0.032172441482543945,
+        "0.5": 0.23426377773284912,
+        "0.9": 1.1585209369659424
+      },
+      "teacher_top_pair_probability_median": 0.5582995669730957,
+      "teacher_top_pair_probability_below_0p55": 0.4562129113468801,
+      "mean_pair_kl": 0.08670354210870246,
+      "choice_change_fraction": 0.2643409458730444,
+      "informative_utility_change": 0.0018277366034181704
+    }
+  ],
+  "inputs_sha256": {
+    "explore_v3/cache/prepared.json": "3e944e617c1781b60fae11d3b467a3483b5c4dce570efafe2d49da3ac2340cf9",
+    "explore_v3/diagnose_retention.py": "9b5339fa58df33d5e04ab06075dc98a2fb103738163dcf726caf13a8258b78a4",
+    "explore_v3/runs/E_b1000_sub20260910_s20260910/best.pt": "747e6c04df4f9b8069dffe05921e32af0fcce5c22da55c55c2a05bfa5732cc4f",
+    "explore_v3/runs/E_b1000_sub20260910_s20260910/provenance.json": "6a4c7792b0b05180ba3fcdc24b09a1b26e97438fd5f8552bde10dd4746ce0677",
+    "explore_v3/runs/F_b1000_sub20260910_s20260910/best.pt": "dd049caadcd9117f26c01de541d633b7afffc07c08c423a3980c2d5fb56f6f59",
+    "explore_v3/runs/F_b1000_sub20260910_s20260910/provenance.json": "14d7c630ead158a7ead9114df96f2b2a1d23318986f60eb17f0726781e59d327"
+  }
+}

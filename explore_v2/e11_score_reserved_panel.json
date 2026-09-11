@@ -1,0 +1,1178 @@
+{
+  "provenance": {
+    "git_commit": "83ffae1c5b8f",
+    "working_tree_dirty": true,
+    "seed": 20260908,
+    "inputs": {
+      "data/processed/optiprime_official_318471.parquet": "fe62229d50a08fa3"
+    }
+  },
+  "canon_version": 2,
+  "panel_rows_scored": 118187,
+  "pooled_spearman_sanity_check": {
+    "ours": 0.7090869889497085,
+    "op": 0.6931453002067391
+  },
+  "optiprime": "joined, coverage 1.0000",
+  "exposure": {
+    "pe_rankformer_ordinal_s4d": "not trained on this panel",
+    "optiprime": "not trained on this panel",
+    "deepprime_released": "TRAINED on this panel's source file; excluded as a comparator"
+  },
+  "strata": [
+    {
+      "stratum": "all eligible groups (depth >=2)",
+      "groups": 30475,
+      "sites": 22931,
+      "all_zero_groups": 5807,
+      "mean_oracle": 0.04612555215792879,
+      "arms": {
+        "ours": {
+          "achieved_efficiency_at_1": 0.036279684997929454,
+          "achieved_efficiency_at_3": 0.05573195914445612,
+          "achieved_efficiency_at_5": 0.07377373497305117,
+          "best_design_hit_rate": 0.6598523379819524,
+          "regret_at_1": 0.009845867159999345,
+          "threshold_0.02_success_at_1": 0.4314684167350287,
+          "threshold_0.02_success_at_3": 0.4968662838392125,
+          "threshold_0.05_success_at_1": 0.27068088597210826,
+          "threshold_0.05_success_at_3": 0.33332239540607056
+        },
+        "op": {
+          "achieved_efficiency_at_1": 0.03690275630219294,
+          "achieved_efficiency_at_3": 0.05576478503523471,
+          "achieved_efficiency_at_5": 0.07374136089056854,
+          "best_design_hit_rate": 0.6646759639048401,
+          "regret_at_1": 0.00922279585573585,
+          "threshold_0.02_success_at_1": 0.43110746513535686,
+          "threshold_0.02_success_at_3": 0.4961115668580804,
+          "threshold_0.05_success_at_1": 0.27314191960623463,
+          "threshold_0.05_success_at_3": 0.3326004922067268
+        },
+        "rand": {
+          "achieved_efficiency_at_1": 0.02169786933341288,
+          "achieved_efficiency_at_3": 0.0468634210029191,
+          "achieved_efficiency_at_5": 0.06733998702462896,
+          "best_design_hit_rate": 0.33542894367575554,
+          "regret_at_1": 0.024427682824515913
+        }
+      },
+      "groups_with_depth_at_least": {
+        "1": 30475,
+        "3": 18660,
+        "5": 8775
+      },
+      "paired_ours_minus_op": {
+        "achieved_efficiency_at_1": {
+          "observed": -0.0006230713042634945,
+          "ci95": [
+            -0.0008834085879140781,
+            -0.000371013943925519
+          ],
+          "two_sided_p": 0.0005,
+          "n_groups": 30475,
+          "n_sites": 22931
+        },
+        "achieved_efficiency_at_3": {
+          "observed": -3.282589077858748e-05,
+          "ci95": [
+            -0.0001885481794362913,
+            0.00012593728618552402
+          ],
+          "two_sided_p": 0.674,
+          "n_groups": 18662,
+          "n_sites": 16977
+        },
+        "best_design_hit_rate": {
+          "observed": -0.0048236259228876125,
+          "ci95": [
+            -0.009684613803710313,
+            -6.566657482646902e-05
+          ],
+          "two_sided_p": 0.044,
+          "n_groups": 30475,
+          "n_sites": 22931
+        },
+        "regret_at_1": {
+          "observed": 0.0006230713042634945,
+          "ci95": [
+            0.00037101394392551886,
+            0.000883408587914078
+          ],
+          "two_sided_p": 0.0005,
+          "n_groups": 30475,
+          "n_sites": 22931
+        }
+      }
+    },
+    {
+      "stratum": "informative groups (non-constant outcome)",
+      "groups": 24668,
+      "sites": 19642,
+      "all_zero_groups": 0,
+      "mean_oracle": 0.056983792849557326,
+      "arms": {
+        "ours": {
+          "achieved_efficiency_at_1": 0.04482014757223528,
+          "achieved_efficiency_at_3": 0.06200487787968523,
+          "achieved_efficiency_at_5": 0.07689253911156275,
+          "best_design_hit_rate": 0.5797794713799254,
+          "regret_at_1": 0.012163645277322038,
+          "threshold_0.02_success_at_1": 0.5330387546619102,
+          "threshold_0.02_success_at_3": 0.613831684773796,
+          "threshold_0.05_success_at_1": 0.334400843197665,
+          "threshold_0.05_success_at_3": 0.4117885519701638
+        },
+        "op": {
+          "achieved_efficiency_at_1": 0.04558989372098793,
+          "achieved_efficiency_at_3": 0.06204139849335579,
+          "achieved_efficiency_at_5": 0.07685879640618928,
+          "best_design_hit_rate": 0.5857386087238527,
+          "regret_at_1": 0.011393899128569402,
+          "threshold_0.02_success_at_1": 0.5325928328198476,
+          "threshold_0.02_success_at_3": 0.6128993027403924,
+          "threshold_0.05_success_at_1": 0.3374412193935463,
+          "threshold_0.05_success_at_3": 0.4108967082860386
+        },
+        "rand": {
+          "achieved_efficiency_at_1": 0.026805682176737376,
+          "achieved_efficiency_at_3": 0.052138140142868494,
+          "achieved_efficiency_at_5": 0.07018680276869355,
+          "best_design_hit_rate": 0.31330158364865646,
+          "regret_at_1": 0.030178110672819947
+        }
+      },
+      "groups_with_depth_at_least": {
+        "1": 24668,
+        "3": 16773,
+        "5": 8421
+      },
+      "paired_ours_minus_op": {
+        "achieved_efficiency_at_1": {
+          "observed": -0.000769746148752635,
+          "ci95": [
+            -0.0010966712236760276,
+            -0.0004432857675967549
+          ],
+          "two_sided_p": 0.0005,
+          "n_groups": 24668,
+          "n_sites": 19642
+        },
+        "achieved_efficiency_at_3": {
+          "observed": -3.652061367056158e-05,
+          "ci95": [
+            -0.00021682477674219653,
+            0.0001355507470005196
+          ],
+          "two_sided_p": 0.664,
+          "n_groups": 16774,
+          "n_sites": 15461
+        },
+        "best_design_hit_rate": {
+          "observed": -0.005959137343927355,
+          "ci95": [
+            -0.012184559470081447,
+            -7.912034407207144e-05
+          ],
+          "two_sided_p": 0.048,
+          "n_groups": 24668,
+          "n_sites": 19642
+        },
+        "regret_at_1": {
+          "observed": 0.0007697461487526351,
+          "ci95": [
+            0.0004432857675967547,
+            0.0010966712236760272
+          ],
+          "two_sided_p": 0.0005,
+          "n_groups": 24668,
+          "n_sites": 19642
+        }
+      }
+    },
+    {
+      "stratum": "depth 2",
+      "groups": 11815,
+      "sites": 9457,
+      "all_zero_groups": 3920,
+      "mean_oracle": 0.027519003347333898,
+      "arms": {
+        "ours": {
+          "achieved_efficiency_at_1": 0.02403384054603047,
+          "achieved_efficiency_at_3": 0.00255102041,
+          "achieved_efficiency_at_5": NaN,
+          "best_design_hit_rate": 0.8176893779094372,
+          "regret_at_1": 0.0034851628013034277,
+          "threshold_0.02_success_at_1": 0.29691070672873465,
+          "threshold_0.02_success_at_3": 0.32729581041049516,
+          "threshold_0.05_success_at_1": 0.17300042319085907,
+          "threshold_0.05_success_at_3": 0.20177740160812527
+        },
+        "op": {
+          "achieved_efficiency_at_1": 0.024260501769842575,
+          "achieved_efficiency_at_3": 0.00255102041,
+          "achieved_efficiency_at_5": NaN,
+          "best_design_hit_rate": 0.8161658908167584,
+          "regret_at_1": 0.0032585015774913247,
+          "threshold_0.02_success_at_1": 0.29716462124418114,
+          "threshold_0.02_success_at_3": 0.32729581041049516,
+          "threshold_0.05_success_at_1": 0.17570884468895473,
+          "threshold_0.05_success_at_3": 0.20177740160812527
+        },
+        "rand": {
+          "achieved_efficiency_at_1": 0.01758158131347595,
+          "achieved_efficiency_at_3": 0.00255102041,
+          "achieved_efficiency_at_5": NaN,
+          "best_design_hit_rate": 0.4999717872760615,
+          "regret_at_1": 0.009937422033857949
+        }
+      },
+      "groups_with_depth_at_least": {
+        "1": 11815,
+        "3": 0,
+        "5": 0
+      },
+      "paired_ours_minus_op": {
+        "achieved_efficiency_at_1": {
+          "observed": -0.00022666122381210328,
+          "ci95": [
+            -0.000477037430462029,
+            2.6267611061782376e-05
+          ],
+          "two_sided_p": 0.082,
+          "n_groups": 11815,
+          "n_sites": 9457
+        },
+        "achieved_efficiency_at_3": {
+          "observed": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "two_sided_p": 0.0005,
+          "n_groups": 2,
+          "n_sites": 2
+        },
+        "best_design_hit_rate": {
+          "observed": 0.001523487092678798,
+          "ci95": [
+            -0.004838412000314144,
+            0.007921165313015045
+          ],
+          "two_sided_p": 0.6479999999999999,
+          "n_groups": 11815,
+          "n_sites": 9457
+        },
+        "regret_at_1": {
+          "observed": 0.00022666122381210328,
+          "ci95": [
+            -2.6267611061782572e-05,
+            0.0004770374304620288
+          ],
+          "two_sided_p": 0.08200000000000007,
+          "n_groups": 11815,
+          "n_sites": 9457
+        }
+      }
+    },
+    {
+      "stratum": "depth 3-4",
+      "groups": 9885,
+      "sites": 9337,
+      "all_zero_groups": 1533,
+      "mean_oracle": 0.043054525492978245,
+      "arms": {
+        "ours": {
+          "achieved_efficiency_at_1": 0.035238228923459784,
+          "achieved_efficiency_at_3": 0.04278980697418007,
+          "achieved_efficiency_at_5": 0.0,
+          "best_design_hit_rate": 0.6566514921598381,
+          "regret_at_1": 0.007816296569518462,
+          "threshold_0.02_success_at_1": 0.435306019221042,
+          "threshold_0.02_success_at_3": 0.5020738492665655,
+          "threshold_0.05_success_at_1": 0.2641375821952453,
+          "threshold_0.05_success_at_3": 0.31815882650480526
+        },
+        "op": {
+          "achieved_efficiency_at_1": 0.03557935094652403,
+          "achieved_efficiency_at_3": 0.042797502840226605,
+          "achieved_efficiency_at_5": 0.0,
+          "best_design_hit_rate": 0.6587759231158321,
+          "regret_at_1": 0.007475174546454225,
+          "threshold_0.02_success_at_1": 0.43277693474962065,
+          "threshold_0.02_success_at_3": 0.5014668689934244,
+          "threshold_0.05_success_at_1": 0.2644410723318159,
+          "threshold_0.05_success_at_3": 0.3178553363682347
+        },
+        "rand": {
+          "achieved_efficiency_at_1": 0.02101441427456609,
+          "achieved_efficiency_at_3": 0.040352448053871275,
+          "achieved_efficiency_at_5": 0.0,
+          "best_design_hit_rate": 0.2944090372618446,
+          "regret_at_1": 0.022040111218412158
+        }
+      },
+      "groups_with_depth_at_least": {
+        "1": 9885,
+        "3": 9885,
+        "5": 0
+      },
+      "paired_ours_minus_op": {
+        "achieved_efficiency_at_1": {
+          "observed": -0.00034112202306423863,
+          "ci95": [
+            -0.0007372517225687271,
+            4.9942963567295287e-05
+          ],
+          "two_sided_p": 0.093,
+          "n_groups": 9885,
+          "n_sites": 9337
+        },
+        "achieved_efficiency_at_3": {
+          "observed": -7.695866046535154e-06,
+          "ci95": [
+            -8.365112103159213e-05,
+            6.0051409934816464e-05
+          ],
+          "two_sided_p": 0.886,
+          "n_groups": 9885,
+          "n_sites": 9337
+        },
+        "best_design_hit_rate": {
+          "observed": -0.0021244309559939304,
+          "ci95": [
+            -0.011023254627826601,
+            0.0062798483273296
+          ],
+          "two_sided_p": 0.616,
+          "n_groups": 9885,
+          "n_sites": 9337
+        },
+        "regret_at_1": {
+          "observed": 0.0003411220230642387,
+          "ci95": [
+            -4.9942963567295605e-05,
+            0.0007372517225687271
+          ],
+          "two_sided_p": 0.09299999999999997,
+          "n_groups": 9885,
+          "n_sites": 9337
+        }
+      }
+    },
+    {
+      "stratum": "depth 5-7",
+      "groups": 6375,
+      "sites": 6205,
+      "all_zero_groups": 325,
+      "mean_oracle": 0.06745343955281882,
+      "arms": {
+        "ours": {
+          "achieved_efficiency_at_1": 0.05089312803169255,
+          "achieved_efficiency_at_3": 0.06509289801420393,
+          "achieved_efficiency_at_5": 0.06727684950387765,
+          "best_design_hit_rate": 0.4916078431372549,
+          "regret_at_1": 0.016560311521126275,
+          "threshold_0.02_success_at_1": 0.5819607843137254,
+          "threshold_0.02_success_at_3": 0.6826666666666666,
+          "threshold_0.05_success_at_1": 0.3832156862745098,
+          "threshold_0.05_success_at_3": 0.48564705882352943
+        },
+        "op": {
+          "achieved_efficiency_at_1": 0.05199541128685333,
+          "achieved_efficiency_at_3": 0.06505247246050981,
+          "achieved_efficiency_at_5": 0.06734961626372236,
+          "best_design_hit_rate": 0.5071372549019608,
+          "regret_at_1": 0.01545802826596549,
+          "threshold_0.02_success_at_1": 0.5813333333333334,
+          "threshold_0.02_success_at_3": 0.6804705882352942,
+          "threshold_0.05_success_at_1": 0.3847843137254902,
+          "threshold_0.05_success_at_3": 0.4836078431372549
+        },
+        "rand": {
+          "achieved_efficiency_at_1": 0.027527675619623847,
+          "achieved_efficiency_at_3": 0.05250808640392199,
+          "achieved_efficiency_at_5": 0.06482378383163673,
+          "best_design_hit_rate": 0.18186293183940241,
+          "regret_at_1": 0.039925763933194976
+        }
+      },
+      "groups_with_depth_at_least": {
+        "1": 6375,
+        "3": 6375,
+        "5": 6375
+      },
+      "paired_ours_minus_op": {
+        "achieved_efficiency_at_1": {
+          "observed": -0.0011022832551607843,
+          "ci95": [
+            -0.0018085551500774866,
+            -0.00037001414459607394
+          ],
+          "two_sided_p": 0.001,
+          "n_groups": 6375,
+          "n_sites": 6205
+        },
+        "achieved_efficiency_at_3": {
+          "observed": 4.0425553694117614e-05,
+          "ci95": [
+            -0.00025745631448305183,
+            0.0003389423507243173
+          ],
+          "two_sided_p": 0.782,
+          "n_groups": 6375,
+          "n_sites": 6205
+        },
+        "best_design_hit_rate": {
+          "observed": -0.015529411764705882,
+          "ci95": [
+            -0.02750810353506381,
+            -0.0029937651005512156
+          ],
+          "two_sided_p": 0.015,
+          "n_groups": 6375,
+          "n_sites": 6205
+        },
+        "regret_at_1": {
+          "observed": 0.0011022832551607843,
+          "ci95": [
+            0.0003700141445960737,
+            0.0018085551500774861
+          ],
+          "two_sided_p": 0.0009999999999998899,
+          "n_groups": 6375,
+          "n_sites": 6205
+        }
+      }
+    },
+    {
+      "stratum": "depth 8+",
+      "groups": 2400,
+      "sites": 2371,
+      "all_zero_groups": 29,
+      "mean_oracle": 0.09372063159034168,
+      "arms": {
+        "ours": {
+          "achieved_efficiency_at_1": 0.06203749589587917,
+          "achieved_efficiency_at_3": 0.08421677197195834,
+          "achieved_efficiency_at_5": 0.09109256511302083,
+          "best_design_hit_rate": 0.34291666666666665,
+          "regret_at_1": 0.031683135694462496,
+          "threshold_0.02_success_at_1": 0.6783333333333333,
+          "threshold_0.02_success_at_3": 0.8166666666666667,
+          "threshold_0.05_success_at_1": 0.4795833333333333,
+          "threshold_0.05_success_at_3": 0.63875
+        },
+        "op": {
+          "achieved_efficiency_at_1": 0.0645004328494,
+          "achieved_efficiency_at_3": 0.08454770365639167,
+          "achieved_efficiency_at_5": 0.09078088368970418,
+          "best_design_hit_rate": 0.3616666666666667,
+          "regret_at_1": 0.029220198740941672,
+          "threshold_0.02_success_at_1": 0.6845833333333333,
+          "threshold_0.02_success_at_3": 0.8154166666666667,
+          "threshold_0.05_success_at_1": 0.4920833333333333,
+          "threshold_0.05_success_at_3": 0.63625
+        },
+        "rand": {
+          "achieved_efficiency_at_1": 0.0292915698074381,
+          "achieved_efficiency_at_3": 0.05872377536588997,
+          "achieved_efficiency_at_5": 0.07407976841186845,
+          "best_design_hit_rate": 0.10225869501769119,
+          "regret_at_1": 0.06442906178290357
+        }
+      },
+      "groups_with_depth_at_least": {
+        "1": 2400,
+        "3": 2400,
+        "5": 2400
+      },
+      "paired_ours_minus_op": {
+        "achieved_efficiency_at_1": {
+          "observed": -0.0024629369535208332,
+          "ci95": [
+            -0.004133716052585891,
+            -0.0008197093259659513
+          ],
+          "two_sided_p": 0.006,
+          "n_groups": 2400,
+          "n_sites": 2371
+        },
+        "achieved_efficiency_at_3": {
+          "observed": -0.0003309316844333333,
+          "ci95": [
+            -0.001274655415630719,
+            0.0006028168734729601
+          ],
+          "two_sided_p": 0.461,
+          "n_groups": 2400,
+          "n_sites": 2371
+        },
+        "best_design_hit_rate": {
+          "observed": -0.01875,
+          "ci95": [
+            -0.04012449940799554,
+            0.0016783087457890714
+          ],
+          "two_sided_p": 0.07,
+          "n_groups": 2400,
+          "n_sites": 2371
+        },
+        "regret_at_1": {
+          "observed": 0.0024629369535208332,
+          "ci95": [
+            0.0008197093259659511,
+            0.0041337160525858905
+          ],
+          "two_sided_p": 0.006000000000000005,
+          "n_groups": 2400,
+          "n_sites": 2371
+        }
+      }
+    },
+    {
+      "stratum": "decision worth < 0.005",
+      "groups": 12553,
+      "sites": 10312,
+      "all_zero_groups": 5807,
+      "mean_oracle": 0.003360812179187445,
+      "arms": {
+        "ours": {
+          "achieved_efficiency_at_1": 0.0027164373462295866,
+          "achieved_efficiency_at_3": 0.0023956192617317993,
+          "achieved_efficiency_at_5": 0.0024863741493962267,
+          "best_design_hit_rate": 0.7543216760933641,
+          "regret_at_1": 0.0006443748329578587,
+          "threshold_0.02_success_at_1": 0.02238508723014419,
+          "threshold_0.02_success_at_3": 0.02493427865848801,
+          "threshold_0.05_success_at_1": 0.008523858838524655,
+          "threshold_0.05_success_at_3": 0.009479805624153589
+        },
+        "op": {
+          "achieved_efficiency_at_1": 0.0027084277333736958,
+          "achieved_efficiency_at_3": 0.002385537450081333,
+          "achieved_efficiency_at_5": 0.0024775036692150946,
+          "best_design_hit_rate": 0.7520114713614275,
+          "regret_at_1": 0.0006523844458137496,
+          "threshold_0.02_success_at_1": 0.022703736158687166,
+          "threshold_0.02_success_at_3": 0.02493427865848801,
+          "threshold_0.05_success_at_1": 0.00844419660638891,
+          "threshold_0.05_success_at_3": 0.009479805624153589
+        },
+        "rand": {
+          "achieved_efficiency_at_1": 0.0023390732647482924,
+          "achieved_efficiency_at_3": 0.0022275305504306808,
+          "achieved_efficiency_at_5": 0.0023711807284858876,
+          "best_design_hit_rate": 0.40728440019047835,
+          "regret_at_1": 0.001021738914439153
+        }
+      },
+      "groups_with_depth_at_least": {
+        "1": 12553,
+        "3": 5039,
+        "5": 1323
+      },
+      "paired_ours_minus_op": {
+        "achieved_efficiency_at_1": {
+          "observed": 8.009612855891014e-06,
+          "ci95": [
+            -1.5191125756068942e-05,
+            3.100937616806801e-05
+          ],
+          "two_sided_p": 0.5249999999999999,
+          "n_groups": 12553,
+          "n_sites": 10312
+        },
+        "achieved_efficiency_at_3": {
+          "observed": 1.0081811650466178e-05,
+          "ci95": [
+            -1.279046685093538e-06,
+            2.1843782566514005e-05
+          ],
+          "two_sided_p": 0.08400000000000007,
+          "n_groups": 5041,
+          "n_sites": 4752
+        },
+        "best_design_hit_rate": {
+          "observed": 0.0023102047319365888,
+          "ci95": [
+            -0.0036924185223201275,
+            0.008037881998035228
+          ],
+          "two_sided_p": 0.46399999999999997,
+          "n_groups": 12553,
+          "n_sites": 10312
+        },
+        "regret_at_1": {
+          "observed": -8.009612855891014e-06,
+          "ci95": [
+            -3.100937616806802e-05,
+            1.5191125756068926e-05
+          ],
+          "two_sided_p": 0.525,
+          "n_groups": 12553,
+          "n_sites": 10312
+        }
+      }
+    },
+    {
+      "stratum": "decision worth 0.005-0.02",
+      "groups": 6346,
+      "sites": 5942,
+      "all_zero_groups": 0,
+      "mean_oracle": 0.027893373889454776,
+      "arms": {
+        "ours": {
+          "achieved_efficiency_at_1": 0.022700697404577686,
+          "achieved_efficiency_at_3": 0.021788292075435048,
+          "achieved_efficiency_at_5": 0.01913473418123511,
+          "best_design_hit_rate": 0.6238575480617712,
+          "regret_at_1": 0.005192676484877088,
+          "threshold_0.02_success_at_1": 0.42735581468641665,
+          "threshold_0.02_success_at_3": 0.5368736211786952,
+          "threshold_0.05_success_at_1": 0.07689883391112512,
+          "threshold_0.05_success_at_3": 0.09580838323353294
+        },
+        "op": {
+          "achieved_efficiency_at_1": 0.022630955196545857,
+          "achieved_efficiency_at_3": 0.02174403651061375,
+          "achieved_efficiency_at_5": 0.01907653993981818,
+          "best_design_hit_rate": 0.619287740308856,
+          "regret_at_1": 0.005262418692908919,
+          "threshold_0.02_success_at_1": 0.4248345414434289,
+          "threshold_0.02_success_at_3": 0.5348250866687677,
+          "threshold_0.05_success_at_1": 0.07721399306649858,
+          "threshold_0.05_success_at_3": 0.0961235423889064
+        },
+        "rand": {
+          "achieved_efficiency_at_1": 0.01646802921669555,
+          "achieved_efficiency_at_3": 0.019766284621521225,
+          "achieved_efficiency_at_5": 0.018093788667943398,
+          "best_design_hit_rate": 0.3369154860704657,
+          "regret_at_1": 0.011425344672759227
+        }
+      },
+      "groups_with_depth_at_least": {
+        "1": 6346,
+        "3": 4057,
+        "5": 1595
+      },
+      "paired_ours_minus_op": {
+        "achieved_efficiency_at_1": {
+          "observed": 6.974220803183113e-05,
+          "ci95": [
+            -0.00013421918057795215,
+            0.00028140101309217375
+          ],
+          "two_sided_p": 0.5209999999999999,
+          "n_groups": 6346,
+          "n_sites": 5942
+        },
+        "achieved_efficiency_at_3": {
+          "observed": 4.425556482129651e-05,
+          "ci95": [
+            -2.6252159900908495e-05,
+            0.0001173729915296255
+          ],
+          "two_sided_p": 0.21199999999999997,
+          "n_groups": 4057,
+          "n_sites": 3947
+        },
+        "best_design_hit_rate": {
+          "observed": 0.004569807752915222,
+          "ci95": [
+            -0.0070696901097248,
+            0.015635055775602823
+          ],
+          "two_sided_p": 0.45999999999999996,
+          "n_groups": 6346,
+          "n_sites": 5942
+        },
+        "regret_at_1": {
+          "observed": -6.974220803183113e-05,
+          "ci95": [
+            -0.00028140101309217375,
+            0.00013421918057795196
+          ],
+          "two_sided_p": 0.521,
+          "n_groups": 6346,
+          "n_sites": 5942
+        }
+      }
+    },
+    {
+      "stratum": "decision worth 0.02-0.05",
+      "groups": 5961,
+      "sites": 5634,
+      "all_zero_groups": 0,
+      "mean_oracle": 0.06876934397748531,
+      "arms": {
+        "ours": {
+          "achieved_efficiency_at_1": 0.05517111064928871,
+          "achieved_efficiency_at_3": 0.06194873791329732,
+          "achieved_efficiency_at_5": 0.05775398906944878,
+          "best_design_hit_rate": 0.5977185036067774,
+          "regret_at_1": 0.013598233328196612,
+          "threshold_0.02_success_at_1": 0.8456634792819997,
+          "threshold_0.02_success_at_3": 0.9828887770508304,
+          "threshold_0.05_success_at_1": 0.5151820164401946,
+          "threshold_0.05_success_at_3": 0.6623049823855058
+        },
+        "op": {
+          "achieved_efficiency_at_1": 0.05535863805086898,
+          "achieved_efficiency_at_3": 0.06175640784415694,
+          "achieved_efficiency_at_5": 0.05778430860130642,
+          "best_design_hit_rate": 0.6002348599228318,
+          "regret_at_1": 0.01341070592661634,
+          "threshold_0.02_success_at_1": 0.840463009562154,
+          "threshold_0.02_success_at_3": 0.9813789632611978,
+          "threshold_0.05_success_at_1": 0.5156852877034055,
+          "threshold_0.05_success_at_3": 0.6594531118939775
+        },
+        "rand": {
+          "achieved_efficiency_at_1": 0.03562285676170713,
+          "achieved_efficiency_at_3": 0.05502792785651874,
+          "achieved_efficiency_at_5": 0.054505591890648325,
+          "best_design_hit_rate": 0.2914913842365874,
+          "regret_at_1": 0.033146487215778196
+        }
+      },
+      "groups_with_depth_at_least": {
+        "1": 5961,
+        "3": 4537,
+        "5": 2304
+      },
+      "paired_ours_minus_op": {
+        "achieved_efficiency_at_1": {
+          "observed": -0.00018752740158027164,
+          "ci95": [
+            -0.0007442626185786572,
+            0.0003825760511693585
+          ],
+          "two_sided_p": 0.534,
+          "n_groups": 5961,
+          "n_sites": 5634
+        },
+        "achieved_efficiency_at_3": {
+          "observed": 0.0001923300691404012,
+          "ci95": [
+            -8.641218015649495e-06,
+            0.0003858045584591769
+          ],
+          "two_sided_p": 0.06000000000000005,
+          "n_groups": 4537,
+          "n_sites": 4420
+        },
+        "best_design_hit_rate": {
+          "observed": -0.0025163563160543532,
+          "ci95": [
+            -0.01490787269681742,
+            0.010408142031783335
+          ],
+          "two_sided_p": 0.696,
+          "n_groups": 5961,
+          "n_sites": 5634
+        },
+        "regret_at_1": {
+          "observed": 0.00018752740158027164,
+          "ci95": [
+            -0.0003825760511693593,
+            0.0007442626185786571
+          ],
+          "two_sided_p": 0.534,
+          "n_groups": 5961,
+          "n_sites": 5634
+        }
+      }
+    },
+    {
+      "stratum": "decision worth >= 0.05",
+      "groups": 5615,
+      "sites": 5287,
+      "all_zero_groups": 0,
+      "mean_oracle": 0.1382978658192823,
+      "arms": {
+        "ours": {
+          "achieved_efficiency_at_1": 0.10660558254582723,
+          "achieved_efficiency_at_3": 0.13099999602004772,
+          "achieved_efficiency_at_5": 0.13527512926412608,
+          "best_design_hit_rate": 0.5552983081032947,
+          "regret_at_1": 0.03169228327345503,
+          "threshold_0.02_success_at_1": 0.9109528049866429,
+          "threshold_0.02_success_at_3": 0.9907390917186109,
+          "threshold_0.05_success_at_1": 0.816206589492431,
+          "threshold_0.05_success_at_3": 0.9764915405164737
+        },
+        "op": {
+          "achieved_efficiency_at_1": 0.10988490149132324,
+          "achieved_efficiency_at_3": 0.13134126626799084,
+          "achieved_efficiency_at_5": 0.1352049265278328,
+          "best_design_hit_rate": 0.5891362422083705,
+          "regret_at_1": 0.028412964327959037,
+          "threshold_0.02_success_at_1": 0.9166518254674978,
+          "threshold_0.02_success_at_3": 0.9905609973285842,
+          "threshold_0.05_success_at_1": 0.8288512911843277,
+          "threshold_0.05_success_at_3": 0.9752448797862867
+        },
+        "rand": {
+          "achieved_efficiency_at_1": 0.05610440225782479,
+          "achieved_efficiency_at_3": 0.10612346446334153,
+          "achieved_efficiency_at_5": 0.12199852941415734,
+          "best_design_hit_rate": 0.21975247852005372,
+          "regret_at_1": 0.0821934635614575
+        }
+      },
+      "groups_with_depth_at_least": {
+        "1": 5615,
+        "3": 5027,
+        "5": 3553
+      },
+      "paired_ours_minus_op": {
+        "achieved_efficiency_at_1": {
+          "observed": -0.003279318945495993,
+          "ci95": [
+            -0.0045123175661747235,
+            -0.0020256011401411475
+          ],
+          "two_sided_p": 0.0005,
+          "n_groups": 5615,
+          "n_sites": 5287
+        },
+        "achieved_efficiency_at_3": {
+          "observed": -0.00034127024794310725,
+          "ci95": [
+            -0.0009035626844508274,
+            0.00018771565952625078
+          ],
+          "two_sided_p": 0.203,
+          "n_groups": 5027,
+          "n_sites": 4887
+        },
+        "best_design_hit_rate": {
+          "observed": -0.03383793410507569,
+          "ci95": [
+            -0.04701154796316478,
+            -0.020929578137789766
+          ],
+          "two_sided_p": 0.0005,
+          "n_groups": 5615,
+          "n_sites": 5287
+        },
+        "regret_at_1": {
+          "observed": 0.003279318945495993,
+          "ci95": [
+            0.0020256011401411467,
+            0.004512317566174723
+          ],
+          "two_sided_p": 0.0005,
+          "n_groups": 5615,
+          "n_sites": 5287
+        }
+      }
+    },
+    {
+      "stratum": "edit type sub",
+      "groups": 15341,
+      "sites": 12712,
+      "all_zero_groups": 1982,
+      "mean_oracle": 0.049741226348004694,
+      "arms": {
+        "ours": {
+          "achieved_efficiency_at_1": 0.039830473192332315,
+          "achieved_efficiency_at_3": 0.057087927207472404,
+          "achieved_efficiency_at_5": 0.07434540873125398,
+          "best_design_hit_rate": 0.6384851052734503,
+          "regret_at_1": 0.009910753155672383,
+          "threshold_0.02_success_at_1": 0.466657975360146,
+          "threshold_0.02_success_at_3": 0.5348412750146666,
+          "threshold_0.05_success_at_1": 0.29398344306107815,
+          "threshold_0.05_success_at_3": 0.35864676357473435
+        },
+        "op": {
+          "achieved_efficiency_at_1": 0.04045512267951698,
+          "achieved_efficiency_at_3": 0.05704550610617485,
+          "achieved_efficiency_at_5": 0.07435056260158504,
+          "best_design_hit_rate": 0.6459161723486083,
+          "regret_at_1": 0.009286103668487714,
+          "threshold_0.02_success_at_1": 0.46587575777328727,
+          "threshold_0.02_success_at_3": 0.5331464702431393,
+          "threshold_0.05_success_at_1": 0.2974382374030376,
+          "threshold_0.05_success_at_3": 0.35760380679225606
+        },
+        "rand": {
+          "achieved_efficiency_at_1": 0.024083694746022823,
+          "achieved_efficiency_at_3": 0.04882358641573896,
+          "achieved_efficiency_at_5": 0.06923013111092202,
+          "best_design_hit_rate": 0.3321277132678322,
+          "regret_at_1": 0.02565753160198187
+        }
+      },
+      "groups_with_depth_at_least": {
+        "1": 15341,
+        "3": 9778,
+        "5": 4409
+      },
+      "paired_ours_minus_op": {
+        "achieved_efficiency_at_1": {
+          "observed": -0.0006246494871846686,
+          "ci95": [
+            -0.0009926694259010127,
+            -0.00024303275301940636
+          ],
+          "two_sided_p": 0.0005,
+          "n_groups": 15341,
+          "n_sites": 12712
+        },
+        "achieved_efficiency_at_3": {
+          "observed": 4.242110129754602e-05,
+          "ci95": [
+            -0.00015807930101131764,
+            0.000239212902537237
+          ],
+          "two_sided_p": 0.698,
+          "n_groups": 9780,
+          "n_sites": 9332
+        },
+        "best_design_hit_rate": {
+          "observed": -0.007431067075158073,
+          "ci95": [
+            -0.014668724713874646,
+            -0.0006510588957594607
+          ],
+          "two_sided_p": 0.037,
+          "n_groups": 15341,
+          "n_sites": 12712
+        },
+        "regret_at_1": {
+          "observed": 0.0006246494871846686,
+          "ci95": [
+            0.00024303275301940604,
+            0.0009926694259010124
+          ],
+          "two_sided_p": 0.0005,
+          "n_groups": 15341,
+          "n_sites": 12712
+        }
+      }
+    },
+    {
+      "stratum": "edit type ins",
+      "groups": 8909,
+      "sites": 6463,
+      "all_zero_groups": 2549,
+      "mean_oracle": 0.04249138738771242,
+      "arms": {
+        "ours": {
+          "achieved_efficiency_at_1": 0.03276410770192839,
+          "achieved_efficiency_at_3": 0.054888750053421004,
+          "achieved_efficiency_at_5": 0.07405572753411598,
+          "best_design_hit_rate": 0.7071500729599282,
+          "regret_at_1": 0.00972727968578404,
+          "threshold_0.02_success_at_1": 0.39398361207767424,
+          "threshold_0.02_success_at_3": 0.452688292737681,
+          "threshold_0.05_success_at_1": 0.2460433269727242,
+          "threshold_0.05_success_at_3": 0.3073296666292513
+        },
+        "op": {
+          "achieved_efficiency_at_1": 0.03355656149049613,
+          "achieved_efficiency_at_3": 0.05510394427108387,
+          "achieved_efficiency_at_5": 0.07397358229387266,
+          "best_design_hit_rate": 0.7145583118195084,
+          "regret_at_1": 0.008934825897216296,
+          "threshold_0.02_success_at_1": 0.3916264451678078,
+          "threshold_0.02_success_at_3": 0.4538107531709507,
+          "threshold_0.05_success_at_1": 0.24918621618587944,
+          "threshold_0.05_success_at_3": 0.30643169828263556
+        },
+        "rand": {
+          "achieved_efficiency_at_1": 0.019302422487033066,
+          "achieved_efficiency_at_3": 0.045013507336628615,
+          "achieved_efficiency_at_5": 0.06578985908265281,
+          "best_design_hit_rate": 0.3450022474381186,
+          "regret_at_1": 0.023188964900679357
+        }
+      },
+      "groups_with_depth_at_least": {
+        "1": 8909,
+        "3": 5019,
+        "5": 2466
+      },
+      "paired_ours_minus_op": {
+        "achieved_efficiency_at_1": {
+          "observed": -0.0007924537885677404,
+          "ci95": [
+            -0.0012734534426658952,
+            -0.0003212273195782777
+          ],
+          "two_sided_p": 0.002,
+          "n_groups": 8909,
+          "n_sites": 6463
+        },
+        "achieved_efficiency_at_3": {
+          "observed": -0.00021519421766288111,
+          "ci95": [
+            -0.0005910213016916165,
+            0.00016040818340765767
+          ],
+          "two_sided_p": 0.265,
+          "n_groups": 5019,
+          "n_sites": 4649
+        },
+        "best_design_hit_rate": {
+          "observed": -0.0074082388595802,
+          "ci95": [
+            -0.0164545420757329,
+            0.001125789387353384
+          ],
+          "two_sided_p": 0.089,
+          "n_groups": 8909,
+          "n_sites": 6463
+        },
+        "regret_at_1": {
+          "observed": 0.0007924537885677405,
+          "ci95": [
+            0.00032122731957827735,
+            0.001273453442665895
+          ],
+          "two_sided_p": 0.0020000000000000018,
+          "n_groups": 8909,
+          "n_sites": 6463
+        }
+      }
+    },
+    {
+      "stratum": "edit type del",
+      "groups": 6225,
+      "sites": 4871,
+      "all_zero_groups": 1276,
+      "mean_oracle": 0.04241610897526265,
+      "arms": {
+        "ours": {
+          "achieved_efficiency_at_1": 0.0325604298075261,
+          "achieved_efficiency_at_3": 0.05339457855206834,
+          "achieved_efficiency_at_5": 0.07208174395292477,
+          "best_design_hit_rate": 0.6448192771084338,
+          "regret_at_1": 0.009855679167736546,
+          "threshold_0.02_success_at_1": 0.39839357429718875,
+          "threshold_0.02_success_at_3": 0.46650602409638553,
+          "threshold_0.05_success_at_1": 0.2485140562248996,
+          "threshold_0.05_success_at_3": 0.3081124497991968
+        },
+        "op": {
+          "achieved_efficiency_at_1": 0.03293719758458313,
+          "achieved_efficiency_at_3": 0.053380966169451205,
+          "achieved_efficiency_at_5": 0.07202687507987375,
+          "best_design_hit_rate": 0.6395180722891566,
+          "regret_at_1": 0.00947891139067952,
+          "threshold_0.02_success_at_1": 0.4019277108433735,
+          "threshold_0.02_success_at_3": 0.4653815261044177,
+          "threshold_0.05_success_at_1": 0.24755020080321286,
+          "threshold_0.05_success_at_3": 0.30843373493975906
+        },
+        "rand": {
+          "achieved_efficiency_at_1": 0.019246477895589382,
+          "achieved_efficiency_at_3": 0.04430434747295107,
+          "achieved_efficiency_at_5": 0.06496601547510804,
+          "best_design_hit_rate": 0.3298635802169697,
+          "regret_at_1": 0.023169631079673268
+        }
+      },
+      "groups_with_depth_at_least": {
+        "1": 6225,
+        "3": 3863,
+        "5": 1900
+      },
+      "paired_ours_minus_op": {
+        "achieved_efficiency_at_1": {
+          "observed": -0.00037676777705702806,
+          "ci95": [
+            -0.0009319670267824959,
+            0.00016693687946482019
+          ],
+          "two_sided_p": 0.164,
+          "n_groups": 6225,
+          "n_sites": 4871
+        },
+        "achieved_efficiency_at_3": {
+          "observed": 1.3612382617136924e-05,
+          "ci95": [
+            -0.00034343951790473664,
+            0.00036054952632483375
+          ],
+          "two_sided_p": 0.9630000000000001,
+          "n_groups": 3863,
+          "n_sites": 3595
+        },
+        "best_design_hit_rate": {
+          "observed": 0.005301204819277108,
+          "ci95": [
+            -0.00605454985040808,
+            0.01573168962107314
+          ],
+          "two_sided_p": 0.3320000000000001,
+          "n_groups": 6225,
+          "n_sites": 4871
+        },
+        "regret_at_1": {
+          "observed": 0.00037676777705702806,
+          "ci95": [
+            -0.00016693687946482065,
+            0.0009319670267824959
+          ],
+          "two_sided_p": 0.16399999999999992,
+          "n_groups": 6225,
+          "n_sites": 4871
+        }
+      }
+    }
+  ],
+  "screening_effort": {
+    "min_depth": 8,
+    "groups": 2400,
+    "k": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8
+    ],
+    "curves": {
+      "ours": [
+        0.06203749589587917,
+        0.07642505829289584,
+        0.08421677197195834,
+        0.08851428978295417,
+        0.09109256511302083,
+        0.0923612231350875,
+        0.0930338347476875,
+        0.09340068033307083
+      ],
+      "op": [
+        0.0645004328494,
+        0.0782781761215,
+        0.08454770365639167,
+        0.08850090574946667,
+        0.09078088368970418,
+        0.0920019394352375,
+        0.09276855197420834,
+        0.0932611846061375
+      ],
+      "rand": [
+        0.0292915698074381,
+        0.04685158576211148,
+        0.05872377536588997,
+        0.0673965561612648,
+        0.07407976841186845,
+        0.07943177211769971,
+        0.08384277599284673,
+        0.08755720799380141
+      ]
+    },
+    "random_candidates_to_match_ours_top1": 4,
+    "optiprime_candidates_to_match_ours_top1": 1,
+    "random_candidates_to_match_op_top1": 4
+  }
+}

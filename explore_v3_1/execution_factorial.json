@@ -1,0 +1,62 @@
+[
+  {
+    "tag": "E_h100_lr1_kl_mixture_w0.1_b1000_sub20260910_s20260910",
+    "gpu": 0,
+    "returncode": 0
+  },
+  {
+    "tag": "E_h100_lr1_kl_mixture_w1_b1000_sub20260910_s20260910",
+    "gpu": 0,
+    "returncode": 0
+  },
+  {
+    "tag": "E_h100_lr1_kl_balanced_w0.1_b1000_sub20260910_s20260910",
+    "gpu": 0,
+    "returncode": 0
+  },
+  {
+    "tag": "E_h100_lr1_kl_balanced_w1_b1000_sub20260910_s20260910",
+    "gpu": 0,
+    "returncode": 0
+  },
+  {
+    "tag": "E_h100_lr1_margin_mixture_w0.1_b1000_sub20260910_s20260910",
+    "gpu": 0,
+    "returncode": 0
+  },
+  {
+    "tag": "E_h100_lr1_margin_mixture_w1_b1000_sub20260910_s20260910",
+    "gpu": 0,
+    "returncode": 0
+  },
+  {
+    "tag": "E_h100_lr1_margin_balanced_w0.1_b1000_sub20260910_s20260910",
+    "gpu": 0,
+    "returncode": 0
+  },
+  {
+    "tag": "E_h100_lr1_margin_balanced_w1_b1000_sub20260910_s20260910",
+    "gpu": 0,
+    "returncode": 0
+  },
+  {
+    "tag": "E_h100_lr1_utility_mixture_w0.1_b1000_sub20260910_s20260910",
+    "gpu": 0,
+    "returncode": 0
+  },
+  {
+    "tag": "E_h100_lr1_utility_mixture_w1_b1000_sub20260910_s20260910",
+    "gpu": 0,
+    "returncode": 0
+  },
+  {
+    "tag": "E_h100_lr1_utility_balanced_w0.1_b1000_sub20260910_s20260910",
+    "gpu": 0,
+    "returncode": 0
+  },
+  {
+    "tag": "E_h100_lr1_utility_balanced_w1_b1000_sub20260910_s20260910",
+    "gpu": 0,
+    "returncode": 0
+  }
+]

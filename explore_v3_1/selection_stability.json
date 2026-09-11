@@ -1,0 +1,182 @@
+{
+  "controls": [
+    {
+      "arm": "A",
+      "observed_winner": "A_h100_lr3_none_mixture_w1_b1000_sub20260910_s20260910:step70",
+      "states_including_duplicates": 44,
+      "same_exact_state_fraction": 0.3055,
+      "most_frequent_bootstrap_states": [
+        {
+          "state": "A_h100_lr3_none_mixture_w1_b1000_sub20260910_s20260910:step70",
+          "fraction": 0.3055
+        },
+        {
+          "state": "A_h100_lr3_none_mixture_w1_b1000_sub20260910_s20260910:step100",
+          "fraction": 0.2395
+        },
+        {
+          "state": "A_h100_lr3_none_mixture_w1_b1000_sub20260910_s20260910:step50",
+          "fraction": 0.126
+        },
+        {
+          "state": "A_h500_lr3_none_mixture_w1_b1000_sub20260910_s20260910:step450",
+          "fraction": 0.118
+        },
+        {
+          "state": "A_h100_lr3_none_mixture_w1_b1000_sub20260910_s20260910:step80",
+          "fraction": 0.0845
+        }
+      ],
+      "note": "Bootstrap selection stability on fixed inner predictions, not retrained or independent validation."
+    },
+    {
+      "arm": "B",
+      "observed_winner": "B_h500_lr3_none_mixture_w1_b1000_sub20260910_s20260910:step300",
+      "states_including_duplicates": 44,
+      "same_exact_state_fraction": 0.1915,
+      "most_frequent_bootstrap_states": [
+        {
+          "state": "B_h500_lr3_none_mixture_w1_b1000_sub20260910_s20260910:step300",
+          "fraction": 0.1915
+        },
+        {
+          "state": "B_h500_lr3_none_mixture_w1_b1000_sub20260910_s20260910:step500",
+          "fraction": 0.188
+        },
+        {
+          "state": "B_h100_lr1_none_mixture_w1_b1000_sub20260910_s20260910:step80",
+          "fraction": 0.113
+        },
+        {
+          "state": "B_h100_lr1_none_mixture_w1_b1000_sub20260910_s20260910:step60",
+          "fraction": 0.098
+        },
+        {
+          "state": "B_h100_lr1_none_mixture_w1_b1000_sub20260910_s20260910:step10",
+          "fraction": 0.0725
+        }
+      ],
+      "note": "Bootstrap selection stability on fixed inner predictions, not retrained or independent validation."
+    },
+    {
+      "arm": "D",
+      "observed_winner": "D_h500_lr1_none_mixture_w1_b1000_sub20260910_s20260910:step350",
+      "states_including_duplicates": 44,
+      "same_exact_state_fraction": 0.205,
+      "most_frequent_bootstrap_states": [
+        {
+          "state": "D_h500_lr1_none_mixture_w1_b1000_sub20260910_s20260910:step350",
+          "fraction": 0.205
+        },
+        {
+          "state": "D_h100_lr3_none_mixture_w1_b1000_sub20260910_s20260910:step40",
+          "fraction": 0.124
+        },
+        {
+          "state": "D_h100_lr3_none_mixture_w1_b1000_sub20260910_s20260910:step80",
+          "fraction": 0.096
+        },
+        {
+          "state": "D_h100_lr3_none_mixture_w1_b1000_sub20260910_s20260910:step50",
+          "fraction": 0.093
+        },
+        {
+          "state": "D_h100_lr1_none_mixture_w1_b1000_sub20260910_s20260910:step70",
+          "fraction": 0.0885
+        }
+      ],
+      "note": "Bootstrap selection stability on fixed inner predictions, not retrained or independent validation."
+    },
+    {
+      "arm": "C_frozen",
+      "observed_winner": "C_frozen_h500_lr1_none_mixture_w1_b1000_sub20260910_s20260910:step400",
+      "states_including_duplicates": 44,
+      "same_exact_state_fraction": 0.538,
+      "most_frequent_bootstrap_states": [
+        {
+          "state": "C_frozen_h500_lr1_none_mixture_w1_b1000_sub20260910_s20260910:step400",
+          "fraction": 0.538
+        },
+        {
+          "state": "C_frozen_h500_lr3_none_mixture_w1_b1000_sub20260910_s20260910:step200",
+          "fraction": 0.075
+        },
+        {
+          "state": "C_frozen_h100_lr1_none_mixture_w1_b1000_sub20260910_s20260910:step20",
+          "fraction": 0.0735
+        },
+        {
+          "state": "C_frozen_h500_lr1_none_mixture_w1_b1000_sub20260910_s20260910:step350",
+          "fraction": 0.059
+        },
+        {
+          "state": "C_frozen_h500_lr3_none_mixture_w1_b1000_sub20260910_s20260910:step250",
+          "fraction": 0.045
+        }
+      ],
+      "note": "Bootstrap selection stability on fixed inner predictions, not retrained or independent validation."
+    },
+    {
+      "arm": "E",
+      "observed_winner": "E_h100_lr1_none_mixture_w1_b1000_sub20260910_s20260910:step60",
+      "states_including_duplicates": 44,
+      "same_exact_state_fraction": 0.357,
+      "most_frequent_bootstrap_states": [
+        {
+          "state": "E_h100_lr1_none_mixture_w1_b1000_sub20260910_s20260910:step60",
+          "fraction": 0.357
+        },
+        {
+          "state": "E_h500_lr1_none_mixture_w1_b1000_sub20260910_s20260910:step450",
+          "fraction": 0.097
+        },
+        {
+          "state": "E_h500_lr3_none_mixture_w1_b1000_sub20260910_s20260910:step150",
+          "fraction": 0.073
+        },
+        {
+          "state": "E_h500_lr1_none_mixture_w1_b1000_sub20260910_s20260910:step500",
+          "fraction": 0.0725
+        },
+        {
+          "state": "E_h500_lr1_none_mixture_w1_b1000_sub20260910_s20260910:step150",
+          "fraction": 0.0495
+        }
+      ],
+      "note": "Bootstrap selection stability on fixed inner predictions, not retrained or independent validation."
+    }
+  ],
+  "promoted_candidate": "E_h100_lr1_margin_balanced_w1_b1000_sub20260910_s20260910",
+  "source_validation_change_by_study": {
+    "deepprime": {
+      "observed": -5.13563876388875e-05,
+      "ci95": [
+        -0.0001501297247054424,
+        0.0
+      ],
+      "two_sided_p": 0.001,
+      "groups": 72,
+      "clusters": 11,
+      "n_boot": 2000,
+      "degenerate": false
+    },
+    "pridict_pridict2": {
+      "observed": -0.0009470865749913193,
+      "ci95": [
+        -0.0022728100383685016,
+        0.00039522645562621686
+      ],
+      "two_sided_p": 0.171,
+      "groups": 613,
+      "clusters": 355,
+      "n_boot": 2000,
+      "degenerate": false
+    }
+  },
+  "caveat": "All intervals are post-selection descriptive. They do not validate the .001 feasibility filter or alter the locked recipe.",
+  "inputs_sha256": {
+    "explore_v3_1/selection_stability.py": "21eee580a97c5e1a620c53b532e77d39b76281f3fc7f79064255e246475774f2",
+    "explore_v3_1/control_selection.json": "01dc640d48b6dcaac91a579606e7ec6577e6045550d178da363f8b3261186971",
+    "explore_v3_1/factorial_selection.json": "07f97917aaac91d2dcf73cfaf94d3fe8bec30a381348d34bc2ea69d2546ce5a6"
+  }
+}

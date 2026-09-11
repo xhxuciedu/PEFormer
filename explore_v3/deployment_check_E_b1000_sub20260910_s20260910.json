@@ -1,0 +1,31 @@
+{
+  "checks": {
+    "target_outer_val": {
+      "candidates": 539,
+      "groups": 128,
+      "max_cached_vs_end_to_end_error": 1.7881393432617188e-06,
+      "max_batch_size_error": 1.6689300537109375e-06,
+      "changed_choices": [
+        0,
+        0
+      ]
+    },
+    "source_audit": {
+      "candidates": 256,
+      "groups": 128,
+      "max_cached_vs_end_to_end_error": 1.2814998626708984e-06,
+      "max_batch_size_error": 1.6689300537109375e-06,
+      "changed_choices": [
+        0,
+        0
+      ]
+    }
+  },
+  "inputs_sha256": {
+    "explore_v3/runs/E_b1000_sub20260910_s20260910/best.pt": "747e6c04df4f9b8069dffe05921e32af0fcce5c22da55c55c2a05bfa5732cc4f",
+    "explore_v3/runs/E_b1000_sub20260910_s20260910/provenance.json": "6a4c7792b0b05180ba3fcdc24b09a1b26e97438fd5f8552bde10dd4746ce0677",
+    "explore_v3/cache/prepared.json": "3e944e617c1781b60fae11d3b467a3483b5c4dce570efafe2d49da3ac2340cf9",
+    "explore_v3/inference.py": "85c256fff61afc0d960774b5594a1d099944d86439b69010f1734a82a4a41ce9",
+    "explore_v3/validate_deployment.py": "0ffeebca2a2c8dc38d43fbb865556c872217b25f82643b45c49c5aed62e70867"
+  }
+}

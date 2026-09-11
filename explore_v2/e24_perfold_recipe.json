@@ -1,0 +1,856 @@
+{
+  "provenance": {
+    "git_commit": "83ffae1c5b8f",
+    "working_tree_dirty": true,
+    "seed": 20260908,
+    "inputs": {
+      "data/processed/optiprime_official_318471.parquet": "fe62229d50a08fa3",
+      "results/heldout_full_head_to_head.parquet": "23d833dfcccb6f60"
+    }
+  },
+  "canon_version": 2,
+  "disclosure": "A further development use of the reserved panel; nothing here is confirmatory.",
+  "construction": {
+    "members": [
+      "m_Ffold_cv1",
+      "m_Ffold_cv2",
+      "m_Ffold_cv3",
+      "m_Ffold_cv4",
+      "m_Ffold_cv5"
+    ],
+    "combiner": "plain mean of predicted efficiencies, matching the published member",
+    "calibrator": "isotonic, fitted on this model's own development out-of-fold predictions (297,962 rows over folds 1-5), frozen before either surface was scored"
+  },
+  "panel": {
+    "strata": [
+      {
+        "stratum": "all eligible groups",
+        "groups": 30475,
+        "sites": 22931,
+        "arms": {
+          "op": {
+            "achieved_at_1": 0.03690271864096128,
+            "hit_at_1": 0.6647415914684167,
+            "regret_at_1": 0.009222193816298605
+          },
+          "ours": {
+            "achieved_at_1": 0.03626760015603182,
+            "hit_at_1": 0.6596554552912223,
+            "regret_at_1": 0.009857312301228055
+          },
+          "Ffold": {
+            "achieved_at_1": 0.03609656815846513,
+            "hit_at_1": 0.6570959803117309,
+            "regret_at_1": 0.01002834429879475
+          },
+          "F3_ens": {
+            "achieved_at_1": 0.036074101948305994,
+            "hit_at_1": 0.6538802296964725,
+            "regret_at_1": 0.010050810508953898
+          },
+          "A_ens": {
+            "achieved_at_1": 0.0349233219993265,
+            "hit_at_1": 0.640459392945037,
+            "regret_at_1": 0.011201590457933388
+          },
+          "E_ens": {
+            "achieved_at_1": 0.03632837701469975,
+            "hit_at_1": 0.660935192780968,
+            "regret_at_1": 0.00979653544256013
+          },
+          "H_ens": {
+            "achieved_at_1": 0.03650467827383528,
+            "hit_at_1": 0.6600492206726826,
+            "regret_at_1": 0.00962023418342461
+          },
+          "Ffold_cv1": {
+            "achieved_at_1": 0.035810151709915174,
+            "hit_at_1": 0.6499425758818704,
+            "regret_at_1": 0.010314760747344708
+          },
+          "Ffold_cv2": {
+            "achieved_at_1": 0.03501295804872519,
+            "hit_at_1": 0.6426907301066448,
+            "regret_at_1": 0.011111954408534701
+          },
+          "Ffold_cv3": {
+            "achieved_at_1": 0.03491541386528434,
+            "hit_at_1": 0.6405906480721903,
+            "regret_at_1": 0.011209498591975555
+          },
+          "Ffold_cv4": {
+            "achieved_at_1": 0.035808746986077764,
+            "hit_at_1": 0.6485643970467596,
+            "regret_at_1": 0.010316165471182116
+          },
+          "Ffold_cv5": {
+            "achieved_at_1": 0.03549854345755373,
+            "hit_at_1": 0.6466283839212469,
+            "regret_at_1": 0.010626368999706152
+          },
+          "rand": {
+            "achieved_at_1": 0.021698024018121292,
+            "hit_at_1": 0.4441781987958064,
+            "regret_at_1": 0.024426888439138594
+          },
+          "oracle": {
+            "achieved_at_1": 0.04612491245725989
+          }
+        },
+        "paired": {
+          "Ffold_minus_ours": {
+            "observed": -0.000171031997566694,
+            "ci95": [
+              -0.0003435674352416917,
+              9.291994659231212e-06
+            ],
+            "two_sided_p": 0.062,
+            "p_is_resolution_floor": false,
+            "degenerate_zero_difference": false,
+            "n": 30475,
+            "n_clusters": 22931,
+            "n_boot": 2000
+          },
+          "Ffold_minus_op": {
+            "observed": -0.0008061504824961443,
+            "ci95": [
+              -0.0010694260943548532,
+              -0.0005451787777768112
+            ],
+            "two_sided_p": 0.001,
+            "p_is_resolution_floor": true,
+            "degenerate_zero_difference": false,
+            "n": 30475,
+            "n_clusters": 22931,
+            "n_boot": 2000
+          },
+          "Ffold_minus_F3_ens": {
+            "observed": 2.2466210159146868e-05,
+            "ci95": [
+              -0.00014831025251096087,
+              0.00019543733971235503
+            ],
+            "two_sided_p": 0.812,
+            "p_is_resolution_floor": false,
+            "degenerate_zero_difference": false,
+            "n": 30475,
+            "n_clusters": 22931,
+            "n_boot": 2000
+          },
+          "Ffold_minus_A_ens": {
+            "observed": 0.0011732461591386384,
+            "ci95": [
+              0.0009529200333113032,
+              0.0014047260401574772
+            ],
+            "two_sided_p": 0.001,
+            "p_is_resolution_floor": true,
+            "degenerate_zero_difference": false,
+            "n": 30475,
+            "n_clusters": 22931,
+            "n_boot": 2000
+          },
+          "Ffold_minus_E_ens": {
+            "observed": -0.0002318088562346185,
+            "ci95": [
+              -0.000427018529870093,
+              -3.704211412081467e-05
+            ],
+            "two_sided_p": 0.014,
+            "p_is_resolution_floor": false,
+            "degenerate_zero_difference": false,
+            "n": 30475,
+            "n_clusters": 22931,
+            "n_boot": 2000
+          },
+          "Ffold_minus_H_ens": {
+            "observed": -0.0004081101153701395,
+            "ci95": [
+              -0.0005914597371495579,
+              -0.00022797012831740615
+            ],
+            "two_sided_p": 0.001,
+            "p_is_resolution_floor": true,
+            "degenerate_zero_difference": false,
+            "n": 30475,
+            "n_clusters": 22931,
+            "n_boot": 2000
+          },
+          "ours_minus_op": {
+            "observed": -0.0006351184849294503,
+            "ci95": [
+              -0.0008942588779959316,
+              -0.0003837666352586664
+            ],
+            "two_sided_p": 0.001,
+            "p_is_resolution_floor": true,
+            "degenerate_zero_difference": false,
+            "n": 30475,
+            "n_clusters": 22931,
+            "n_boot": 2000
+          }
+        }
+      },
+      {
+        "stratum": "informative groups",
+        "groups": 24668,
+        "sites": 19642,
+        "arms": {
+          "op": {
+            "achieved_at_1": 0.04558984719406903,
+            "hit_at_1": 0.5858196854224096,
+            "regret_at_1": 0.011393155365319442
+          },
+          "ours": {
+            "achieved_at_1": 0.04480521788369832,
+            "hit_at_1": 0.579536241284255,
+            "regret_at_1": 0.012177784675690168
+          },
+          "Ffold": {
+            "achieved_at_1": 0.0445939238944878,
+            "hit_at_1": 0.5763742500405383,
+            "regret_at_1": 0.012389078664900681
+          },
+          "F3_ens": {
+            "achieved_at_1": 0.04456616899929564,
+            "hit_at_1": 0.5724014918112534,
+            "regret_at_1": 0.012416833560092834
+          },
+          "A_ens": {
+            "achieved_at_1": 0.04314448832209645,
+            "hit_at_1": 0.5558213069563808,
+            "regret_at_1": 0.013838514237292038
+          },
+          "E_ens": {
+            "achieved_at_1": 0.044880301991364314,
+            "hit_at_1": 0.5811172369061132,
+            "regret_at_1": 0.01210270056802416
+          },
+          "H_ens": {
+            "achieved_at_1": 0.04509810565895614,
+            "hit_at_1": 0.5800227014755959,
+            "regret_at_1": 0.01188489690043234
+          },
+          "Ffold_cv1": {
+            "achieved_at_1": 0.044240083239811295,
+            "hit_at_1": 0.5675368898978433,
+            "regret_at_1": 0.012742919319577184
+          },
+          "Ffold_cv2": {
+            "achieved_at_1": 0.043255225252752556,
+            "hit_at_1": 0.5585779147073131,
+            "regret_at_1": 0.013727777306635923
+          },
+          "Ffold_cv3": {
+            "achieved_at_1": 0.04313471856431572,
+            "hit_at_1": 0.5559834603534944,
+            "regret_at_1": 0.013848283995072768
+          },
+          "Ffold_cv4": {
+            "achieved_at_1": 0.04423834783528134,
+            "hit_at_1": 0.5658342792281499,
+            "regret_at_1": 0.012744654724107143
+          },
+          "Ffold_cv5": {
+            "achieved_at_1": 0.0438551204746615,
+            "hit_at_1": 0.5634425166207232,
+            "regret_at_1": 0.013127882084726974
+          },
+          "rand": {
+            "achieved_at_1": 0.026805873275184307,
+            "hit_at_1": 0.3133343038877169,
+            "regret_at_1": 0.030177129284204175
+          },
+          "oracle": {
+            "achieved_at_1": 0.05698300255938848
+          }
+        },
+        "paired": {
+          "Ffold_minus_ours": {
+            "observed": -0.00021129398921051562,
+            "ci95": [
+              -0.00042050868144493086,
+              1.0856716840925106e-05
+            ],
+            "two_sided_p": 0.074,
+            "p_is_resolution_floor": false,
+            "degenerate_zero_difference": false,
+            "n": 24668,
+            "n_clusters": 19642,
+            "n_boot": 2000
+          },
+          "Ffold_minus_op": {
+            "observed": -0.0009959232995812388,
+            "ci95": [
+              -0.0013138775205942905,
+              -0.0006725870452660114
+            ],
+            "two_sided_p": 0.001,
+            "p_is_resolution_floor": true,
+            "degenerate_zero_difference": false,
+            "n": 24668,
+            "n_clusters": 19642,
+            "n_boot": 2000
+          },
+          "Ffold_minus_F3_ens": {
+            "observed": 2.7754895192151786e-05,
+            "ci95": [
+              -0.00018377658645305308,
+              0.00024327526540187159
+            ],
+            "two_sided_p": 0.775,
+            "p_is_resolution_floor": false,
+            "degenerate_zero_difference": false,
+            "n": 24668,
+            "n_clusters": 19642,
+            "n_boot": 2000
+          },
+          "Ffold_minus_A_ens": {
+            "observed": 0.0014494355723913576,
+            "ci95": [
+              0.001193637971275504,
+              0.0017199974056742063
+            ],
+            "two_sided_p": 0.001,
+            "p_is_resolution_floor": true,
+            "degenerate_zero_difference": false,
+            "n": 24668,
+            "n_clusters": 19642,
+            "n_boot": 2000
+          },
+          "Ffold_minus_E_ens": {
+            "observed": -0.00028637809687652015,
+            "ci95": [
+              -0.0005142486451829071,
+              -4.388510015148314e-05
+            ],
+            "two_sided_p": 0.014,
+            "p_is_resolution_floor": false,
+            "degenerate_zero_difference": false,
+            "n": 24668,
+            "n_clusters": 19642,
+            "n_boot": 2000
+          },
+          "Ffold_minus_H_ens": {
+            "observed": -0.0005041817644683396,
+            "ci95": [
+              -0.0007301259084965253,
+              -0.00027737022895843325
+            ],
+            "two_sided_p": 0.001,
+            "p_is_resolution_floor": true,
+            "degenerate_zero_difference": false,
+            "n": 24668,
+            "n_clusters": 19642,
+            "n_boot": 2000
+          },
+          "ours_minus_op": {
+            "observed": -0.0007846293103707232,
+            "ci95": [
+              -0.0011126950204265202,
+              -0.0004577354731822619
+            ],
+            "two_sided_p": 0.001,
+            "p_is_resolution_floor": true,
+            "degenerate_zero_difference": false,
+            "n": 24668,
+            "n_clusters": 19642,
+            "n_boot": 2000
+          }
+        }
+      },
+      {
+        "stratum": "depth 8+",
+        "groups": 2400,
+        "sites": 2371,
+        "arms": {
+          "op": {
+            "achieved_at_1": 0.0645004328494,
+            "hit_at_1": 0.3616666666666667,
+            "regret_at_1": 0.029220198740941665
+          },
+          "ours": {
+            "achieved_at_1": 0.06201413541155418,
+            "hit_at_1": 0.3416666666666667,
+            "regret_at_1": 0.0317064961787875
+          },
+          "Ffold": {
+            "achieved_at_1": 0.062255491242566664,
+            "hit_at_1": 0.33791666666666664,
+            "regret_at_1": 0.031465140347775
+          },
+          "F3_ens": {
+            "achieved_at_1": 0.06181798479623751,
+            "hit_at_1": 0.3279166666666667,
+            "regret_at_1": 0.031902646794104164
+          },
+          "A_ens": {
+            "achieved_at_1": 0.0573321973509375,
+            "hit_at_1": 0.29541666666666666,
+            "regret_at_1": 0.03638843423940417
+          },
+          "E_ens": {
+            "achieved_at_1": 0.06231901894260417,
+            "hit_at_1": 0.33708333333333335,
+            "regret_at_1": 0.0314016126477375
+          },
+          "H_ens": {
+            "achieved_at_1": 0.06351291523253749,
+            "hit_at_1": 0.34375,
+            "regret_at_1": 0.030207716357804167
+          },
+          "Ffold_cv1": {
+            "achieved_at_1": 0.061165125432354174,
+            "hit_at_1": 0.31708333333333333,
+            "regret_at_1": 0.0325555061579875
+          },
+          "Ffold_cv2": {
+            "achieved_at_1": 0.05820749265859167,
+            "hit_at_1": 0.29791666666666666,
+            "regret_at_1": 0.035513138931749996
+          },
+          "Ffold_cv3": {
+            "achieved_at_1": 0.057945965154404165,
+            "hit_at_1": 0.31166666666666665,
+            "regret_at_1": 0.0357746664359375
+          },
+          "Ffold_cv4": {
+            "achieved_at_1": 0.06184798936332918,
+            "hit_at_1": 0.3229166666666667,
+            "regret_at_1": 0.0318726422270125
+          },
+          "Ffold_cv5": {
+            "achieved_at_1": 0.060668710590575,
+            "hit_at_1": 0.3179166666666667,
+            "regret_at_1": 0.03305192099976667
+          },
+          "rand": {
+            "achieved_at_1": 0.029291569807438106,
+            "hit_at_1": 0.11301870584020203,
+            "regret_at_1": 0.06442906178290356
+          },
+          "oracle": {
+            "achieved_at_1": 0.09372063159034166
+          }
+        },
+        "paired": {
+          "Ffold_minus_ours": {
+            "observed": 0.00024135583101250014,
+            "ci95": [
+              -0.0008993910616408682,
+              0.0013565871932024799
+            ],
+            "two_sided_p": 0.69,
+            "p_is_resolution_floor": false,
+            "degenerate_zero_difference": false,
+            "n": 2400,
+            "n_clusters": 2371,
+            "n_boot": 2000
+          },
+          "Ffold_minus_op": {
+            "observed": -0.002244941606833333,
+            "ci95": [
+              -0.0039261434290222465,
+              -0.0006786617792802509
+            ],
+            "two_sided_p": 0.004,
+            "p_is_resolution_floor": false,
+            "degenerate_zero_difference": false,
+            "n": 2400,
+            "n_clusters": 2371,
+            "n_boot": 2000
+          },
+          "Ffold_minus_F3_ens": {
+            "observed": 0.0004375064463291666,
+            "ci95": [
+              -0.0007208121218346008,
+              0.0015996771087104828
+            ],
+            "two_sided_p": 0.47,
+            "p_is_resolution_floor": false,
+            "degenerate_zero_difference": false,
+            "n": 2400,
+            "n_clusters": 2371,
+            "n_boot": 2000
+          },
+          "Ffold_minus_A_ens": {
+            "observed": 0.004923293891629168,
+            "ci95": [
+              0.003522257258389527,
+              0.0064265282445476095
+            ],
+            "two_sided_p": 0.001,
+            "p_is_resolution_floor": true,
+            "degenerate_zero_difference": false,
+            "n": 2400,
+            "n_clusters": 2371,
+            "n_boot": 2000
+          },
+          "Ffold_minus_E_ens": {
+            "observed": -6.352770003750006e-05,
+            "ci95": [
+              -0.0012590283488796217,
+              0.001164128142558829
+            ],
+            "two_sided_p": 0.951,
+            "p_is_resolution_floor": false,
+            "degenerate_zero_difference": false,
+            "n": 2400,
+            "n_clusters": 2371,
+            "n_boot": 2000
+          },
+          "Ffold_minus_H_ens": {
+            "observed": -0.001257423989970833,
+            "ci95": [
+              -0.0023348032542435666,
+              -0.0001207953311811077
+            ],
+            "two_sided_p": 0.026,
+            "p_is_resolution_floor": false,
+            "degenerate_zero_difference": false,
+            "n": 2400,
+            "n_clusters": 2371,
+            "n_boot": 2000
+          },
+          "ours_minus_op": {
+            "observed": -0.002486297437845833,
+            "ci95": [
+              -0.004157564468375262,
+              -0.00083211067624209
+            ],
+            "two_sided_p": 0.004,
+            "p_is_resolution_floor": false,
+            "degenerate_zero_difference": false,
+            "n": 2400,
+            "n_clusters": 2371,
+            "n_boot": 2000
+          }
+        }
+      },
+      {
+        "stratum": "decision worth >= 0.05",
+        "groups": 5614,
+        "sites": 5286,
+        "arms": {
+          "op": {
+            "achieved_at_1": 0.1098911927307143,
+            "hit_at_1": 0.5890630566441041,
+            "regret_at_1": 0.02841802541886177
+          },
+          "ours": {
+            "achieved_at_1": 0.10660291483278055,
+            "hit_at_1": 0.5548628428927681,
+            "regret_at_1": 0.03170630331679551
+          },
+          "Ffold": {
+            "achieved_at_1": 0.10598002174542216,
+            "hit_at_1": 0.5464909155682223,
+            "regret_at_1": 0.0323291964041539
+          },
+          "F3_ens": {
+            "achieved_at_1": 0.10595611911298183,
+            "hit_at_1": 0.5434627716423228,
+            "regret_at_1": 0.032353099036594224
+          },
+          "A_ens": {
+            "achieved_at_1": 0.10150816743865515,
+            "hit_at_1": 0.5110438190238689,
+            "regret_at_1": 0.036801050710920914
+          },
+          "E_ens": {
+            "achieved_at_1": 0.10695264865646777,
+            "hit_at_1": 0.5600285001781261,
+            "regret_at_1": 0.031356569493108305
+          },
+          "H_ens": {
+            "achieved_at_1": 0.10793647022368187,
+            "hit_at_1": 0.5591378696116851,
+            "regret_at_1": 0.030372747925894193
+          },
+          "Ffold_cv1": {
+            "achieved_at_1": 0.10516904927706805,
+            "hit_at_1": 0.5400783754898468,
+            "regret_at_1": 0.033140168872508015
+          },
+          "Ffold_cv2": {
+            "achieved_at_1": 0.1017928133757802,
+            "hit_at_1": 0.5135375846099038,
+            "regret_at_1": 0.03651640477379586
+          },
+          "Ffold_cv3": {
+            "achieved_at_1": 0.10130092345135376,
+            "hit_at_1": 0.5130032062700391,
+            "regret_at_1": 0.0370082946982223
+          },
+          "Ffold_cv4": {
+            "achieved_at_1": 0.10509671629972034,
+            "hit_at_1": 0.5372283576772355,
+            "regret_at_1": 0.03321250184985572
+          },
+          "Ffold_cv5": {
+            "achieved_at_1": 0.10380371460031172,
+            "hit_at_1": 0.5279657997862487,
+            "regret_at_1": 0.034505503549264335
+          },
+          "rand": {
+            "achieved_at_1": 0.05611081077880587,
+            "hit_at_1": 0.2197470906466159,
+            "regret_at_1": 0.08219840737077018
+          },
+          "oracle": {
+            "achieved_at_1": 0.13830921814957606
+          }
+        },
+        "paired": {
+          "Ffold_minus_ours": {
+            "observed": -0.0006228930873583897,
+            "ci95": [
+              -0.0014538125048054352,
+              0.00021928668362891562
+            ],
+            "two_sided_p": 0.155,
+            "p_is_resolution_floor": false,
+            "degenerate_zero_difference": false,
+            "n": 5614,
+            "n_clusters": 5286,
+            "n_boot": 2000
+          },
+          "Ffold_minus_op": {
+            "observed": -0.003911170985292127,
+            "ci95": [
+              -0.005119365077351684,
+              -0.0026576984159773676
+            ],
+            "two_sided_p": 0.001,
+            "p_is_resolution_floor": true,
+            "degenerate_zero_difference": false,
+            "n": 5614,
+            "n_clusters": 5286,
+            "n_boot": 2000
+          },
+          "Ffold_minus_F3_ens": {
+            "observed": 2.3902632440327656e-05,
+            "ci95": [
+              -0.0008355926480308444,
+              0.0008787215926450544
+            ],
+            "two_sided_p": 0.935,
+            "p_is_resolution_floor": false,
+            "degenerate_zero_difference": false,
+            "n": 5614,
+            "n_clusters": 5286,
+            "n_boot": 2000
+          },
+          "Ffold_minus_A_ens": {
+            "observed": 0.004471854306767011,
+            "ci95": [
+              0.003403246064064692,
+              0.0055405499885296155
+            ],
+            "two_sided_p": 0.001,
+            "p_is_resolution_floor": true,
+            "degenerate_zero_difference": false,
+            "n": 5614,
+            "n_clusters": 5286,
+            "n_boot": 2000
+          },
+          "Ffold_minus_E_ens": {
+            "observed": -0.0009726269110456002,
+            "ci95": [
+              -0.001883173350134678,
+              -5.343477012154547e-05
+            ],
+            "two_sided_p": 0.039,
+            "p_is_resolution_floor": false,
+            "degenerate_zero_difference": false,
+            "n": 5614,
+            "n_clusters": 5286,
+            "n_boot": 2000
+          },
+          "Ffold_minus_H_ens": {
+            "observed": -0.001956448478259708,
+            "ci95": [
+              -0.0028214591252520684,
+              -0.0011066116051244115
+            ],
+            "two_sided_p": 0.001,
+            "p_is_resolution_floor": true,
+            "degenerate_zero_difference": false,
+            "n": 5614,
+            "n_clusters": 5286,
+            "n_boot": 2000
+          },
+          "ours_minus_op": {
+            "observed": -0.0032882778979337365,
+            "ci95": [
+              -0.004507769843383865,
+              -0.0020861387941230563
+            ],
+            "two_sided_p": 0.001,
+            "p_is_resolution_floor": true,
+            "degenerate_zero_difference": false,
+            "n": 5614,
+            "n_clusters": 5286,
+            "n_boot": 2000
+          }
+        }
+      }
+    ],
+    "correlations": {
+      "op": {
+        "spearman": 0.6931453002067394,
+        "pearson": 0.5853669542091688
+      },
+      "ours": {
+        "spearman": 0.7090869889497087,
+        "pearson": 0.5521910100571045
+      },
+      "Ffold": {
+        "spearman": 0.709583040181091,
+        "pearson": 0.5571614299843166
+      },
+      "Ffold_cal": {
+        "spearman": 0.7095570782659224,
+        "pearson": 0.6047527179992573
+      },
+      "F3_ens": {
+        "spearman": 0.7070655812491006,
+        "pearson": 0.5638675935867714
+      },
+      "A_ens": {
+        "spearman": 0.6908131627817279,
+        "pearson": 0.5410949727195139
+      },
+      "E_ens": {
+        "spearman": 0.7070102491737479,
+        "pearson": 0.5624216016735569
+      },
+      "H_ens": {
+        "spearman": 0.7112785790686857,
+        "pearson": 0.5688007886368942
+      }
+    },
+    "margins_over_optiprime": {
+      "spearman_Ffold": {
+        "observed": 0.016437739974351606,
+        "ci95": [
+          0.014120614725667053,
+          0.018803130668858914
+        ],
+        "two_sided_p": 0.0005,
+        "n_clusters": 30302
+      },
+      "pearson_Ffold_calibrated": {
+        "observed": 0.019385763790088495,
+        "ci95": [
+          0.015659415930246442,
+          0.023021760336744357
+        ],
+        "two_sided_p": 0.0005,
+        "n_clusters": 30302
+      },
+      "spearman_Ffold_minus_published": {
+        "observed": 0.0004960512313822996,
+        "ci95": [
+          -0.00036571520490565886,
+          0.0014056741233116946
+        ],
+        "two_sided_p": 0.2829999999999999,
+        "n_clusters": 30302
+      }
+    }
+  },
+  "fold0": {
+    "rows": 20509,
+    "correlations": {
+      "op": {
+        "spearman": 0.8690026435974381,
+        "pearson": 0.8270482032752274
+      },
+      "ours": {
+        "spearman": 0.9078742230815918,
+        "pearson": 0.7278148528033282
+      },
+      "Ffold": {
+        "spearman": 0.9083803853824405,
+        "pearson": 0.7843048347434922
+      },
+      "Ffold_cal": {
+        "spearman": 0.9084081106625664,
+        "pearson": 0.8637112175646845
+      }
+    },
+    "margins_over_optiprime": {
+      "spearman_Ffold": {
+        "observed": 0.03937774178500242,
+        "ci95": [
+          0.029349058721411126,
+          0.05021265724347979
+        ],
+        "two_sided_p": 0.0005,
+        "n_clusters": 750
+      },
+      "pearson_Ffold_calibrated": {
+        "observed": 0.03666301428945706,
+        "ci95": [
+          0.019439436695832493,
+          0.057481411253940885
+        ],
+        "two_sided_p": 0.0005,
+        "n_clusters": 750
+      }
+    },
+    "decision": {
+      "informative_groups": 1463,
+      "sites": 439,
+      "arms": {
+        "op": 0.12721264889220094,
+        "ours": 0.13636373734997262,
+        "Ffold": 0.13643622147515377,
+        "rand": 0.10856484000664615
+      },
+      "oracle": 0.14303635586784688,
+      "paired": {
+        "Ffold_minus_ours": {
+          "observed": 7.248412518113452e-05,
+          "ci95": [
+            -0.001516831364709391,
+            0.0017291094432866792
+          ],
+          "two_sided_p": 0.952,
+          "p_is_resolution_floor": false,
+          "degenerate_zero_difference": false,
+          "n": 1463,
+          "n_clusters": 439,
+          "n_boot": 2000
+        },
+        "Ffold_minus_op": {
+          "observed": 0.009223572582952838,
+          "ci95": [
+            0.006115668229660424,
+            0.012548562642254256
+          ],
+          "two_sided_p": 0.001,
+          "p_is_resolution_floor": true,
+          "degenerate_zero_difference": false,
+          "n": 1463,
+          "n_clusters": 439,
+          "n_boot": 2000
+        },
+        "ours_minus_op": {
+          "observed": 0.009151088457771702,
+          "ci95": [
+            0.0063296861867505345,
+            0.012148800184921359
+          ],
+          "two_sided_p": 0.001,
+          "p_is_resolution_floor": true,
+          "degenerate_zero_difference": false,
+          "n": 1463,
+          "n_clusters": 439,
+          "n_boot": 2000
+        }
+      }
+    }
+  }
+}

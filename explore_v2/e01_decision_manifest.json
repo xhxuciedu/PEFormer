@@ -1,0 +1,202 @@
+{
+  "provenance": {
+    "git_commit": "83ffae1c5b8f",
+    "working_tree_dirty": true,
+    "seed": 20260908,
+    "inputs": {
+      "data/processed/optiprime_official_318471.parquet": "fe62229d50a08fa3"
+    }
+  },
+  "flank": 12,
+  "design_fields": [
+    "spacer",
+    "pbs",
+    "rtt",
+    "motif",
+    "scaffold_name",
+    "linker",
+    "epegRNA"
+  ],
+  "context_fields": [
+    "source_study",
+    "cell_type",
+    "pe_type",
+    "cas9_type",
+    "cas9_pam",
+    "PEmax",
+    "MLH1dn",
+    "NRCH",
+    "time"
+  ],
+  "keys": {
+    "rows": 318471,
+    "raw_wt_edited_pairs": 139503,
+    "target_name": 42774,
+    "spacer": 39040,
+    "canonical_edits": 51766,
+    "design_keys": 145934,
+    "context_keys": 28,
+    "decision_groups": 175668,
+    "flank_full_frac": 0.8906242640617199,
+    "edit_type_top": {
+      "sub1": 132926,
+      "ins1": 31262,
+      "del1": 17265,
+      "ins2": 10409,
+      "sub3": 8659,
+      "sub5": 8337,
+      "sub2": 8209,
+      "sub4": 6906,
+      "sub10": 5975,
+      "del2": 5823,
+      "sub8": 5591,
+      "ins3": 5340
+    },
+    "targets_with_multiple_windows_one_edit": 32181,
+    "edits_reached_by_multiple_spacers": 8024
+  },
+  "availability": {
+    "corpus": {
+      "rows": 318471,
+      "decision_groups": 175668,
+      "groups_ge_2": 54390,
+      "groups_ge_3": 18332,
+      "groups_ge_4": 15799,
+      "groups_ge_5": 9543,
+      "groups_ge_8": 7187,
+      "groups_ge_12": 2541,
+      "rows_in_groups_ge_2": 196853,
+      "rows_in_groups_ge_3": 124392,
+      "rows_in_groups_ge_5": 91650,
+      "spacer_groups_ge_5": 12059,
+      "spacer_groups_ge_5_median_n_edit": 1.0,
+      "spacer_groups_ge_5_median_n_cond": 3.0,
+      "spacer_groups_ge_5_frac_multi_cond": 0.9261132763910772,
+      "spacer_groups_ge_5_frac_multi_edit": 0.40310141802802885
+    },
+    "fold0_heldout": {
+      "rows": 20509,
+      "decision_groups": 17872,
+      "groups_ge_2": 2412,
+      "groups_ge_3": 85,
+      "groups_ge_4": 72,
+      "groups_ge_5": 0,
+      "groups_ge_8": 0,
+      "groups_ge_12": 0,
+      "rows_in_groups_ge_2": 5013,
+      "rows_in_groups_ge_3": 327,
+      "rows_in_groups_ge_5": 0,
+      "spacer_groups_ge_5": 735,
+      "spacer_groups_ge_5_median_n_edit": 1.0,
+      "spacer_groups_ge_5_median_n_cond": 14.0,
+      "spacer_groups_ge_5_frac_multi_cond": 1.0,
+      "spacer_groups_ge_5_frac_multi_edit": 0.25578231292517006
+    },
+    "fold1_val": {
+      "rows": 59581,
+      "decision_groups": 35457,
+      "groups_ge_2": 11559,
+      "groups_ge_3": 4633,
+      "groups_ge_4": 3903,
+      "groups_ge_5": 912,
+      "groups_ge_8": 595,
+      "groups_ge_12": 113,
+      "rows_in_groups_ge_2": 35647,
+      "rows_in_groups_ge_3": 21763,
+      "rows_in_groups_ge_5": 7609,
+      "spacer_groups_ge_5": 2569,
+      "spacer_groups_ge_5_median_n_edit": 1.0,
+      "spacer_groups_ge_5_median_n_cond": 3.0,
+      "spacer_groups_ge_5_frac_multi_cond": 0.9805371739976645,
+      "spacer_groups_ge_5_frac_multi_edit": 0.2623588945114831
+    },
+    "folds2_5_train": {
+      "rows": 238381,
+      "decision_groups": 132066,
+      "groups_ge_2": 42238,
+      "groups_ge_3": 14633,
+      "groups_ge_4": 12785,
+      "groups_ge_5": 7149,
+      "groups_ge_8": 5195,
+      "groups_ge_12": 1409,
+      "rows_in_groups_ge_2": 148416,
+      "rows_in_groups_ge_3": 93077,
+      "rows_in_groups_ge_5": 64967,
+      "spacer_groups_ge_5": 9597,
+      "spacer_groups_ge_5_median_n_edit": 1.0,
+      "spacer_groups_ge_5_median_n_cond": 3.0,
+      "spacer_groups_ge_5_frac_multi_cond": 0.9349796811503595,
+      "spacer_groups_ge_5_frac_multi_edit": 0.3626133166614567
+    }
+  },
+  "replicates": {
+    "groups": 654,
+    "rows": 1512,
+    "size_profile": {
+      "2": 586,
+      "5": 68
+    },
+    "groups_spanning_two_source_files": 196,
+    "median_abs_within_group_sd": 0.0032100972517772565,
+    "mean_within_group_sd": 0.012106026336290727,
+    "mean_within_group_mean": 0.14339741463602676,
+    "note": "A replicate here is metadata-identical: same canonical allele, same design molecule, same nine context fields. Two rows can still be the same library measured twice or two genuinely independent transfections; the corpus does not record which, so these are an upper bound on identified replication and a lower bound on measurement noise."
+  },
+  "fold_structure": {
+    "by_key": {
+      "target_name": {
+        "keys_touching_fold0": 808,
+        "keys_split_across_folds": 157,
+        "frac_split": 0.1943069306930693
+      },
+      "spacer": {
+        "keys_touching_fold0": 750,
+        "keys_split_across_folds": 605,
+        "frac_split": 0.8066666666666666
+      },
+      "edit_key": {
+        "keys_touching_fold0": 3115,
+        "keys_split_across_folds": 339,
+        "frac_split": 0.1088282504012841
+      },
+      "decision_group": {
+        "keys_touching_fold0": 17872,
+        "keys_split_across_folds": 3670,
+        "frac_split": 0.20534914950760966
+      }
+    },
+    "fold0_rows_in_decision_group_shared_with_other_folds": 4931,
+    "fold0_rows_total": 20509,
+    "note": "OptiPrime's official folds are not locus-disjoint under the canonical keys: 80.7% of fold-0 protospacers and 20.3% of fold-0 decision groups also appear in training folds. The manuscript's leakage check counted exact design-and-condition twins (196 rows); alternative designs for the same intended allele at the same site are a separate and much larger channel."
+  },
+  "task_separation_fold0": {
+    "task1_choose_pegRNA_groups": 2412,
+    "task1_rows": 5013,
+    "task1_max_candidates": 4,
+    "task3_spacer_groups_ge5": 735
+  },
+  "manifest": {
+    "path": "explore_v2/cache/decision_manifest_v2.parquet",
+    "canon_version": 2,
+    "rows": 318471,
+    "columns": [
+      "record_id",
+      "fold",
+      "edit_key",
+      "edit_type",
+      "ref",
+      "alt",
+      "flank_full",
+      "design_key",
+      "context_key",
+      "cond3",
+      "decision_group",
+      "replicate_key",
+      "target_name",
+      "spacer",
+      "source_file",
+      "edited",
+      "weight"
+    ]
+  }
+}

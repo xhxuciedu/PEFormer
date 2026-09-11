@@ -1,0 +1,261 @@
+{
+  "files": [
+    {
+      "file": "oped_sequencing_primers.xlsx",
+      "url": "https://media.springernature.com/original/springer-static/esm/art%3A10.1038%2Fs42256-023-00739-w/MediaObjects/42256_2023_739_MOESM9_ESM.xlsx",
+      "final_url": "https://media.springernature.com/original/springer-static/esm/art%3A10.1038%2Fs42256-023-00739-w/MediaObjects/42256_2023_739_MOESM9_ESM.xlsx",
+      "bytes": 11071,
+      "sha256": "50c6eb089de15aac586459059624bcb79493af92cc9d2e04c94dd9969c41aae0",
+      "date": "2026-09-11"
+    },
+    {
+      "file": "oped_repo_tree.json",
+      "url": "https://api.github.com/repos/wenjiegroup/OPED/git/trees/master?recursive=1",
+      "final_url": "https://api.github.com/repos/wenjiegroup/OPED/git/trees/master?recursive=1",
+      "bytes": 65191,
+      "sha256": "334fe0558f0e6d09440418f9af263a9cae15ce2a9e46c7001fadf62703cd73d5",
+      "date": "2026-09-11"
+    },
+    {
+      "file": "SRX17662522.xml",
+      "url": "https://www.ebi.ac.uk/ena/browser/api/xml/SRX17662522",
+      "final_url": "https://www.ebi.ac.uk/ena/browser/api/xml/SRX17662522",
+      "bytes": 2784,
+      "sha256": "9b073b1cfae48d8f03d6d91b2eaf670b8035b911f644cfe7a3e60ea77d997667",
+      "date": "2026-09-11"
+    },
+    {
+      "file": "SRX17662523.xml",
+      "url": "https://www.ebi.ac.uk/ena/browser/api/xml/SRX17662523",
+      "final_url": "https://www.ebi.ac.uk/ena/browser/api/xml/SRX17662523",
+      "bytes": 2784,
+      "sha256": "e1995426e774cb644a5872bb07d3796a9c6b7e899db1446f2002e8550560186d",
+      "date": "2026-09-11"
+    },
+    {
+      "file": "SRX17662524.xml",
+      "url": "https://www.ebi.ac.uk/ena/browser/api/xml/SRX17662524",
+      "final_url": "https://www.ebi.ac.uk/ena/browser/api/xml/SRX17662524",
+      "bytes": 2784,
+      "sha256": "4906f3dc786e523748ad9939b3cfc01c0a819bf8a8dbc45fc847568b7a044e32",
+      "date": "2026-09-11"
+    },
+    {
+      "file": "SRX17662525.xml",
+      "url": "https://www.ebi.ac.uk/ena/browser/api/xml/SRX17662525",
+      "final_url": "https://www.ebi.ac.uk/ena/browser/api/xml/SRX17662525",
+      "bytes": 2784,
+      "sha256": "990578e3d0ea36314fc7b52893beb59f62d9db7fb82c5208cdb20cda85a843d6",
+      "date": "2026-09-11"
+    },
+    {
+      "file": "SRX17662526.xml",
+      "url": "https://www.ebi.ac.uk/ena/browser/api/xml/SRX17662526",
+      "final_url": "https://www.ebi.ac.uk/ena/browser/api/xml/SRX17662526",
+      "bytes": 2784,
+      "sha256": "21106cb9bce4e84e8c50134253dd4940ec79e6aa7d07100dce612ca44cd3cca0",
+      "date": "2026-09-11"
+    },
+    {
+      "file": "SRX17662527.xml",
+      "url": "https://www.ebi.ac.uk/ena/browser/api/xml/SRX17662527",
+      "final_url": "https://www.ebi.ac.uk/ena/browser/api/xml/SRX17662527",
+      "bytes": 2784,
+      "sha256": "d02e0e1bf8853daffbc8143a7f0eb09a043d2d16f2eab384e7a10fba162bd7ed",
+      "date": "2026-09-11"
+    },
+    {
+      "file": "SRX20771652.xml",
+      "url": "https://www.ebi.ac.uk/ena/browser/api/xml/SRX20771652",
+      "final_url": "https://www.ebi.ac.uk/ena/browser/api/xml/SRX20771652",
+      "bytes": 2622,
+      "sha256": "7ab3f5ed17ecfdae2150915219757604d03d15fdb664fda0be8a097f630dc718",
+      "date": "2026-09-11"
+    },
+    {
+      "file": "SRX20771653.xml",
+      "url": "https://www.ebi.ac.uk/ena/browser/api/xml/SRX20771653",
+      "final_url": "https://www.ebi.ac.uk/ena/browser/api/xml/SRX20771653",
+      "bytes": 2622,
+      "sha256": "7cf05805fb50d018a134feca0b33e4c2d3ee48c2212120cd097a52ad6f304265",
+      "date": "2026-09-11"
+    },
+    {
+      "file": "SRX20771654.xml",
+      "url": "https://www.ebi.ac.uk/ena/browser/api/xml/SRX20771654",
+      "final_url": "https://www.ebi.ac.uk/ena/browser/api/xml/SRX20771654",
+      "bytes": 2659,
+      "sha256": "da15ee73e28fd8f510539edcc15965b265204052362517cdeafd2d7e50ace655",
+      "date": "2026-09-11"
+    },
+    {
+      "file": "SRX20771655.xml",
+      "url": "https://www.ebi.ac.uk/ena/browser/api/xml/SRX20771655",
+      "final_url": "https://www.ebi.ac.uk/ena/browser/api/xml/SRX20771655",
+      "bytes": 2659,
+      "sha256": "9628c3a4f6beeb8ad797a699da11e4f12a80eb5d19f8b07f0ff5e542885f11f9",
+      "date": "2026-09-11"
+    },
+    {
+      "file": "SRX20771656.xml",
+      "url": "https://www.ebi.ac.uk/ena/browser/api/xml/SRX20771656",
+      "final_url": "https://www.ebi.ac.uk/ena/browser/api/xml/SRX20771656",
+      "bytes": 2622,
+      "sha256": "b4e63ecbe8eb6a38539745d54ee92e5b44c5af956d17c09b199119ef93125f44",
+      "date": "2026-09-11"
+    },
+    {
+      "file": "SRX20771657.xml",
+      "url": "https://www.ebi.ac.uk/ena/browser/api/xml/SRX20771657",
+      "final_url": "https://www.ebi.ac.uk/ena/browser/api/xml/SRX20771657",
+      "bytes": 2635,
+      "sha256": "0c302065cc57e5bf7cf572b7aa2f0bcad70a2685cecdfa3128e1b30d1644dfec",
+      "date": "2026-09-11"
+    },
+    {
+      "file": "SRX20771658.xml",
+      "url": "https://www.ebi.ac.uk/ena/browser/api/xml/SRX20771658",
+      "final_url": "https://www.ebi.ac.uk/ena/browser/api/xml/SRX20771658",
+      "bytes": 2627,
+      "sha256": "8f417ef1607d083639c913c68b76c4bf55b86c45d2d4211d9a1b36ff708d1f0b",
+      "date": "2026-09-11"
+    },
+    {
+      "file": "SRX20771659.xml",
+      "url": "https://www.ebi.ac.uk/ena/browser/api/xml/SRX20771659",
+      "final_url": "https://www.ebi.ac.uk/ena/browser/api/xml/SRX20771659",
+      "bytes": 2627,
+      "sha256": "1a811ed17689ff78c9c2800804ccf079ed2f683be241842687e3855703e5b163",
+      "date": "2026-09-11"
+    },
+    {
+      "file": "SRX20771660.xml",
+      "url": "https://www.ebi.ac.uk/ena/browser/api/xml/SRX20771660",
+      "final_url": "https://www.ebi.ac.uk/ena/browser/api/xml/SRX20771660",
+      "bytes": 2657,
+      "sha256": "b3a0f034e70d228ca6bead4f3ce42ca2ea38bbbb6b65ba12f103d8c330589aee",
+      "date": "2026-09-11"
+    },
+    {
+      "file": "SRX20771661.xml",
+      "url": "https://www.ebi.ac.uk/ena/browser/api/xml/SRX20771661",
+      "final_url": "https://www.ebi.ac.uk/ena/browser/api/xml/SRX20771661",
+      "bytes": 2657,
+      "sha256": "459dc685173d898144f7c2edcc1b834015b5f0b3e0f659a63889e3d504ba7e15",
+      "date": "2026-09-11"
+    },
+    {
+      "file": "SRX20771662.xml",
+      "url": "https://www.ebi.ac.uk/ena/browser/api/xml/SRX20771662",
+      "final_url": "https://www.ebi.ac.uk/ena/browser/api/xml/SRX20771662",
+      "bytes": 2657,
+      "sha256": "96566938322de1718764707e95b71c340170cfdb53f8e825bde9615f95faae49",
+      "date": "2026-09-11"
+    },
+    {
+      "file": "SRX20771663.xml",
+      "url": "https://www.ebi.ac.uk/ena/browser/api/xml/SRX20771663",
+      "final_url": "https://www.ebi.ac.uk/ena/browser/api/xml/SRX20771663",
+      "bytes": 2659,
+      "sha256": "f1794d2183ca4cb77079c6ab2d0853cbda87598d6f95550bbb784905cf892538",
+      "date": "2026-09-11"
+    },
+    {
+      "file": "SRX20774675.xml",
+      "url": "https://www.ebi.ac.uk/ena/browser/api/xml/SRX20774675",
+      "final_url": "https://www.ebi.ac.uk/ena/browser/api/xml/SRX20774675",
+      "bytes": 2684,
+      "sha256": "88421ce0d4833a1bd394efa71eb41e05f4d2fd7aeb586b729477b818c11610d9",
+      "date": "2026-09-11"
+    },
+    {
+      "file": "SRX20774676.xml",
+      "url": "https://www.ebi.ac.uk/ena/browser/api/xml/SRX20774676",
+      "final_url": "https://www.ebi.ac.uk/ena/browser/api/xml/SRX20774676",
+      "bytes": 2684,
+      "sha256": "6d990f804bc7e41427d4513c7156d9bf1b08710b43b2d0c73a45f1edcca5f6bb",
+      "date": "2026-09-11"
+    },
+    {
+      "file": "SRX20774677.xml",
+      "url": "https://www.ebi.ac.uk/ena/browser/api/xml/SRX20774677",
+      "final_url": "https://www.ebi.ac.uk/ena/browser/api/xml/SRX20774677",
+      "bytes": 2684,
+      "sha256": "eb3a5e5f925aafe5acb685b824e2940bd37ea567dbbbf4d5187aa167e61609d4",
+      "date": "2026-09-11"
+    },
+    {
+      "file": "SRX20774678.xml",
+      "url": "https://www.ebi.ac.uk/ena/browser/api/xml/SRX20774678",
+      "final_url": "https://www.ebi.ac.uk/ena/browser/api/xml/SRX20774678",
+      "bytes": 2410,
+      "sha256": "8010efc4c46c506f423b11a5015bc5f71dd8dbd41a88b8c53971d84e409209d6",
+      "date": "2026-09-11"
+    },
+    {
+      "file": "SRX20774679.xml",
+      "url": "https://www.ebi.ac.uk/ena/browser/api/xml/SRX20774679",
+      "final_url": "https://www.ebi.ac.uk/ena/browser/api/xml/SRX20774679",
+      "bytes": 2410,
+      "sha256": "e4b2d4233aa294f060158954c91947f73c4c9fda49f210f89021ff757e562c8a",
+      "date": "2026-09-11"
+    },
+    {
+      "file": "SRX20774680.xml",
+      "url": "https://www.ebi.ac.uk/ena/browser/api/xml/SRX20774680",
+      "final_url": "https://www.ebi.ac.uk/ena/browser/api/xml/SRX20774680",
+      "bytes": 2410,
+      "sha256": "bea33d263e9b19d7c34a88945a3876c2c03bae94b0b2b66071aed183636945ad",
+      "date": "2026-09-11"
+    },
+    {
+      "file": "SRX20774827.xml",
+      "url": "https://www.ebi.ac.uk/ena/browser/api/xml/SRX20774827",
+      "final_url": "https://www.ebi.ac.uk/ena/browser/api/xml/SRX20774827",
+      "bytes": 2672,
+      "sha256": "e3cbd2a20e068855e2506e7e8bbbe7faf142c7b48584865712aa8d0129a33333",
+      "date": "2026-09-11"
+    },
+    {
+      "file": "SRX20774828.xml",
+      "url": "https://www.ebi.ac.uk/ena/browser/api/xml/SRX20774828",
+      "final_url": "https://www.ebi.ac.uk/ena/browser/api/xml/SRX20774828",
+      "bytes": 2672,
+      "sha256": "a3a8b05c2e0d23a85182fa390f92752513f2e5e08a43fec61ea472ffa6728674",
+      "date": "2026-09-11"
+    },
+    {
+      "file": "SRX20774829.xml",
+      "url": "https://www.ebi.ac.uk/ena/browser/api/xml/SRX20774829",
+      "final_url": "https://www.ebi.ac.uk/ena/browser/api/xml/SRX20774829",
+      "bytes": 2672,
+      "sha256": "2c19b36aa0e94134712ad3ca0ee00b01e2ced172b7bc4eae1bd9751221c0d4e6",
+      "date": "2026-09-11"
+    },
+    {
+      "file": "SRX20774830.xml",
+      "url": "https://www.ebi.ac.uk/ena/browser/api/xml/SRX20774830",
+      "final_url": "https://www.ebi.ac.uk/ena/browser/api/xml/SRX20774830",
+      "bytes": 2678,
+      "sha256": "4b3c0f27bd3085137e6cc024b3b1ea9ec0b2b190f1a38ad03e76c86e93cde136",
+      "date": "2026-09-11"
+    },
+    {
+      "file": "SRX20774831.xml",
+      "url": "https://www.ebi.ac.uk/ena/browser/api/xml/SRX20774831",
+      "final_url": "https://www.ebi.ac.uk/ena/browser/api/xml/SRX20774831",
+      "bytes": 2678,
+      "sha256": "d1dac2ef94a1c8b3c569d0c76a3538766a1754b811e6c4fc160dd85150a93610",
+      "date": "2026-09-11"
+    },
+    {
+      "file": "SRX20774832.xml",
+      "url": "https://www.ebi.ac.uk/ena/browser/api/xml/SRX20774832",
+      "final_url": "https://www.ebi.ac.uk/ena/browser/api/xml/SRX20774832",
+      "bytes": 2678,
+      "sha256": "d4f049d05ca82ed480296847c277717cb9643a79f5e4f607d27c1989152feecb",
+      "date": "2026-09-11"
+    }
+  ],
+  "raw_fastq_downloaded": false
+}

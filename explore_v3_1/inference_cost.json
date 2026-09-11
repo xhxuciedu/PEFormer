@@ -1,0 +1,79 @@
+{
+  "device": "NVIDIA GeForce RTX 2080 Ti",
+  "precision": "FP32, TF32 disabled",
+  "timing_scope": "Full encoder plus deployed readout, synchronized GPU forward on pretokenized GPU-resident inputs; excludes tokenization, input transfer, loading and sorting.",
+  "not_claimed": "No matched OptiPrime latency benchmark; hardware timings do not establish a comparator speed advantage.",
+  "records": [
+    {
+      "label": "A",
+      "tag": "A_h100_lr3_none_mixture_w1_b1000_sub20260910_s20260910",
+      "policy": "target",
+      "selected_step": 70,
+      "candidates": 1024,
+      "batch_size": 128,
+      "warmups": 2,
+      "repeats": 5,
+      "seconds": [
+        0.7690351568162441,
+        0.7702222485095263,
+        0.7707069180905819,
+        0.7730588167905807,
+        0.7732746079564095
+      ],
+      "median_ms_per_candidate": 0.7526434746978339,
+      "median_candidates_per_second": 1328.6503286319903,
+      "deployed_parameters": 24686033,
+      "peak_allocated_gpu_bytes": 458194432,
+      "max_score_error": 5.960464477539062e-07
+    },
+    {
+      "label": "E",
+      "tag": "E_h100_lr1_none_mixture_w1_b1000_sub20260910_s20260910",
+      "policy": "target",
+      "selected_step": 60,
+      "candidates": 1024,
+      "batch_size": 128,
+      "warmups": 2,
+      "repeats": 5,
+      "seconds": [
+        0.7755509242415428,
+        0.7756313048303127,
+        0.7764638643711805,
+        0.7771909330040216,
+        0.7785142790526152
+      ],
+      "median_ms_per_candidate": 0.758265492549981,
+      "median_candidates_per_second": 1318.799298959375,
+      "deployed_parameters": 24884690,
+      "peak_allocated_gpu_bytes": 456630784,
+      "max_score_error": 2.2649765014648438e-06
+    },
+    {
+      "label": "M",
+      "tag": "E_h100_lr1_margin_balanced_w1_b1000_sub20260910_s20260910",
+      "policy": "constrained",
+      "selected_step": 10,
+      "candidates": 1024,
+      "batch_size": 128,
+      "warmups": 2,
+      "repeats": 5,
+      "seconds": [
+        0.7785797137767076,
+        0.7787120118737221,
+        0.7790532484650612,
+        0.779881414026022,
+        0.7801163271069527
+      ],
+      "median_ms_per_candidate": 0.7607941879541613,
+      "median_candidates_per_second": 1314.415929870709,
+      "deployed_parameters": 24884690,
+      "peak_allocated_gpu_bytes": 456630784,
+      "max_score_error": 1.5497207641601562e-06
+    }
+  ],
+  "inputs_sha256": {
+    "explore_v3_1/benchmark_inference.py": "3bc696df4d4cfcb322edd4a9aecefb52d0ac3d688d3a3409a78909bfd3a6620a",
+    "explore_v3_1/control_selection.json": "01dc640d48b6dcaac91a579606e7ec6577e6045550d178da363f8b3261186971",
+    "explore_v3_1/factorial_selection.json": "07f97917aaac91d2dcf73cfaf94d3fe8bec30a381348d34bc2ea69d2546ce5a6"
+  }
+}

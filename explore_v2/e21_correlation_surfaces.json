@@ -1,0 +1,103 @@
+{
+  "provenance": {
+    "git_commit": "83ffae1c5b8f",
+    "working_tree_dirty": true,
+    "seed": 20260908,
+    "inputs": {
+      "data/processed/optiprime_official_318471.parquet": "fe62229d50a08fa3",
+      "results/heldout_full_head_to_head.parquet": "23d833dfcccb6f60",
+      "results/round5/heldout_calibrated.parquet": "9cbd7ce15f3e0c5c"
+    }
+  },
+  "canon_version": 2,
+  "surfaces": {
+    "held-out fold 0": {
+      "n_rows": 20509,
+      "n_clusters": 750,
+      "models": {
+        "OptiPrime": {
+          "spearman": 0.8690026435974381,
+          "pearson": 0.8270482032752274
+        },
+        "PE-RankFormer, raw score": {
+          "spearman": 0.9078742230815918,
+          "pearson": 0.7278148528033282
+        },
+        "PE-RankFormer, calibrated": {
+          "spearman": 0.9078936769999865,
+          "pearson": 0.8636837891685847
+        }
+      },
+      "paired_vs_optiprime": {
+        "spearman_raw": {
+          "observed": 0.03887157948415376,
+          "ci95": [
+            0.02897370777441637,
+            0.049486860564511743
+          ],
+          "frac_resamples_favouring_ours": 1.0,
+          "two_sided_p": 0.0005,
+          "n_clusters": 750
+        },
+        "pearson_calibrated": {
+          "observed": 0.03663558589335725,
+          "ci95": [
+            0.020329118944355025,
+            0.0557456384281403
+          ],
+          "frac_resamples_favouring_ours": 1.0,
+          "two_sided_p": 0.0005,
+          "n_clusters": 750
+        }
+      }
+    },
+    "reserved panel": {
+      "n_rows": 118187,
+      "n_clusters": 30302,
+      "models": {
+        "OptiPrime": {
+          "spearman": 0.6931453002067394,
+          "pearson": 0.5853669542091688
+        },
+        "PE-RankFormer, raw score": {
+          "spearman": 0.7090869889497087,
+          "pearson": 0.5521910100571045
+        },
+        "PE-RankFormer, calibrated": {
+          "spearman": 0.708867763130661,
+          "pearson": 0.60170735123486
+        }
+      },
+      "paired_vs_optiprime": {
+        "spearman_raw": {
+          "observed": 0.015941688742969307,
+          "ci95": [
+            0.013596299992942523,
+            0.018200729032697455
+          ],
+          "frac_resamples_favouring_ours": 1.0,
+          "two_sided_p": 0.0005,
+          "n_clusters": 30302
+        },
+        "pearson_calibrated": {
+          "observed": 0.016340397025691122,
+          "ci95": [
+            0.011888618696257378,
+            0.020698698161139964
+          ],
+          "frac_resamples_favouring_ours": 1.0,
+          "two_sided_p": 0.0005,
+          "n_clusters": 30302
+        }
+      }
+    }
+  },
+  "calibrator_transfer": {
+    "pearson_raw_on_unseen_library": 0.5521910100571045,
+    "pearson_after_frozen_map": 0.60170735123486,
+    "gain": 0.049516341177755496,
+    "spearman_before": 0.7090869889497087,
+    "spearman_after": 0.708867763130661,
+    "note": "A monotone map cannot change a rank correlation; the third-decimal Spearman difference is out-of-range clipping creating ties at the boundaries. The map was fitted on development out-of-fold predictions and is applied here unchanged to a library it never saw."
+  }
+}

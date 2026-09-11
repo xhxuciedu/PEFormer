@@ -1,0 +1,102 @@
+[
+  {
+    "tag": "A_h100_lr1_none_mixture_w1_b1000_sub20260910_s20260910",
+    "gpu": 7,
+    "returncode": 0
+  },
+  {
+    "tag": "B_h100_lr1_none_mixture_w1_b1000_sub20260910_s20260910",
+    "gpu": 7,
+    "returncode": 0
+  },
+  {
+    "tag": "D_h100_lr1_none_mixture_w1_b1000_sub20260910_s20260910",
+    "gpu": 7,
+    "returncode": 0
+  },
+  {
+    "tag": "A_h100_lr3_none_mixture_w1_b1000_sub20260910_s20260910",
+    "gpu": 7,
+    "returncode": 0
+  },
+  {
+    "tag": "B_h100_lr3_none_mixture_w1_b1000_sub20260910_s20260910",
+    "gpu": 7,
+    "returncode": 0
+  },
+  {
+    "tag": "D_h100_lr3_none_mixture_w1_b1000_sub20260910_s20260910",
+    "gpu": 7,
+    "returncode": 0
+  },
+  {
+    "tag": "A_h500_lr1_none_mixture_w1_b1000_sub20260910_s20260910",
+    "gpu": 7,
+    "returncode": 0
+  },
+  {
+    "tag": "B_h500_lr1_none_mixture_w1_b1000_sub20260910_s20260910",
+    "gpu": 7,
+    "returncode": 0
+  },
+  {
+    "tag": "D_h500_lr1_none_mixture_w1_b1000_sub20260910_s20260910",
+    "gpu": 7,
+    "returncode": 0
+  },
+  {
+    "tag": "A_h500_lr3_none_mixture_w1_b1000_sub20260910_s20260910",
+    "gpu": 7,
+    "returncode": 0
+  },
+  {
+    "tag": "B_h500_lr3_none_mixture_w1_b1000_sub20260910_s20260910",
+    "gpu": 7,
+    "returncode": 0
+  },
+  {
+    "tag": "D_h500_lr3_none_mixture_w1_b1000_sub20260910_s20260910",
+    "gpu": 7,
+    "returncode": 0
+  },
+  {
+    "tag": "C_frozen_h100_lr1_none_mixture_w1_b1000_sub20260910_s20260910",
+    "gpu": 0,
+    "returncode": 0
+  },
+  {
+    "tag": "E_h100_lr1_none_mixture_w1_b1000_sub20260910_s20260910",
+    "gpu": 0,
+    "returncode": 0
+  },
+  {
+    "tag": "C_frozen_h100_lr3_none_mixture_w1_b1000_sub20260910_s20260910",
+    "gpu": 0,
+    "returncode": 0
+  },
+  {
+    "tag": "E_h100_lr3_none_mixture_w1_b1000_sub20260910_s20260910",
+    "gpu": 0,
+    "returncode": 0
+  },
+  {
+    "tag": "C_frozen_h500_lr1_none_mixture_w1_b1000_sub20260910_s20260910",
+    "gpu": 0,
+    "returncode": 0
+  },
+  {
+    "tag": "E_h500_lr1_none_mixture_w1_b1000_sub20260910_s20260910",
+    "gpu": 0,
+    "returncode": 0
+  },
+  {
+    "tag": "C_frozen_h500_lr3_none_mixture_w1_b1000_sub20260910_s20260910",
+    "gpu": 0,
+    "returncode": 0
+  },
+  {
+    "tag": "E_h500_lr3_none_mixture_w1_b1000_sub20260910_s20260910",
+    "gpu": 0,
+    "returncode": 0
+  }
+]

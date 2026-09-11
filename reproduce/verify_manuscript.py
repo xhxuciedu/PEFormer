@@ -77,13 +77,14 @@ CHECKS: list[tuple[str, str, str, str, object]] = [
      "per_target.delta.frac_targets_favouring_ours", ".1f", lambda v: 100 * v),
     ("within-condition margin", "revision/task_1_1_per_target.json",
      "per_condition.delta_n_weighted", "+.4f", None),
-    # ---- utility (task 1.2) ----
-    ("precision@1, ours (%)", "revision/task_1_2_utility.json",
-     "metrics.p_at_1.ours", ".1f", lambda v: 100 * v),
-    ("precision@1, OptiPrime (%)", "revision/task_1_2_utility.json",
-     "metrics.p_at_1.optiprime", ".1f", lambda v: 100 * v),
-    ("top-pick efficiency delta", "revision/task_1_2_utility.json",
-     "metrics.top1_eff.ours_vs_optiprime.observed", "+.3f", None),
+    # ---- utility: corrected fixed-allele/context estimand, not retired task 1.2 ----
+    # The manuscript now agrees with the existing corrected tab_utility.tex.
+    ("fixed-allele hit rate, ours", "explore_v2/utility_table_numbers.json",
+     "panel_B_fold0_allele.ours_hit", ".4f", None),
+    ("fixed-allele hit rate, OptiPrime", "explore_v2/utility_table_numbers.json",
+     "panel_B_fold0_allele.op_hit", ".4f", None),
+    ("fixed-allele top-pick delta", "explore_v2/utility_table_numbers.json",
+     "panel_B_fold0_allele.delta_at_1.observed", ".5f", None),
     # ---- tie-robust (task 1.3) ----
     ("Kendall tau-b margin", "revision/task_1_3_tie_robust.json",
      "metrics.all.delta.kendall_tau_b", "+.4f", None),

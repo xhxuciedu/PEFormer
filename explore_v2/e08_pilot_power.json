@@ -1,0 +1,131 @@
+{
+  "provenance": {
+    "git_commit": "83ffae1c5b8f",
+    "working_tree_dirty": true,
+    "seed": 20260908,
+    "inputs": {
+      "data/processed/optiprime_official_318471.parquet": "fe62229d50a08fa3",
+      "results/heldout_full_head_to_head.parquet": "23d833dfcccb6f60",
+      "results/round5/heldout_calibrated.parquet": "9cbd7ce15f3e0c5c"
+    }
+  },
+  "paired_between_method": {
+    "surface": "held-out fold 0, two-candidate decision groups",
+    "n_groups": 1390,
+    "mean_difference": 0.009121394801539567,
+    "sd_difference": 0.04968057555708049,
+    "sd_difference_nonzero_only": 0.08797371353791351,
+    "frac_groups_with_zero_difference": 0.7064748201438849,
+    "note": "Both methods pick the same design in most groups, so the paired difference is exactly zero there. That is a real feature of the endpoint, not a missing value: it lowers the SD and raises power, which is why the SD over all groups is the one to use."
+  },
+  "measurement_error": {
+    "sigma_raw_efficiency": 0.02647806847270658,
+    "sd_of_endpoint_from_noise_1_replicate": 0.02647806847270658,
+    "sd_of_endpoint_from_noise_3_replicates": 0.015287119960338488,
+    "sd_of_paired_difference_from_noise_3_replicates": 0.021619252377535137,
+    "note": "A paired difference between two methods at one edit involves two different designs, so two independent measurement errors, unless the methods nominate overlapping candidates - in which case the shared measurement cancels and the noise term is smaller than this."
+  },
+  "endpoint_spread": {
+    "surface": "development folds 1-5, decision groups with >=5 candidates",
+    "n_groups": 9264,
+    "n_contexts": 16,
+    "mean_oracle": 0.6034157643771885,
+    "mean_model_best_of_3": 0.5924985817453394,
+    "mean_random_best_of_3": 0.5254364934414232,
+    "sd_across_edits_of_model_best_of_3": 0.2598113359022458,
+    "sd_across_edits_of_model_minus_random_best_of_3": 0.06564235792190946,
+    "mean_model_minus_random_best_of_3": 0.06706208830391623
+  },
+  "sample_size": [
+    {
+      "sd_source": "plan_illustration",
+      "sd": 0.08,
+      "target_effect": 0.02,
+      "edits_for_80pct_power": 125.58340096,
+      "edits_for_90pct_power": 168.12752896
+    },
+    {
+      "sd_source": "plan_illustration",
+      "sd": 0.08,
+      "target_effect": 0.04,
+      "edits_for_80pct_power": 31.39585024,
+      "edits_for_90pct_power": 42.03188224
+    },
+    {
+      "sd_source": "plan_illustration",
+      "sd": 0.08,
+      "target_effect": 0.08,
+      "edits_for_80pct_power": 7.84896256,
+      "edits_for_90pct_power": 10.50797056
+    },
+    {
+      "sd_source": "measured_between_method_paired_sd_depth2",
+      "sd": 0.04968057555708049,
+      "target_effect": 0.02,
+      "edits_for_80pct_power": 48.431230489568,
+      "edits_for_90pct_power": 64.83837071188105
+    },
+    {
+      "sd_source": "measured_between_method_paired_sd_depth2",
+      "sd": 0.04968057555708049,
+      "target_effect": 0.04,
+      "edits_for_80pct_power": 12.107807622392,
+      "edits_for_90pct_power": 16.209592677970264
+    },
+    {
+      "sd_source": "measured_between_method_paired_sd_depth2",
+      "sd": 0.04968057555708049,
+      "target_effect": 0.08,
+      "edits_for_80pct_power": 3.026951905598,
+      "edits_for_90pct_power": 4.052398169492566
+    },
+    {
+      "sd_source": "measured_model_minus_random_paired_sd_depth5plus",
+      "sd": 0.06564235792190946,
+      "target_effect": 0.02,
+      "edits_for_80pct_power": 84.55136277566424,
+      "edits_for_90pct_power": 113.1949890272581
+    },
+    {
+      "sd_source": "measured_model_minus_random_paired_sd_depth5plus",
+      "sd": 0.06564235792190946,
+      "target_effect": 0.04,
+      "edits_for_80pct_power": 21.13784069391606,
+      "edits_for_90pct_power": 28.298747256814526
+    },
+    {
+      "sd_source": "measured_model_minus_random_paired_sd_depth5plus",
+      "sd": 0.06564235792190946,
+      "target_effect": 0.08,
+      "edits_for_80pct_power": 5.284460173479015,
+      "edits_for_90pct_power": 7.074686814203631
+    },
+    {
+      "sd_source": "measured_endpoint_sd_depth5plus_unpaired",
+      "sd": 0.2598113359022458,
+      "target_effect": 0.02,
+      "edits_for_80pct_power": 1324.5503084111199,
+      "edits_for_90pct_power": 1773.2707398750758
+    },
+    {
+      "sd_source": "measured_endpoint_sd_depth5plus_unpaired",
+      "sd": 0.2598113359022458,
+      "target_effect": 0.04,
+      "edits_for_80pct_power": 331.13757710277997,
+      "edits_for_90pct_power": 443.31768496876896
+    },
+    {
+      "sd_source": "measured_endpoint_sd_depth5plus_unpaired",
+      "sd": 0.2598113359022458,
+      "target_effect": 0.08,
+      "edits_for_80pct_power": 82.78439427569499,
+      "edits_for_90pct_power": 110.82942124219224
+    }
+  ],
+  "caveats": [
+    "These are the simplest paired two-sided calculations. Clustering by locus family, donor or plate, more than one primary comparison, and attrition all raise the requirement.",
+    "The between-method SD is measured where both methods choose from only two candidates. A twelve-candidate panel gives both methods more room to differ, so its paired SD will be larger than the depth-2 estimate and closer to the depth-5 figure.",
+    "The number of wells is not the denominator. Replicates reduce the measurement term only; the edit-to-edit spread is irreducible by replication.",
+    "Nothing here powers a mechanistic reversal endpoint. E03 puts the supported reversal rate at 4.2%, so an experiment whose primary endpoint is reversal direction needs its own calculation on that base rate."
+  ]
+}

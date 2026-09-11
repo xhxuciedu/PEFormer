@@ -1,0 +1,98 @@
+[
+  {
+    "arm": "E",
+    "steps": 100,
+    "lr_mult": 1,
+    "source_loss": "kl",
+    "sampling": "mixture",
+    "weight": 0.1
+  },
+  {
+    "arm": "E",
+    "steps": 100,
+    "lr_mult": 1,
+    "source_loss": "kl",
+    "sampling": "mixture",
+    "weight": 1.0
+  },
+  {
+    "arm": "E",
+    "steps": 100,
+    "lr_mult": 1,
+    "source_loss": "kl",
+    "sampling": "balanced",
+    "weight": 0.1
+  },
+  {
+    "arm": "E",
+    "steps": 100,
+    "lr_mult": 1,
+    "source_loss": "kl",
+    "sampling": "balanced",
+    "weight": 1.0
+  },
+  {
+    "arm": "E",
+    "steps": 100,
+    "lr_mult": 1,
+    "source_loss": "margin",
+    "sampling": "mixture",
+    "weight": 0.1
+  },
+  {
+    "arm": "E",
+    "steps": 100,
+    "lr_mult": 1,
+    "source_loss": "margin",
+    "sampling": "mixture",
+    "weight": 1.0
+  },
+  {
+    "arm": "E",
+    "steps": 100,
+    "lr_mult": 1,
+    "source_loss": "margin",
+    "sampling": "balanced",
+    "weight": 0.1
+  },
+  {
+    "arm": "E",
+    "steps": 100,
+    "lr_mult": 1,
+    "source_loss": "margin",
+    "sampling": "balanced",
+    "weight": 1.0
+  },
+  {
+    "arm": "E",
+    "steps": 100,
+    "lr_mult": 1,
+    "source_loss": "utility",
+    "sampling": "mixture",
+    "weight": 0.1
+  },
+  {
+    "arm": "E",
+    "steps": 100,
+    "lr_mult": 1,
+    "source_loss": "utility",
+    "sampling": "mixture",
+    "weight": 1.0
+  },
+  {
+    "arm": "E",
+    "steps": 100,
+    "lr_mult": 1,
+    "source_loss": "utility",
+    "sampling": "balanced",
+    "weight": 0.1
+  },
+  {
+    "arm": "E",
+    "steps": 100,
+    "lr_mult": 1,
+    "source_loss": "utility",
+    "sampling": "balanced",
+    "weight": 1.0
+  }
+]

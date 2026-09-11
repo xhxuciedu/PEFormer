@@ -1,0 +1,29 @@
+{
+  "date": "2026-09-11",
+  "completed_new_v31_fits": 76,
+  "screen_fits": 32,
+  "replication_configurations": 48,
+  "replication_new_fits": 44,
+  "exact_screen_reuses": 4,
+  "decision": "Complete bounded tranche; defer higher-label and architecture branches.",
+  "validated_independent_optiprime_win": false,
+  "independent_confirmation_ready": false,
+  "anchoring_alone_robustly_better_than_tuned_A": false,
+  "margin_recipe_improves_source_audit_relative_to_unregularized_E": true,
+  "constrained_margin_source_mean_interval_clears_working_margin_at_1000": true,
+  "that_interval_is_independent_confirmation": false,
+  "constrained_margin_target_superior_to_tuned_A_or_optiprime": false,
+  "retained_target_baseline": "A, 100 updates, LR multiplier 3",
+  "retained_source_aware_candidate": "M, balanced teacher margin, weight 1, 100 updates, LR multiplier 1; checkpoint policy must be stated",
+  "deferred_not_executed": [
+    "5000/all-label curves and expanded feature cache",
+    "anchored final-block adaptation",
+    "capacity-matched genuine dual regression/ranking branches",
+    "leave-domain-out pretraining",
+    "independent-panel model-outcome evaluation"
+  ],
+  "reason": "Optimization and acquisition results do not support a universal anchoring advantage; preservation gives a target-source trade-off, while independent linked outcomes and deployment compatibility remain unresolved. Additional same-library tuning cannot establish independent transfer.",
+  "research_report": "explore_v3_1/RESEARCH_REPORT.md",
+  "replication_results": "explore_v3_1/replication_results.json",
+  "verification": "explore_v3_1/replication_verification.json"
+}

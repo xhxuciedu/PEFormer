@@ -1,0 +1,35 @@
+{
+  "checks": {
+    "target_outer_val": {
+      "groups": 128,
+      "candidates": 539,
+      "changed_choices": [
+        0,
+        0
+      ],
+      "max_score_error": [
+        1.6689300537109375e-06,
+        1.430511474609375e-06
+      ]
+    },
+    "source_audit": {
+      "groups": 128,
+      "candidates": 256,
+      "changed_choices": [
+        0,
+        0
+      ],
+      "max_score_error": [
+        1.4901161193847656e-06,
+        1.3113021850585938e-06
+      ]
+    }
+  },
+  "tag": "E_h100_lr1_margin_balanced_w1_b1000_sub20260910_s20260910",
+  "policy": "constrained",
+  "step": 10,
+  "inputs_sha256": {
+    "explore_v3_1/runs/E_h100_lr1_margin_balanced_w1_b1000_sub20260910_s20260910/constrained.pt": "8d417969efc8483104c3301bc0d3e7d168d220dee21b37d0c723809e4da81685",
+    "explore_v3_1/validate_deployment.py": "ce5016f486557e943d7673a32ec5dc5c1251e56b946843a8084fcdebcf0b0366"
+  }
+}

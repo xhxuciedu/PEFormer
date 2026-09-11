@@ -73,6 +73,21 @@ def main() -> None:
     ap.add_argument("--config", type=Path, default=Path("configs/pilot.yaml"))
     ap.add_argument("--run-name", type=str, required=True)
     ap.add_argument("--lambda-rank", type=float, default=None, help="override loss.lambda_rank")
+    # --- decision-aligned training and selection (explore_v2 L1/L2/L5) ---------------
+    # All three default to current behaviour, so a run without them is bit-identical.
+    ap.add_argument("--rank-group-npz", type=str, default=None,
+                    help="featurized npz whose group_key is used for RANKING PAIRS ONLY, "
+                         "leaving the batch sampler on the corpus's own key. Separates the "
+                         "two channels that share one key in the released code.")
+    ap.add_argument("--max-pairs-per-group", type=int, default=None,
+                    help="override loss.max_pairs_per_group (released value 4)")
+    ap.add_argument("--min-pair-diff", type=float, default=None,
+                    help="override loss.min_pair_diff (released value 0.02)")
+    ap.add_argument("--decision-groups", type=str, default=None,
+                    help="parquet with record_id, decision_group, design_key. When given, "
+                         "each epoch also reports mean achieved efficiency @1 over canonical "
+                         "decision groups on the validation fold, and a second checkpoint "
+                         "best_decision.pt is kept by that criterion.")
     ap.add_argument("--seed", type=int, default=None)
     ap.add_argument("--max-epochs", type=int, default=None)
     ap.add_argument(
@@ -662,7 +677,45 @@ def main() -> None:
         censor_limit=cfg["loss"].get("censor_limit", 0.0),
         censor_shuffle_control=cfg["loss"].get("censor_shuffle_control", False),
     )
+    if args.max_pairs_per_group is not None:
+        cfg["loss"]["max_pairs_per_group"] = args.max_pairs_per_group
+    if args.min_pair_diff is not None:
+        cfg["loss"]["min_pair_diff"] = args.min_pair_diff
     max_pairs_per_group = cfg["loss"]["max_pairs_per_group"]
+
+    # The released code passes one array to both the batch sampler and the pairwise loss,
+    # so changing the grouping changes batch composition and pair eligibility together.
+    # --rank-group-npz supplies a second key for the loss alone, which is what makes the
+    # two channels separable.
+    rank_group_key = None
+    if args.rank_group_npz:
+        rg = np.load(args.rank_group_npz, allow_pickle=True)
+        assert list(rg["record_id"]) == list(corpus.record_id), (
+            "--rank-group-npz must be row-aligned with the training corpus")
+        rank_group_key = torch.from_numpy(rg["group_key"].astype(np.int64))
+        logger.info("ranking pairs use %s (%d distinct keys); batching uses the corpus key "
+                    "(%d distinct)", args.rank_group_npz,
+                    len(np.unique(rg["group_key"])), len(np.unique(corpus.group_key)))
+
+    val_dec = None
+    if args.decision_groups:
+        dg = pd.read_parquet(args.decision_groups,
+                             columns=["record_id", "decision_group", "design_key"])
+        pos = pd.Series(np.arange(len(corpus.record_id)),
+                        index=np.asarray(corpus.record_id))
+        dg = dg.assign(row=pos.reindex(dg.record_id).to_numpy())
+        dg = dg[dg.row.isin(set(val_idx.tolist()))]
+        # a candidate is a distinct design in a decision context; keep only real choices
+        nd = dg.groupby("decision_group", observed=True).design_key.transform("nunique")
+        dg = dg[nd >= 2]
+        # Rows must be contiguous per group: the epoch metric uses reduceat, which reads
+        # group boundaries off consecutive differences and silently invents extra groups
+        # if the frame is not sorted.
+        dg = dg.sort_values("decision_group", kind="stable")
+        val_dec = {"row": dg.row.to_numpy().astype(int),
+                   "group": pd.factorize(dg.decision_group)[0]}
+        logger.info("decision metric on %d validation groups (%d rows)",
+                    len(np.unique(val_dec["group"])), len(dg))
 
     batch_size = cfg["train"]["batch_size"]
     sampler = GroupedBatchSampler(corpus.group_key[train_idx], batch_size=batch_size, seed=cfg["seed"])
@@ -682,6 +735,8 @@ def main() -> None:
     history_rows = []
     best_val_spearman = -1.0
     best_epoch = -1
+    best_val_decision = -1.0
+    best_decision_epoch = -1
     patience_counter = 0
     ds = PEDataset(corpus)
 
@@ -700,8 +755,10 @@ def main() -> None:
             with torch.autocast(device_type="cuda", dtype=torch.bfloat16):
                 out = model(batch)
                 rank_score = model.ranking_score(out)
+                gk_for_rank = (batch["group_key"] if rank_group_key is None
+                               else rank_group_key[global_idx].to(device))
                 pi, pj = sample_ranking_pairs(
-                    batch["group_key"], batch["target"],
+                    gk_for_rank, batch["target"],
                     min_diff=cfg["loss"]["min_pair_diff"], max_pairs_per_group=max_pairs_per_group,
                 )
                 loss, parts = total_loss(
@@ -749,8 +806,22 @@ def main() -> None:
             n_batches += 1
 
         epoch_time = time.time() - epoch_t0
-        val_metrics, _, _ = evaluate(model, corpus, val_idx, device)
+        val_metrics, val_preds, val_targets = evaluate(model, corpus, val_idx, device)
         lr_now = sched.get_last_lr()[0]
+
+        # Mean achieved efficiency @1 over canonical decision groups: the quantity a user
+        # experiences, and the one the pooled correlation can rank in the opposite order.
+        val_decision = float("nan")
+        if val_dec is not None:
+            row_to_local = {int(r): i for i, r in enumerate(val_idx)}
+            loc = np.array([row_to_local[r] for r in val_dec["row"]])
+            p, y, g = val_preds[loc], val_targets[loc], val_dec["group"]
+            order = np.lexsort((-p, g))
+            first = order[np.flatnonzero(np.r_[True, g[order][1:] != g[order][:-1]])]
+            starts = np.flatnonzero(np.r_[True, g[1:] != g[:-1]])
+            ymax = np.maximum.reduceat(y, starts)
+            keep = ymax > np.minimum.reduceat(y, starts)
+            val_decision = float(y[first][keep].mean()) if keep.any() else float("nan")
 
         row = {
             "epoch": epoch,
@@ -762,15 +833,17 @@ def main() -> None:
             "val_spearman": val_metrics.spearman,
             "val_mae": val_metrics.mae,
             "val_rmse": val_metrics.rmse,
+            "val_decision_achieved_at_1": val_decision,
             "lr": lr_now,
             "epoch_time_s": epoch_time,
         }
         history_rows.append(row)
         logger.info(
-            "epoch %2d/%d  train_loss=%.4f (reg=%.4f rank=%.4f)  val_spearman=%.4f val_pearson=%.4f "
-            "val_mae=%.4f  time=%.1fs",
+            "epoch %2d/%d  train_loss=%.4f (reg=%.4f rank=%.4f)  pairs=%d  val_spearman=%.4f "
+            "val_decision=%.5f val_mae=%.4f  time=%.1fs",
             epoch, cfg["train"]["max_epochs"] - 1, row["train_loss"], row["train_reg_loss"],
-            row["train_rank_loss"], val_metrics.spearman, val_metrics.pearson, val_metrics.mae, epoch_time,
+            row["train_rank_loss"], running["n_pairs"], val_metrics.spearman, val_decision,
+            val_metrics.mae, epoch_time,
         )
 
         pd.DataFrame(history_rows).to_csv(run_dir / "training_history.csv", index=False)
@@ -786,6 +859,15 @@ def main() -> None:
             )
         else:
             patience_counter += 1
+
+        # A parallel selection by the decision metric, on the same trajectory, so the two
+        # selectors can be compared without confounding by different stopping times.
+        if val_dec is not None and np.isfinite(val_decision) and val_decision > best_val_decision:
+            best_val_decision = val_decision
+            best_decision_epoch = epoch
+            torch.save({"model_state_dict": model.state_dict(), "config": cfg,
+                        "model_config": model_cfg.__dict__, "epoch": epoch},
+                       ckpt_dir / "best_decision.pt")
 
         if epoch >= cfg["train"]["early_stop_min_warmup_epochs"] and patience_counter >= cfg["train"]["early_stop_patience"]:
             logger.info("early stopping at epoch %d (best epoch %d, val_spearman=%.4f)", epoch, best_epoch, best_val_spearman)
@@ -809,6 +891,11 @@ def main() -> None:
         "n_params": model.num_parameters(),
         "best_epoch": best_epoch,
         "best_val_spearman": best_val_spearman,
+        "best_val_decision_achieved_at_1": best_val_decision,
+        "best_decision_epoch": best_decision_epoch,
+        "rank_group_npz": args.rank_group_npz,
+        "max_pairs_per_group": cfg["loss"]["max_pairs_per_group"],
+        "min_pair_diff": cfg["loss"]["min_pair_diff"],
         "total_epochs_run": epoch + 1,
         "total_train_time_s": total_time,
         "checkpoint_best": str(ckpt_dir / "best.pt"),

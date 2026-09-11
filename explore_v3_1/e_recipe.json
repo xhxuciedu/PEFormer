@@ -1,0 +1,23 @@
+{
+  "tag": "E_h100_lr1_none_mixture_w1_b1000_sub20260910_s20260910",
+  "args": {
+    "arm": "E",
+    "steps": 100,
+    "lr_mult": 1,
+    "source_loss": "none",
+    "sampling": "mixture",
+    "weight": 1.0,
+    "budget": 1000,
+    "subset_seed": 20260910,
+    "seed": 20260910
+  },
+  "selection": "Target inner only among all four E controls; other controls may still be running.",
+  "inputs_sha256": {
+    "explore_v3_1/runs/E_h100_lr1_none_mixture_w1_b1000_sub20260910_s20260910/results.json": "58d59c34794ce9c35b2d9c898774ab3e761d5330d0086a197f33a9a146fc753c",
+    "explore_v3_1/runs/E_h100_lr3_none_mixture_w1_b1000_sub20260910_s20260910/results.json": "891d9855eb42fc1288e99c7cfbc1e45eaec56ab383043b56ea20dabf1b031818",
+    "explore_v3_1/runs/E_h500_lr1_none_mixture_w1_b1000_sub20260910_s20260910/results.json": "25b6cc9bfb2506b89f233a81818719ef9abed23308b1ceef9e5dd42362afa0ff",
+    "explore_v3_1/runs/E_h500_lr3_none_mixture_w1_b1000_sub20260910_s20260910/results.json": "046b0b47c40e8b57608eee435f2a1690467d0f2ff5d0f23d34e44284dc9bf0e0",
+    "explore_v3_1/select_e_recipe.py": "13f67d371f91f956d41ba2db9003f2d4c8541788139da0d7bcabaca39ba3c566",
+    "explore_v3_1/analyze.py": "359fecd4c9ef01d5dd52e61b55d2b38eb90872628562d0b67dc37b28836f9f7f"
+  }
+}

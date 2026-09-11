@@ -1,0 +1,8 @@
+{
+  "fold0_protospacers_with_5plus_rows": 735,
+  "fold0_protospacers_with_5plus_distinct_designs": 146,
+  "median_distinct_designs_in_the_5plus_row_groups": 2.0,
+  "frac_spanning_multiple_conditions": 1.0,
+  "frac_spanning_multiple_alleles": 0.25578231292517006,
+  "note": "The manuscript's utility table is captioned '735 targets carrying at least 5 designs'. Those 735 groups carry at least five ROWS; the median number of distinct pegRNA designs in them is 2, and only 146 held-out protospacers carry five or more distinct designs."
+}

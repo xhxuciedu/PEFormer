@@ -1,0 +1,217 @@
+{
+  "source_alphabets": [
+    {
+      "study": "deepprime",
+      "field": "spacer",
+      "rows": 69635,
+      "contains_U": 69003,
+      "contains_T": 0,
+      "contains_N": 0,
+      "characters": [
+        "A",
+        "C",
+        "G",
+        "U"
+      ]
+    },
+    {
+      "study": "deepprime",
+      "field": "pbs",
+      "rows": 69635,
+      "contains_U": 61882,
+      "contains_T": 0,
+      "contains_N": 0,
+      "characters": [
+        "A",
+        "C",
+        "G",
+        "U"
+      ]
+    },
+    {
+      "study": "deepprime",
+      "field": "rtt",
+      "rows": 69635,
+      "contains_U": 67042,
+      "contains_T": 0,
+      "contains_N": 0,
+      "characters": [
+        "A",
+        "C",
+        "G",
+        "U"
+      ]
+    },
+    {
+      "study": "hsu2026",
+      "field": "spacer",
+      "rows": 74769,
+      "contains_U": 72625,
+      "contains_T": 0,
+      "contains_N": 0,
+      "characters": [
+        "A",
+        "C",
+        "G",
+        "U"
+      ]
+    },
+    {
+      "study": "hsu2026",
+      "field": "pbs",
+      "rows": 74769,
+      "contains_U": 71093,
+      "contains_T": 0,
+      "contains_N": 0,
+      "characters": [
+        "A",
+        "C",
+        "G",
+        "U"
+      ]
+    },
+    {
+      "study": "hsu2026",
+      "field": "rtt",
+      "rows": 74769,
+      "contains_U": 73722,
+      "contains_T": 0,
+      "contains_N": 0,
+      "characters": [
+        "A",
+        "C",
+        "G",
+        "U"
+      ]
+    },
+    {
+      "study": "pridict_pridict2",
+      "field": "spacer",
+      "rows": 174067,
+      "contains_U": 172387,
+      "contains_T": 0,
+      "contains_N": 0,
+      "characters": [
+        "A",
+        "C",
+        "G",
+        "U"
+      ]
+    },
+    {
+      "study": "pridict_pridict2",
+      "field": "pbs",
+      "rows": 174067,
+      "contains_U": 168611,
+      "contains_T": 0,
+      "contains_N": 0,
+      "characters": [
+        "A",
+        "C",
+        "G",
+        "U"
+      ]
+    },
+    {
+      "study": "pridict_pridict2",
+      "field": "rtt",
+      "rows": 174067,
+      "contains_U": 167063,
+      "contains_T": 0,
+      "contains_N": 0,
+      "characters": [
+        "A",
+        "C",
+        "G",
+        "U"
+      ]
+    }
+  ],
+  "cached_peg_token_counts": {
+    "source_audit": {
+      "T": 0,
+      "N": 268340
+    },
+    "source_replay": {
+      "T": 0,
+      "N": 250076
+    },
+    "source_val": {
+      "T": 0,
+      "N": 72609
+    },
+    "target_budget_pool": {
+      "T": 0,
+      "N": 126789
+    },
+    "target_outer_val": {
+      "T": 0,
+      "N": 286562
+    }
+  },
+  "token_example": {
+    "ACGU": [
+      1,
+      3,
+      4,
+      5,
+      8,
+      2
+    ],
+    "ACGT": [
+      1,
+      3,
+      4,
+      5,
+      6,
+      2
+    ],
+    "ACGN": [
+      1,
+      3,
+      4,
+      5,
+      8,
+      2
+    ]
+  },
+  "normalized_source_unique_cores": 38814,
+  "external_exact_core19_matches": 0,
+  "external_local_homology_flagged": 2,
+  "corrected_populations": {
+    "K562": {
+      "rows": 140,
+      "alleles": 111,
+      "groups_ge2": 15,
+      "max_depth": 3
+    },
+    "HEK293T": {
+      "rows": 54,
+      "alleles": 54,
+      "groups_ge2": 0,
+      "max_depth": 1
+    }
+  },
+  "cross_surface_isolation": {
+    "target_budget_pool": {
+      "overlapping_normalized_core19": 0,
+      "note": "Core19 matches are more conservative than original full-spacer identity."
+    },
+    "target_outer_val": {
+      "overlapping_normalized_core19": 1,
+      "note": "Core19 matches are more conservative than original full-spacer identity."
+    },
+    "source_audit": {
+      "overlapping_normalized_core19": 0,
+      "note": "Core19 matches are more conservative than original full-spacer identity."
+    }
+  },
+  "interpretation": "Legacy tokenizer maps RNA U to N, not DNA T. This is an injective encoding for unambiguous ACGU inputs, but DNA input is not token-equivalent; preserve checkpoint convention or retrain under a versioned normalization. No current training inputs changed.",
+  "supersedes": "data_feasibility.json epridict source-core homology counts and combined eligibility only; reconstruction and flank checks unchanged.",
+  "inputs_sha256": {
+    "explore_v3_1/audit_alphabet.py": "bdb32a9c895a7b5b03c0623a8069edd09afc4731624e60facfda75c10f1a2ecc",
+    "explore_v3_1/audit_external.py": "ff5bc785a438e55e44f948eb500bd7987d2195fc6de3474dfd8b4380f03c467f",
+    "explore_v3_1/data_feasibility.json": "eaebdefd06de8456df54dd480a10a4299e07a795629909653fb2219a8b72da82",
+    "explore_v3/cache/prepared.json": "3e944e617c1781b60fae11d3b467a3483b5c4dce570efafe2d49da3ac2340cf9"
+  }
+}

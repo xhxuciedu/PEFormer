@@ -1,0 +1,82 @@
+[
+  {
+    "tag": "A_b200_sub20260910_s20260911",
+    "gpu": 2,
+    "returncode": 0
+  },
+  {
+    "tag": "E_b200_sub20260910_s20260911",
+    "gpu": 2,
+    "returncode": 0
+  },
+  {
+    "tag": "A_b200_sub20260910_s20260912",
+    "gpu": 2,
+    "returncode": 0
+  },
+  {
+    "tag": "E_b200_sub20260910_s20260912",
+    "gpu": 2,
+    "returncode": 0
+  },
+  {
+    "tag": "A_b1000_sub20260910_s20260911",
+    "gpu": 2,
+    "returncode": 0
+  },
+  {
+    "tag": "E_b1000_sub20260910_s20260911",
+    "gpu": 2,
+    "returncode": 0
+  },
+  {
+    "tag": "A_b1000_sub20260910_s20260912",
+    "gpu": 2,
+    "returncode": 0
+  },
+  {
+    "tag": "E_b1000_sub20260910_s20260912",
+    "gpu": 2,
+    "returncode": 0
+  },
+  {
+    "tag": "D_b200_sub20260910_s20260911",
+    "gpu": 7,
+    "returncode": 0
+  },
+  {
+    "tag": "F_b200_sub20260910_s20260911",
+    "gpu": 7,
+    "returncode": 0
+  },
+  {
+    "tag": "D_b200_sub20260910_s20260912",
+    "gpu": 7,
+    "returncode": 0
+  },
+  {
+    "tag": "F_b200_sub20260910_s20260912",
+    "gpu": 7,
+    "returncode": 0
+  },
+  {
+    "tag": "D_b1000_sub20260910_s20260911",
+    "gpu": 7,
+    "returncode": 0
+  },
+  {
+    "tag": "F_b1000_sub20260910_s20260911",
+    "gpu": 7,
+    "returncode": 0
+  },
+  {
+    "tag": "D_b1000_sub20260910_s20260912",
+    "gpu": 7,
+    "returncode": 0
+  },
+  {
+    "tag": "F_b1000_sub20260910_s20260912",
+    "gpu": 7,
+    "returncode": 0
+  }
+]

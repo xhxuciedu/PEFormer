@@ -1,0 +1,317 @@
+{
+  "provenance": {
+    "git_commit": "83ffae1c5b8f",
+    "working_tree_dirty": true,
+    "seed": 20260908,
+    "inputs": {
+      "data/processed/optiprime_official_318471.parquet": "fe62229d50a08fa3"
+    }
+  },
+  "canon_version": 2,
+  "disclosure": "A further development use of the reserved panel. Component decisions taken here need a sealed surface to become confirmatory.",
+  "resolution_note": {
+    "fold0_informative_groups": 546,
+    "fold0_ssm_minus_ordSSM": 0.00075,
+    "fold0_ci": [
+      -0.00156,
+      0.00284
+    ],
+    "fold0_p": 0.504,
+    "paper_development_resolution_pooled_rho": 0.005,
+    "panel_groups": 30475
+  },
+  "strata": [
+    {
+      "stratum": "all eligible groups",
+      "groups": 30475,
+      "sites": 22931,
+      "arms": {
+        "ordSSM": {
+          "achieved_at_1": 0.03631588477075931,
+          "hit_at_1": 0.6594913863822806,
+          "regret_at_1": 0.009809027686500575
+        },
+        "ssm": {
+          "achieved_at_1": 0.03605568591685381,
+          "hit_at_1": 0.6596554552912223,
+          "regret_at_1": 0.010069226540406071
+        },
+        "op": {
+          "achieved_at_1": 0.03690271864096128,
+          "hit_at_1": 0.6647415914684167,
+          "regret_at_1": 0.009222193816298605
+        },
+        "rand": {
+          "achieved_at_1": 0.021698024018121292,
+          "hit_at_1": 0.4441781987958064,
+          "regret_at_1": 0.024426888439138594
+        }
+      },
+      "paired": {
+        "ssm_minus_ordSSM": {
+          "observed": -0.00026019885390549634,
+          "ci95": [
+            -0.00044385005798206574,
+            -5.938643123507886e-05
+          ],
+          "two_sided_p": 0.009,
+          "p_is_resolution_floor": false,
+          "degenerate_zero_difference": false,
+          "n": 30475,
+          "n_clusters": 22931,
+          "n_boot": 2000
+        },
+        "ordSSM_minus_op": {
+          "observed": -0.0005868338702019689,
+          "ci95": [
+            -0.0008400937051298125,
+            -0.0003283608293868919
+          ],
+          "two_sided_p": 0.001,
+          "p_is_resolution_floor": true,
+          "degenerate_zero_difference": false,
+          "n": 30475,
+          "n_clusters": 22931,
+          "n_boot": 2000
+        },
+        "ssm_minus_op": {
+          "observed": -0.0008470327241074651,
+          "ci95": [
+            -0.001107079590140586,
+            -0.0005825563932144797
+          ],
+          "two_sided_p": 0.001,
+          "p_is_resolution_floor": true,
+          "degenerate_zero_difference": false,
+          "n": 30475,
+          "n_clusters": 22931,
+          "n_boot": 2000
+        }
+      },
+      "pooled_spearman": {
+        "ordSSM": 0.7091004104013904,
+        "ssm": 0.7126139872836815,
+        "op": 0.6931453002067391
+      }
+    },
+    {
+      "stratum": "informative groups",
+      "groups": 24668,
+      "sites": 19642,
+      "arms": {
+        "ordSSM": {
+          "achieved_at_1": 0.04486486899582009,
+          "hit_at_1": 0.5793335495378629,
+          "regret_at_1": 0.012118133563568388
+        },
+        "ssm": {
+          "achieved_at_1": 0.04454341771996594,
+          "hit_at_1": 0.579536241284255,
+          "regret_at_1": 0.012439584839422532
+        },
+        "op": {
+          "achieved_at_1": 0.04558984719406903,
+          "hit_at_1": 0.5858196854224096,
+          "regret_at_1": 0.011393155365319442
+        },
+        "rand": {
+          "achieved_at_1": 0.026805873275184307,
+          "hit_at_1": 0.3133343038877169,
+          "regret_at_1": 0.030177129284204175
+        }
+      },
+      "paired": {
+        "ssm_minus_ordSSM": {
+          "observed": -0.000321451275854143,
+          "ci95": [
+            -0.0005595402133822883,
+            -8.265131554768436e-05
+          ],
+          "two_sided_p": 0.007,
+          "p_is_resolution_floor": false,
+          "degenerate_zero_difference": false,
+          "n": 24668,
+          "n_clusters": 19642,
+          "n_boot": 2000
+        },
+        "ordSSM_minus_op": {
+          "observed": -0.000724978198248946,
+          "ci95": [
+            -0.0010460291311596916,
+            -0.00038160859821626463
+          ],
+          "two_sided_p": 0.001,
+          "p_is_resolution_floor": true,
+          "degenerate_zero_difference": false,
+          "n": 24668,
+          "n_clusters": 19642,
+          "n_boot": 2000
+        },
+        "ssm_minus_op": {
+          "observed": -0.001046429474103089,
+          "ci95": [
+            -0.001373740085395579,
+            -0.0007348585232339678
+          ],
+          "two_sided_p": 0.001,
+          "p_is_resolution_floor": true,
+          "degenerate_zero_difference": false,
+          "n": 24668,
+          "n_clusters": 19642,
+          "n_boot": 2000
+        }
+      },
+      "pooled_spearman": {
+        "ordSSM": 0.7091004104013904,
+        "ssm": 0.7126139872836815,
+        "op": 0.6931453002067391
+      }
+    },
+    {
+      "stratum": "depth 8+",
+      "groups": 2400,
+      "sites": 2371,
+      "arms": {
+        "ordSSM": {
+          "achieved_at_1": 0.062492664782199996,
+          "hit_at_1": 0.345,
+          "regret_at_1": 0.031227966808141664
+        },
+        "ssm": {
+          "achieved_at_1": 0.0616080731595625,
+          "hit_at_1": 0.33416666666666667,
+          "regret_at_1": 0.03211255843077917
+        },
+        "op": {
+          "achieved_at_1": 0.0645004328494,
+          "hit_at_1": 0.3616666666666667,
+          "regret_at_1": 0.029220198740941665
+        },
+        "rand": {
+          "achieved_at_1": 0.029291569807438106,
+          "hit_at_1": 0.11301870584020203,
+          "regret_at_1": 0.06442906178290356
+        }
+      },
+      "paired": {
+        "ssm_minus_ordSSM": {
+          "observed": -0.0008845916226374998,
+          "ci95": [
+            -0.0021790297036109007,
+            0.0003520382603284046
+          ],
+          "two_sided_p": 0.16,
+          "p_is_resolution_floor": false,
+          "degenerate_zero_difference": false,
+          "n": 2400,
+          "n_clusters": 2371,
+          "n_boot": 2000
+        },
+        "ordSSM_minus_op": {
+          "observed": -0.0020077680672,
+          "ci95": [
+            -0.0036626239480369387,
+            -0.0003766605016064624
+          ],
+          "two_sided_p": 0.015,
+          "p_is_resolution_floor": false,
+          "degenerate_zero_difference": false,
+          "n": 2400,
+          "n_clusters": 2371,
+          "n_boot": 2000
+        },
+        "ssm_minus_op": {
+          "observed": -0.0028923596898375,
+          "ci95": [
+            -0.0045349252295938565,
+            -0.0013825591491957445
+          ],
+          "two_sided_p": 0.001,
+          "p_is_resolution_floor": true,
+          "degenerate_zero_difference": false,
+          "n": 2400,
+          "n_clusters": 2371,
+          "n_boot": 2000
+        }
+      },
+      "pooled_spearman": {
+        "ordSSM": 0.7091004104013904,
+        "ssm": 0.7126139872836815,
+        "op": 0.6931453002067391
+      }
+    },
+    {
+      "stratum": "decision worth >= 0.05",
+      "groups": 5614,
+      "sites": 5286,
+      "arms": {
+        "ordSSM": {
+          "achieved_at_1": 0.10686984684259351,
+          "hit_at_1": 0.5546847167794798,
+          "regret_at_1": 0.031439371306982544
+        },
+        "ssm": {
+          "achieved_at_1": 0.10563999355793195,
+          "hit_at_1": 0.5454221588884931,
+          "regret_at_1": 0.0326692245916441
+        },
+        "op": {
+          "achieved_at_1": 0.1098911927307143,
+          "hit_at_1": 0.5890630566441041,
+          "regret_at_1": 0.02841802541886177
+        },
+        "rand": {
+          "achieved_at_1": 0.05611081077880587,
+          "hit_at_1": 0.2197470906466159,
+          "regret_at_1": 0.08219840737077018
+        }
+      },
+      "paired": {
+        "ssm_minus_ordSSM": {
+          "observed": -0.0012298532846615605,
+          "ci95": [
+            -0.002104963331165111,
+            -0.0003087580251804918
+          ],
+          "two_sided_p": 0.006,
+          "p_is_resolution_floor": false,
+          "degenerate_zero_difference": false,
+          "n": 5614,
+          "n_clusters": 5286,
+          "n_boot": 2000
+        },
+        "ordSSM_minus_op": {
+          "observed": -0.0030213458881207696,
+          "ci95": [
+            -0.004279697818765892,
+            -0.0018104212995153912
+          ],
+          "two_sided_p": 0.001,
+          "p_is_resolution_floor": true,
+          "degenerate_zero_difference": false,
+          "n": 5614,
+          "n_clusters": 5286,
+          "n_boot": 2000
+        },
+        "ssm_minus_op": {
+          "observed": -0.00425119917278233,
+          "ci95": [
+            -0.00551118724687854,
+            -0.0030695009104365328
+          ],
+          "two_sided_p": 0.001,
+          "p_is_resolution_floor": true,
+          "degenerate_zero_difference": false,
+          "n": 5614,
+          "n_clusters": 5286,
+          "n_boot": 2000
+        }
+      },
+      "pooled_spearman": {
+        "ordSSM": 0.7091004104013904,
+        "ssm": 0.7126139872836815,
+        "op": 0.6931453002067391
+      }
+    }
+  ]
+}

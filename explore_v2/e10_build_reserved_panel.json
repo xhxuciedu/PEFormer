@@ -1,0 +1,76 @@
+{
+  "provenance": {
+    "git_commit": "83ffae1c5b8f",
+    "working_tree_dirty": true,
+    "seed": 20260908,
+    "inputs": {
+      "data/processed/optiprime_official_318471.parquet": "fe62229d50a08fa3",
+      "external/deepprime/data/DeepPrime_dataset_final_Feat8.csv": "e5e2a6d4e8ba42f1"
+    }
+  },
+  "canon_version": 2,
+  "reconstruction": {
+    "rows_in_file": 288793,
+    "rows_reconstructed": 288730,
+    "rows_dropped": 63,
+    "nick_index": 21,
+    "protospacer_span": [
+      4,
+      24
+    ]
+  },
+  "validation_on_corpus_overlap": {
+    "match_key": "identical 40 bp WT window, identical 40 bp edited window, PBSlen, RTlen",
+    "matched_rows": 1575,
+    "pbs_agrees": 1.0,
+    "rtt_agrees": 0.9968253968253968
+  },
+  "overlap_removal": {
+    "rows_sharing_a_protospacer": 56578,
+    "rows_sharing_a_canonical_allele": 32904,
+    "rows_after_removal": 219669
+  },
+  "panel": {
+    "rows": 118187,
+    "decision_groups": 30475,
+    "groups_ge_2": 30475,
+    "groups_ge_3": 18660,
+    "groups_ge_5": 8775,
+    "groups_ge_8": 2400,
+    "groups_ge_12": 541,
+    "groups_all_zero": 5807,
+    "groups_informative": 24668,
+    "mean_best_design": 0.04612555215792879,
+    "mean_spread": 0.04124464217622936,
+    "edit_type_mix": {
+      "sub": 58027,
+      "ins": 34742,
+      "del": 25418
+    }
+  },
+  "outputs": {
+    "pe_rankformer_input": "explore_v2/reserved_panel_v2.parquet",
+    "pe_rankformer_sha256": "6dc91509073c11e60511581113b4e7be92e81d2c0a4486c4162fd96bd60bd9c6",
+    "optiprime_input_dir": "data/interim/reserved_panel_kim_large",
+    "optiprime_sha256": "ba3dadd0237dfec0530aceb0db3b0e63adad86f003eabd75dda805b453f15b1b",
+    "context_assumed": {
+      "source_study": "deepprime",
+      "cell_type": "HEK293T",
+      "pe_type": "PE2",
+      "cas9_type": "PEmax-Cas9",
+      "cas9_pam": "SpNGG",
+      "motif": "none",
+      "scaffold_name": "GC_F+E",
+      "rt_name": "PE2-RT",
+      "group": "Kim_HEK293T",
+      "time": 7.0,
+      "PEmax": 1,
+      "epegRNA": 0,
+      "MLH1dn": 0,
+      "NRCH": 0,
+      "linker": null,
+      "weight": 0.1
+    },
+    "scored_by_any_model_yet": false
+  }
+}

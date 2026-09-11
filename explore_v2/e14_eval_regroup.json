@@ -1,0 +1,64 @@
+{
+  "provenance": {
+    "git_commit": "83ffae1c5b8f",
+    "working_tree_dirty": true,
+    "seed": 20260908,
+    "inputs": {
+      "data/processed/optiprime_official_318471.parquet": "fe62229d50a08fa3"
+    }
+  },
+  "canon_version": 2,
+  "checkpoints": {
+    "control (current ranking key)": "checkpoints/e13_ctrl_1788898981/best.pt",
+    "canonical decision-group key": "checkpoints/e13_canon_1788898981/best.pt"
+  },
+  "surface": "locked fold 0 (20,509 rows); neither arm trains on it or early-stops on it",
+  "pooled_spearman": {
+    "control (current ranking key)": 0.8926946732516127,
+    "canonical decision-group key": 0.8951520858528431
+  },
+  "decision": {
+    "control (current ranking key)": {
+      "groups": 1463,
+      "accuracy": 0.721120984278879,
+      "achieved_efficiency": 0.13298081652112778,
+      "regret": 0.010176016581264526,
+      "oracle": 0.14315683310239236,
+      "random": 0.10856484000664615,
+      "mean_spearman_ge3": 0.5916947815493858,
+      "regret_share_of_random_removed": 0.7058273990429341
+    },
+    "canonical decision-group key": {
+      "groups": 1463,
+      "accuracy": 0.7238550922761449,
+      "achieved_efficiency": 0.13556491389586464,
+      "regret": 0.00759191920652768,
+      "oracle": 0.14315683310239236,
+      "random": 0.10856484000664615,
+      "mean_spearman_ge3": 0.5772105810327984,
+      "regret_share_of_random_removed": 0.7805295813538635
+    }
+  },
+  "paired_canon_minus_control": {
+    "sel": {
+      "observed": 0.002584097374736843,
+      "ci95": [
+        0.00045660248129998193,
+        0.005299551379564048
+      ],
+      "two_sided_p": 0.010000000000000009,
+      "n_groups": 1463,
+      "n_spacer_clusters": 439
+    },
+    "acc": {
+      "observed": 0.002734107997265892,
+      "ci95": [
+        -0.020806418490451926,
+        0.02564821303433773
+      ],
+      "two_sided_p": 0.8939999999999999,
+      "n_groups": 1463,
+      "n_spacer_clusters": 439
+    }
+  }
+}

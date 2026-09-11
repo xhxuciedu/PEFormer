@@ -1,0 +1,273 @@
+{
+  "partition_sha256": "ec471fd6288a5397df0a3ebbf7cb5ca076a77a7a267972a74e9ccc3fe5f23c43",
+  "manifest_sha256": "68db4b867fec87ce92b789aba17bd332ead03cdc8ba151183fecfa1487390421",
+  "construction": "Outcome-free random component prefixes; explicit overshoot",
+  "historical_sampler": [
+    {
+      "training_groups": 200,
+      "training_candidates": 707,
+      "partial_components": 130,
+      "previous_subset_nested": null,
+      "previous_groups_retained": null,
+      "labelled_validation_groups": 5561
+    },
+    {
+      "training_groups": 1000,
+      "training_candidates": 3589,
+      "partial_components": 580,
+      "previous_subset_nested": false,
+      "previous_groups_retained": 12,
+      "labelled_validation_groups": 5561
+    },
+    {
+      "training_groups": 5000,
+      "training_candidates": 18609,
+      "partial_components": 2099,
+      "previous_subset_nested": true,
+      "previous_groups_retained": 1000,
+      "labelled_validation_groups": 5561
+    }
+  ],
+  "budgets": [
+    {
+      "seed": 20260910,
+      "nominal_groups": 200,
+      "actual_selected_groups": 202,
+      "selected_candidates": 788,
+      "components": 118,
+      "training_budget_protocol": {
+        "training_groups": 202,
+        "validation_groups": 5561,
+        "total_labelled_groups": 5763,
+        "total_candidate_measurements": 23908
+      },
+      "total_budget_protocol": {
+        "training_groups": 168,
+        "inner_validation_groups": 34,
+        "total_labelled_groups": 202,
+        "total_candidate_measurements": 788,
+        "fixed_E25_validation_used_for_selection": false
+      }
+    },
+    {
+      "seed": 20260910,
+      "nominal_groups": 1000,
+      "actual_selected_groups": 1001,
+      "selected_candidates": 3848,
+      "components": 520,
+      "training_budget_protocol": {
+        "training_groups": 1001,
+        "validation_groups": 5561,
+        "total_labelled_groups": 6562,
+        "total_candidate_measurements": 26968
+      },
+      "total_budget_protocol": {
+        "training_groups": 839,
+        "inner_validation_groups": 162,
+        "total_labelled_groups": 1001,
+        "total_candidate_measurements": 3848,
+        "fixed_E25_validation_used_for_selection": false
+      }
+    },
+    {
+      "seed": 20260910,
+      "nominal_groups": 5000,
+      "actual_selected_groups": 5002,
+      "selected_candidates": 18655,
+      "components": 2698,
+      "training_budget_protocol": {
+        "training_groups": 5002,
+        "validation_groups": 5561,
+        "total_labelled_groups": 10563,
+        "total_candidate_measurements": 41775
+      },
+      "total_budget_protocol": {
+        "training_groups": 4027,
+        "inner_validation_groups": 975,
+        "total_labelled_groups": 5002,
+        "total_candidate_measurements": 18655,
+        "fixed_E25_validation_used_for_selection": false
+      }
+    },
+    {
+      "seed": 20260910,
+      "nominal_groups": null,
+      "actual_selected_groups": 19357,
+      "selected_candidates": 72010,
+      "components": 10370,
+      "training_budget_protocol": {
+        "training_groups": 19357,
+        "validation_groups": 5561,
+        "total_labelled_groups": 24918,
+        "total_candidate_measurements": 95130
+      },
+      "total_budget_protocol": {
+        "training_groups": 15441,
+        "inner_validation_groups": 3916,
+        "total_labelled_groups": 19357,
+        "total_candidate_measurements": 72010,
+        "fixed_E25_validation_used_for_selection": false
+      }
+    },
+    {
+      "seed": 20260911,
+      "nominal_groups": 200,
+      "actual_selected_groups": 200,
+      "selected_candidates": 695,
+      "components": 90,
+      "training_budget_protocol": {
+        "training_groups": 200,
+        "validation_groups": 5561,
+        "total_labelled_groups": 5761,
+        "total_candidate_measurements": 23815
+      },
+      "total_budget_protocol": {
+        "training_groups": 159,
+        "inner_validation_groups": 41,
+        "total_labelled_groups": 200,
+        "total_candidate_measurements": 695,
+        "fixed_E25_validation_used_for_selection": false
+      }
+    },
+    {
+      "seed": 20260911,
+      "nominal_groups": 1000,
+      "actual_selected_groups": 1000,
+      "selected_candidates": 3555,
+      "components": 504,
+      "training_budget_protocol": {
+        "training_groups": 1000,
+        "validation_groups": 5561,
+        "total_labelled_groups": 6561,
+        "total_candidate_measurements": 26675
+      },
+      "total_budget_protocol": {
+        "training_groups": 807,
+        "inner_validation_groups": 193,
+        "total_labelled_groups": 1000,
+        "total_candidate_measurements": 3555,
+        "fixed_E25_validation_used_for_selection": false
+      }
+    },
+    {
+      "seed": 20260911,
+      "nominal_groups": 5000,
+      "actual_selected_groups": 5001,
+      "selected_candidates": 18360,
+      "components": 2656,
+      "training_budget_protocol": {
+        "training_groups": 5001,
+        "validation_groups": 5561,
+        "total_labelled_groups": 10562,
+        "total_candidate_measurements": 41480
+      },
+      "total_budget_protocol": {
+        "training_groups": 4058,
+        "inner_validation_groups": 943,
+        "total_labelled_groups": 5001,
+        "total_candidate_measurements": 18360,
+        "fixed_E25_validation_used_for_selection": false
+      }
+    },
+    {
+      "seed": 20260911,
+      "nominal_groups": null,
+      "actual_selected_groups": 19357,
+      "selected_candidates": 72010,
+      "components": 10370,
+      "training_budget_protocol": {
+        "training_groups": 19357,
+        "validation_groups": 5561,
+        "total_labelled_groups": 24918,
+        "total_candidate_measurements": 95130
+      },
+      "total_budget_protocol": {
+        "training_groups": 15559,
+        "inner_validation_groups": 3798,
+        "total_labelled_groups": 19357,
+        "total_candidate_measurements": 72010,
+        "fixed_E25_validation_used_for_selection": false
+      }
+    },
+    {
+      "seed": 20260912,
+      "nominal_groups": 200,
+      "actual_selected_groups": 201,
+      "selected_candidates": 750,
+      "components": 122,
+      "training_budget_protocol": {
+        "training_groups": 201,
+        "validation_groups": 5561,
+        "total_labelled_groups": 5762,
+        "total_candidate_measurements": 23870
+      },
+      "total_budget_protocol": {
+        "training_groups": 152,
+        "inner_validation_groups": 49,
+        "total_labelled_groups": 201,
+        "total_candidate_measurements": 750,
+        "fixed_E25_validation_used_for_selection": false
+      }
+    },
+    {
+      "seed": 20260912,
+      "nominal_groups": 1000,
+      "actual_selected_groups": 1002,
+      "selected_candidates": 3698,
+      "components": 542,
+      "training_budget_protocol": {
+        "training_groups": 1002,
+        "validation_groups": 5561,
+        "total_labelled_groups": 6563,
+        "total_candidate_measurements": 26818
+      },
+      "total_budget_protocol": {
+        "training_groups": 776,
+        "inner_validation_groups": 226,
+        "total_labelled_groups": 1002,
+        "total_candidate_measurements": 3698,
+        "fixed_E25_validation_used_for_selection": false
+      }
+    },
+    {
+      "seed": 20260912,
+      "nominal_groups": 5000,
+      "actual_selected_groups": 5002,
+      "selected_candidates": 18582,
+      "components": 2647,
+      "training_budget_protocol": {
+        "training_groups": 5002,
+        "validation_groups": 5561,
+        "total_labelled_groups": 10563,
+        "total_candidate_measurements": 41702
+      },
+      "total_budget_protocol": {
+        "training_groups": 4035,
+        "inner_validation_groups": 967,
+        "total_labelled_groups": 5002,
+        "total_candidate_measurements": 18582,
+        "fixed_E25_validation_used_for_selection": false
+      }
+    },
+    {
+      "seed": 20260912,
+      "nominal_groups": null,
+      "actual_selected_groups": 19357,
+      "selected_candidates": 72010,
+      "components": 10370,
+      "training_budget_protocol": {
+        "training_groups": 19357,
+        "validation_groups": 5561,
+        "total_labelled_groups": 24918,
+        "total_candidate_measurements": 95130
+      },
+      "total_budget_protocol": {
+        "training_groups": 15543,
+        "inner_validation_groups": 3814,
+        "total_labelled_groups": 19357,
+        "total_candidate_measurements": 72010,
+        "fixed_E25_validation_used_for_selection": false
+      }
+    }
+  ]
+}

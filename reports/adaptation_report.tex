@@ -1,0 +1,211 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,booktabs,graphicx,float,caption,threeparttable,siunitx,url,hyperref,xcolor}
+\sisetup{table-number-alignment=center,detect-weight=true,group-separator={,},group-minimum-digits=4,group-digits=integer}
+\captionsetup{font=small,labelfont=bf}
+\hypersetup{colorlinks=true,linkcolor=blue!45!black,urlcolor=blue!45!black}
+\newcommand{\code}[1]{\texttt{\small #1}}
+\emergencystretch=3em
+\sloppy
+\title{\textbf{Target-library adaptation improves selection,\\but does not preserve a transferable selector}\\[0.35em]
+\large Updated computational research report: PE-RankFormer, E25--E32}
+\author{}
+\date{10 September 2026}
+\begin{document}
+\maketitle
+\begin{abstract}
+\noindent
+Target-library adaptation enables standalone PE-RankFormer to outperform released
+OptiPrime on held-out loci within the external Kim library. Native ordinal fine-tuning
+(P) achieves mean efficiency at rank 1 of $0.04178$ against $0.04020$, a
+$0.158$-percentage-point improvement and $15.7\%$ reduction in selection regret, with
+positive per-seed clustered intervals across three seeds. This is an adaptation result
+with unequal target-label exposure, not proof of architectural superiority or independent
+cross-library confirmation. E29--E32 revise three interpretations of the original report.
+First, the actual initializing checkpoint scores $0.03919$, not the published ensemble's
+$0.03952$; the 200-group experiment provides no evidence of harm against its matched start.
+Second, three-seed pairwise-loss replication improves validation selection over the tested
+utility loss, but an advantage over P or the shared-score control is not established.
+Third, preserving the original prediction head does not preserve the deployed selector:
+source selection efficiency averages $0.12776$ for P, $0.12607$ for utility S, and $0.11460$
+for pairwise S, against $0.13350$ at initialization. The shared-versus-dual-head control also
+has a substantial score-scale mismatch. The next research question is therefore whether
+label-efficient adaptation can improve the deployed selection rule while preserving
+transfer across independently evaluated domains.
+\end{abstract}
+\tableofcontents
+\bigskip
+
+\section{Scope and evaluation populations}
+The original source benchmark, external zero-shot panel, and within-library adaptation
+test answer different questions. They must not be pooled or described as independent
+datasets merely because their partition names differ. All work is computational; no
+OptiPrime scores, parameters, features or teachers enter PE-RankFormer training.
+
+\begin{table}[htbp]\centering\small
+\caption{Prediction and selection answer different questions. Efficiencies are fractions.
+Source selection uses 1,463 informative groups; external zero-shot selection uses 30,475
+eligible groups. Adaptation test uses 5,557 groups from the same external library.}
+\begin{tabular}{lrrrr}\toprule
+& \multicolumn{2}{c}{Pooled Spearman} & \multicolumn{2}{c}{Selection @1}\\
+Population / our model & OptiPrime & Ours & OptiPrime & Ours\\\midrule
+Source fold 0 / published final ensemble & 0.8690 & 0.9079 & 0.1272 & 0.1364\\
+External zero-shot / ordinal-S4D ensemble & 0.6931 & 0.7091 & 0.0369 & 0.0363\\
+External adaptation test / P, 3 seeds & 0.6922 & 0.7771 & 0.04020 & 0.04178\\
+\bottomrule\end{tabular}
+\end{table}
+
+The source final ensemble and the external ordinal-S4D ensemble are different model
+configurations. The latter contains five source-fold checkpoints; adaptation starts from
+one predetermined checkpoint, \code{r4p2\_ordSSM\_cv1}. P uses the native ordinal objective,
+not a newly tested conditional-mean regression loss. S adds a separate deployed selector
+trained with a group loss; M trains prediction and selection jointly; shared uses one
+prediction-derived score for both objectives; Z freezes the encoder and fits a selector.
+
+The external panel contains 118,187 measurement rows selected from the larger Kim library
+after overlap exclusions. Its original zero-target-label comparison remains valid as a
+separate result: pooled correlation favors PE-RankFormer, while top-choice efficiency
+favors OptiPrime. The library was subsequently used for extensive exploration and
+adaptation. E29 test re-evaluations are retrospective audits. The two additional E30
+pairwise seeds were evaluated on validation and source fold 0, not target test.
+
+\section{Partition, labels and primary endpoint}
+\input{tables_adapt/tab_partition}
+E25 assigns whole connected components of the allele--protospacer graph. No allele or
+protospacer crosses these splits under the recorded keys. This protects against these
+specific overlaps; it is not proof that all homologous sequences or shared assay effects
+are independent. Training uses 19,357 decision groups and 72,010 distinct candidates;
+validation uses 5,561 groups and 23,120 candidates. The original source-trained checkpoint
+and frozen comparator provide the same initialization/reference for all relevant arms.
+
+The primary endpoint is group-mean measured efficiency of the top nominated distinct
+design, with a fixed tie rule. Repeated measurements of one design are averaged before
+ranking. Regret is the group's best measured efficiency minus the nominated efficiency.
+Confidence intervals resample locus components, not individual candidates.
+The provisional E25 target was a 10\% reduction of released OptiPrime's regret.
+
+\section{Adaptation beats released OptiPrime on this library}
+\input{tables_adapt/tab_test}
+P achieves $0.04178$ versus OptiPrime's $0.04020$: approximately $3.9\%$ higher achieved
+efficiency and $15.7\%$ lower regret. Each of its three seed-specific paired intervals
+excludes zero. These are not a single confidence interval for an ensemble or for the
+entire model-development process. Shared, S and M also exceed the released comparator;
+the geometry-only control does not, and the frozen-encoder selector has a smaller gain.
+
+A random choice achieves $0.02323$, and the best measured candidate achieves $0.05028$.
+Beating OptiPrime therefore does not mean the selection problem is solved. The test result
+also does not establish that the architecture is superior under equal target-label exposure.
+
+\paragraph{The matched starting checkpoint matters.}
+E29 measures the exact initializing checkpoint at $0.03919$ on test, with Spearman $0.6981$.
+The published unadapted ensemble scores $0.03952$ and $0.7102$. Both comparisons may be
+reported, but only the former identifies the change from the adapted model's initialization.
+P's adapted Spearman is $0.7771$; the difference from $0.7102$ is an ensemble-to-single-model
+comparison, not a matched before/after comparison.
+
+\section{Loss replication and what the controls establish}
+\input{tables_adapt/tab_replication}
+\input{tables_adapt/tab_followup_contrasts}
+E30 adds two original-recipe pairwise-loss runs, producing three seeds in total.
+Selected-epoch validation achieved efficiency averages $0.042998$ for pairwise S,
+$0.042713$ for P, $0.042673$ for utility S, and $0.043040$ for shared.
+Pairwise exceeds P and utility S in each matched validation seed, but not shared.
+
+Direct cached-prediction contrasts show a pairwise-minus-P difference of $+0.000291$
+with interval $[-0.000072,+0.000654]$, $p=0.126$; pairwise-minus-utility-S is
+$+0.000331$ with interval $[+0.000082,+0.000594]$, $p=0.009$; and pairwise-minus-shared
+is $-0.000023$ with interval $[-0.000270,+0.000233]$, $p=0.888$.
+These are unadjusted development comparisons conditional on selected checkpoints.
+They support further loss research, not a confirmed overall winner. Numerical/batch
+differences between training-log validation maxima and cached re-evaluations are retained
+rather than silently forcing them to match.
+
+On the old test split, three-seed utility-S minus P is $-0.000021$ with interval
+$[-0.000436,+0.000378]$, $p=0.939$. Nonsignificance does not establish equivalence.
+Pairwise's higher historical test point estimate still has only one tested seed.
+
+\paragraph{Head separation was not cleanly isolated.}
+Shared adds 199,040 parameters and M adds 198,657, but their architectures and selection-score
+ranges also differ. At training temperature 1, the fitted M head has median within-group
+score range $87.5$ and mean maximum softmax probability $0.9823$; shared has range $0.2451$
+and mean maximum probability $0.3409$. For eight candidates with scores in $[0,1]$,
+the maximum possible probability at this temperature is $e/(e+7)=0.2797$.
+Thus parameter-count matching does not make the training surrogates comparable.
+Post-hoc positive temperature scaling cannot change deterministic argmax decisions;
+a repaired comparison must alter training and control capacity, score scale and initialization.
+
+\paragraph{Geometry and candidate-set models remain open hypotheses.}
+One scalar-geometry run scored below utility S. This does not reject segment-specific pooling,
+validated edit-to-RTT alignment features, or geometry-aware architectures. Candidate-set
+attention was not implemented, so it has not been experimentally rejected. Both directions
+are lower priority than a well-controlled selection/readout study and independent validation.
+
+\section{Retention of prediction is not retention of selection}
+\input{tables_adapt/tab_heads}
+E28 evaluated only the original prediction head. E29 explicitly evaluates both original
+prediction and deployed selection outputs on source fold 0. P's source selection averages
+$0.12776$; utility S averages $0.12607$, below P in each matched seed, despite retaining a
+strong original prediction head. Pairwise S averages $0.11460$ through its deployed selector
+while its original prediction head reaches $0.13428$.
+These source means are descriptive, not a source superiority or equivalence test.
+
+Z is especially informative: the frozen encoder and original predictor preserve source
+@1 at $0.13350$, but the newly fitted selector achieves $0.12697$. Encoder freezing therefore
+does not imply that a new deployed selection rule preserves source utility. Readout
+specialization is a plausible contributor to the transfer failure; it is not yet a
+causally isolated mechanism. The old recommendation to ship S as one selector for many
+libraries is withdrawn. Explicit domain-based head routing would be a different deployment
+policy and needs its own evaluation.
+
+\section{What the label-budget runs do and do not show}
+\input{tables_adapt/tab_curve}
+The 200-group run scores $0.03929$, giving $+0.000102$ against the actual starting checkpoint,
+with interval $[-0.000041,+0.000255]$, $p=0.158$. It establishes neither harm nor a reliable
+benefit. Comparing it with a stronger unadapted ensemble did not isolate fine-tuning harm.
+
+Every historical budget additionally used 5,561 labelled validation groups. The apparent
+crossover between 1,000 and 5,000 training groups is specific to those runs; it is not a
+total-label threshold. Small budgets had one seed/subsample and unequal numbers of optimizer
+updates under an epoch-based schedule. The 200-group subset shares only 12 groups with the
+1,000-group subset. Training subsets include partial training components, although the outer
+train/validation/test partition remains component-disjoint.
+
+E31 has constructed, but not trained, corrected nested complete-component budgets for three
+subset seeds. Nominal 200-group total budgets contain 200--202 groups, with inner validation
+allocated inside each selected budget. Candidate measurements, components, training labels
+and validation labels are counted separately. Future low-budget runs must allow the
+unadapted initialization as an eligible checkpoint and distinguish fixed-update from
+fixed-epoch comparisons.
+
+\section{Current claims and implications for the next research phase}
+\begin{enumerate}
+\item Standalone target adaptation outperforms released OptiPrime on held-out loci within
+this library. The source-only external selection deficit remains a separate finding.
+\item P remains a strong simple adaptation baseline and shared a strong target-selection
+control. Pairwise loss is useful to investigate, but is not established as superior to P
+or shared and has a substantial source-selection cost.
+\item Source retention must be evaluated through the actual deployed score. Neither an
+unused prediction head nor a frozen encoder guarantees this.
+\item Architecture, loss, label efficiency and domain transfer require matched controls.
+The current data do not support rejecting all specialized losses or dual-head designs.
+\item All adapted models saw target labels; released OptiPrime did not. A later
+matched-label comparison is distinct from any hybrid and remains necessary before an
+architectural-superiority claim. No hybrid is proposed here.
+\item One external library in HEK293T/PE2 is insufficient to establish broad transfer.
+A stronger methods contribution needs independent computational domains, realistic
+label budgets and a reproducible selection protocol, not merely a small gain on this panel.
+\end{enumerate}
+
+\section*{Reproducibility and completed work}
+E25--E28 contain twenty original training runs. E30 adds two pairwise replications.
+E29 provides 42 separately cached model-by-surface prediction tables, with full SHA-256
+hashes of recorded checkpoint/data inputs. E31 supplies budget manifests; E32 supplies a
+score-scale diagnostic, not new architecture training. Historical experiment JSON and
+checkpoints are preserved. Tables are generated by
+\path{explore_v2/make_adapt_tables.py} from E25--E32 artifacts.
+The current endpoint/protocol suite has 21 passing tests.
+Agreement with saved numbers guards transcription, not interpretation or experimental validity.
+The detailed current ledger is \path{explore_v2/ADAPTATION_FOLLOWUP_RESULTS.md}.
+The proposed next programme is \path{explore_v3/RESEARCH_PLAN.md}; its experiments
+have not yet been executed.
+\end{document}

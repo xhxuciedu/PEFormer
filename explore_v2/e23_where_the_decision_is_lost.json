@@ -1,0 +1,174 @@
+{
+  "provenance": {
+    "git_commit": "83ffae1c5b8f",
+    "working_tree_dirty": true,
+    "seed": 20260908,
+    "inputs": {
+      "data/processed/optiprime_official_318471.parquet": "fe62229d50a08fa3"
+    }
+  },
+  "canon_version": 2,
+  "interpretable_size": {
+    "informative_groups": 24668,
+    "random": 0.026805873275184307,
+    "oracle": 0.05698300255938848,
+    "decision_is_worth": 0.03017712928420417,
+    "captured": {
+      "op": {
+        "achieved_at_1": 0.04558984719406903,
+        "share_of_available_gain": 0.6224572835268645
+      },
+      "ours": {
+        "achieved_at_1": 0.04480521788369832,
+        "share_of_available_gain": 0.596456489913225
+      },
+      "A_ens": {
+        "achieved_at_1": 0.04314448832209645,
+        "share_of_available_gain": 0.5414237680806961
+      },
+      "F_ens": {
+        "achieved_at_1": 0.04456616899929564,
+        "share_of_available_gain": 0.5885349649016394
+      }
+    },
+    "gap_as_share_of_available_gain": 0.02600079361363953
+  },
+  "length_bias_of_the_nominated_design": {
+    "groups": 24668,
+    "op": {
+      "pbs_bias": 0.5193773309550835,
+      "rtt_bias": -0.5305253770066483
+    },
+    "ours": {
+      "pbs_bias": 0.7658099562185828,
+      "rtt_bias": 0.1615858602237717
+    },
+    "A_ens": {
+      "pbs_bias": 0.9433679260580509,
+      "rtt_bias": 0.48256850981028054
+    },
+    "F_ens": {
+      "pbs_bias": 0.8122263661423706,
+      "rtt_bias": 0.42776066158586024
+    }
+  },
+  "global_length_correction": {
+    "surface": "development folds 1-5, out-of-fold ordinal-S4D score",
+    "informative_groups": 43425,
+    "baseline": 0.2921310657481615,
+    "rtt_sweep": {
+      "-0.010": 0.2870303341877153,
+      "-0.006": 0.28987350814589086,
+      "-0.004": 0.2907968865936537,
+      "-0.002": 0.29167799589315374,
+      "-0.001": 0.292125656872809,
+      "+0.000": 0.2921310657481615,
+      "+0.001": 0.2918283726828837,
+      "+0.002": 0.2911760428088074
+    },
+    "pbs_sweep": {
+      "-0.008": 0.2919860905120063,
+      "-0.004": 0.29205793194730256,
+      "-0.002": 0.29210905466528414,
+      "+0.000": 0.2921310657481615,
+      "+0.002": 0.2921346901198333
+    },
+    "best_rtt_alpha": "+0.000",
+    "best_gain": 0.0,
+    "verdict": "The optimum is exactly zero on both axes over 43,425 development decision groups, so the length preference is not a global additive offset in the score and cannot be corrected by one."
+  },
+  "blending_the_two_models": {
+    "informative_groups": 24668,
+    "achieved_at_1": {
+      "op": 0.04558984719406903,
+      "ours": 0.04480521788369832,
+      "blend": 0.04613649073792728
+    },
+    "paired": {
+      "blend_minus_op": {
+        "observed": 0.0005466435438582375,
+        "ci95": [
+          0.0003384616050487985,
+          0.0007651558935836288
+        ],
+        "two_sided_p": 0.001,
+        "p_is_resolution_floor": true,
+        "degenerate_zero_difference": false,
+        "n": 24668,
+        "n_clusters": 19553,
+        "n_boot": 2000
+      },
+      "blend_minus_ours": {
+        "observed": 0.0013312728542289607,
+        "ci95": [
+          0.00109232204084686,
+          0.0015598241580240793
+        ],
+        "two_sided_p": 0.001,
+        "p_is_resolution_floor": true,
+        "degenerate_zero_difference": false,
+        "n": 24668,
+        "n_clusters": 19553,
+        "n_boot": 2000
+      }
+    },
+    "blend_minus_op": 0.0005466435438582375,
+    "blend_minus_ours": 0.0013312728542289607,
+    "share_of_available_gain": 0.6405717813874805,
+    "note": "An equal-weight rank average of the two scores, scored on the same informative groups. Whether the opposite-direction errors are complementary is an empirical question, not something the bias table settles.",
+    "weight_sweep": {
+      "weights_are_on_pe_rankformer": {
+        "0.0": 0.04558984719406903,
+        "0.2": 0.045888973406281425,
+        "0.3": 0.04606570686307766,
+        "0.4": 0.04607429200389128,
+        "0.5": 0.04613649073792728,
+        "0.6": 0.04597092018198436,
+        "0.7": 0.04576410074551767,
+        "0.8": 0.04551454836971948,
+        "1.0": 0.04480521788369832
+      },
+      "best_weight": "0.5",
+      "note": "0.0 is OptiPrime alone and 1.0 is PE-RankFormer alone. Every intermediate weight tested beats both endpoints, so the equal-weight choice is not cherry-picked."
+    },
+    "fold0_replication": {
+      "informative_groups": 1463,
+      "clusters": 439,
+      "achieved_at_1": {
+        "op": 0.12721264889220094,
+        "ours": 0.13636373734997262,
+        "blend": 0.13150279780475735
+      },
+      "random": 0.10856484000664615,
+      "oracle": 0.14303635586784688,
+      "paired": {
+        "blend_minus_op": {
+          "observed": 0.00429014891255639,
+          "ci95": [
+            0.0025695919872479995,
+            0.006154778923962034
+          ],
+          "two_sided_p": 0.001,
+          "p_is_resolution_floor": true,
+          "degenerate_zero_difference": false,
+          "n": 1463,
+          "n_clusters": 439,
+          "n_boot": 2000
+        },
+        "blend_minus_ours": {
+          "observed": -0.004860939545215312,
+          "ci95": [
+            -0.00704172513040041,
+            -0.002783691126737201
+          ],
+          "two_sided_p": 0.001,
+          "p_is_resolution_floor": true,
+          "degenerate_zero_difference": false,
+          "n": 1463,
+          "n_clusters": 439,
+          "n_boot": 2000
+        }
+      }
+    }
+  }
+}

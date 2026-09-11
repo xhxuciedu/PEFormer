@@ -1,0 +1,216 @@
+{
+  "provenance": {
+    "git_commit": "83ffae1c5b8f",
+    "working_tree_dirty": true,
+    "seed": 20260908,
+    "inputs": {
+      "data/processed/optiprime_official_318471.parquet": "fe62229d50a08fa3"
+    }
+  },
+  "noise_model": {
+    "n_groups": 654,
+    "n_rows": 1512,
+    "df": 858,
+    "sigma_raw": 0.02647806847270658,
+    "sigma_z": 0.03784349831178662,
+    "median_group_sd_z": 0.016784450657713473,
+    "frac_groups_from_kim": 0.9923547400611621
+  },
+  "support": {
+    "n_quartets": 111862,
+    "n_alleles": 10482,
+    "n_target_sites": 10132,
+    "n_context_pairs": 128,
+    "design_pairs_dropped_by_cap": 69059,
+    "max_pairs_per_allele": 6
+  },
+  "observed": {
+    "mean_abs_D_z": 0.12010352011222614,
+    "sd_D_z": 0.20043265230035806,
+    "mean_abs_D_raw": 0.07649946313801105,
+    "sd_D_raw": 0.15243037212701688,
+    "quantiles_abs_D_z": {
+      "0.5": 0.06070394881073579,
+      "0.9": 0.32798690559822496,
+      "0.99": 0.7510096473333461
+    }
+  },
+  "variance_components": {
+    "n_design_pairs_with_2plus_contexts": 14022,
+    "var_delta_total": 0.0542030560125366,
+    "var_delta_within_pair_across_contexts": 0.018494414103950176,
+    "var_noise_in_delta": 0.0028642607289483934,
+    "var_interaction_estimate": 0.01563015337500178,
+    "var_design_main_effect_estimate": 0.03570864190858643,
+    "sd_interaction_estimate": 0.12502061180062182,
+    "sd_design_main_effect_estimate": 0.18896730380832136,
+    "interaction_share_of_delta_variance": 0.288362954505493,
+    "noise_share_of_delta_variance": 0.05284315940204404
+  },
+  "reversals": {
+    "n_quartets": 111862,
+    "reversal_rate_all": 0.1287926194775706,
+    "n_both_contrasts_significant": 26061,
+    "reversal_rate_supported": 0.04094240435900388,
+    "se_of_one_contrast": 0.05351878856017197,
+    "k": 2.0,
+    "n_supported_and_gap_gt_0.02": 23547,
+    "reversal_rate_supported_and_gap_gt_0.02": 0.04119420733002081,
+    "n_supported_and_gap_gt_0.05": 16958,
+    "reversal_rate_supported_and_gap_gt_0.05": 0.04151432951999057,
+    "n_supported_and_gap_gt_0.1": 10986,
+    "reversal_rate_supported_and_gap_gt_0.1": 0.03595485162934644
+  },
+  "additive_null": {
+    "n_sim": 200,
+    "analytic_sd_D_z": 0.07568699662357324,
+    "analytic_mean_abs_D_z": 0.06038948605948769,
+    "reversal_rate_all": {
+      "mean": 0.2411534301192541,
+      "p2.5": 0.2391413080402639,
+      "p97.5": 0.24311271924335343
+    },
+    "reversal_rate_supported": {
+      "mean": 0.0014217721716975828,
+      "p2.5": 0.001099809187187575,
+      "p97.5": 0.0017629391907353204
+    },
+    "mean_abs_D_z": {
+      "mean": 0.06037022103815971,
+      "p2.5": 0.0601371333734729,
+      "p97.5": 0.06062174183078208
+    },
+    "sd_D_z": {
+      "mean": 0.07565783720945239,
+      "p2.5": 0.07539128400538736,
+      "p97.5": 0.07594991938733206
+    }
+  },
+  "noise_sensitivity": [
+    {
+      "sigma_multiplier": 1.0,
+      "sigma_z": 0.03784349831178662,
+      "var_interaction_estimate": 0.01563015337500178,
+      "sd_interaction_estimate": 0.12502061180062182,
+      "interaction_share": 0.288362954505493
+    },
+    {
+      "sigma_multiplier": 1.5,
+      "sigma_z": 0.05676524746767993,
+      "var_interaction_estimate": 0.01204982746381629,
+      "sd_interaction_estimate": 0.10977170611690559,
+      "interaction_share": 0.22230900525293795
+    },
+    {
+      "sigma_multiplier": 2.0,
+      "sigma_z": 0.07568699662357324,
+      "var_interaction_estimate": 0.007037371188156602,
+      "sd_interaction_estimate": 0.08388904093000826,
+      "interaction_share": 0.1298334762993609
+    },
+    {
+      "sigma_multiplier": 2.5,
+      "sigma_z": 0.09460874577946655,
+      "var_interaction_estimate": 0.000592784548022713,
+      "sd_interaction_estimate": 0.024347167145742296,
+      "interaction_share": 0.010936367644761729
+    },
+    {
+      "sigma_multiplier": 3.0,
+      "sigma_z": 0.11353049493535985,
+      "var_interaction_estimate": -0.007283932456585363,
+      "sd_interaction_estimate": 0.0,
+      "interaction_share": 0.0
+    },
+    {
+      "sigma_multiplier_at_which_interaction_vanishes": 2.541054703096102
+    }
+  ],
+  "transfer_regret": {
+    "all_quartets": {
+      "n": 111862,
+      "oracle_efficiency_in_c2": 0.10602400893036548,
+      "transferred_choice_efficiency": 0.09868632691267919,
+      "random_choice_efficiency": 0.07301442750304292,
+      "transfer_regret": 0.0073376820176863,
+      "random_regret": 0.03300958142732257,
+      "share_of_random_regret_removed_by_transfer": 0.7777105403822909
+    },
+    "supported_quartets": {
+      "n": 26061,
+      "oracle_efficiency_in_c2": 0.24350391573740993,
+      "transferred_choice_efficiency": 0.23652637916170138,
+      "random_choice_efficiency": 0.15026517341401738,
+      "transfer_regret": 0.00697753657570853,
+      "random_regret": 0.0932387423233925,
+      "share_of_random_regret_removed_by_transfer": 0.9251648359701443
+    }
+  },
+  "bootstrap": {
+    "interaction_share": {
+      "ci95": [
+        0.2794470864107075,
+        0.2982845166455256
+      ],
+      "n_valid": 400,
+      "n_boot": 400,
+      "n_clusters": 10132
+    },
+    "sd_interaction": {
+      "ci95": [
+        0.12194206083941324,
+        0.12806213954704743
+      ],
+      "n_valid": 400,
+      "n_boot": 400,
+      "n_clusters": 10132
+    },
+    "reversal_rate_supported": {
+      "ci95": [
+        0.03547992359417362,
+        0.04762262427503934
+      ],
+      "n_valid": 400,
+      "n_boot": 400,
+      "n_clusters": 10132
+    },
+    "transfer_regret_supported": {
+      "ci95": [
+        0.005963185152741992,
+        0.008070826061728582
+      ],
+      "n_valid": 400,
+      "n_boot": 400,
+      "n_clusters": 10132
+    }
+  },
+  "by_context_change": [
+    {
+      "context_change": "cell and editor",
+      "n_quartets": 46417,
+      "sd_interaction": 0.12231317282950845,
+      "sd_design_main": 0.20097240852686493,
+      "reversal_rate_all": 0.12898291574207726,
+      "n_supported": 11655,
+      "reversal_rate_supported": 0.04779064779064779
+    },
+    {
+      "context_change": "cell line only",
+      "n_quartets": 44267,
+      "sd_interaction": 0.1385028095370297,
+      "sd_design_main": 0.1808169039152314,
+      "reversal_rate_all": 0.1246526758081641,
+      "n_supported": 9297,
+      "reversal_rate_supported": 0.026567710013983004
+    },
+    {
+      "context_change": "editor only (PE2 vs PE4)",
+      "n_quartets": 21178,
+      "sd_interaction": 0.11691624224258747,
+      "sd_design_main": 0.16802186059575244,
+      "reversal_rate_all": 0.13702899235055246,
+      "n_supported": 5109,
+      "reversal_rate_supported": 0.05147778430221178
+    }
+  ]
+}

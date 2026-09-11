@@ -1,0 +1,160 @@
+{
+  "provenance": {
+    "git_commit": "83ffae1c5b8f",
+    "working_tree_dirty": true,
+    "seed": 20260910,
+    "inputs": {
+      "data/processed/optiprime_official_318471.parquet": "fe62229d50a08fa3"
+    }
+  },
+  "canon_version": 2,
+  "surface": {
+    "fold": 0,
+    "rows": 20509,
+    "note": "the source corpus's official held-out fold; no adaptation run trained or selected on it"
+  },
+  "models": {
+    "start_checkpoint": {
+      "spearman": 0.8984351545631513,
+      "decision_at_1": 0.1334985825226794
+    },
+    "M_s20260910": {
+      "arm": "M",
+      "spearman": 0.8768452031888898,
+      "decision_at_1": 0.12730200610602868,
+      "spearman_change": -0.02158995137426145,
+      "decision_change": -0.006196576416650723
+    },
+    "M_s20260911": {
+      "arm": "M",
+      "spearman": 0.8771672249144721,
+      "decision_at_1": 0.12719093058898154,
+      "spearman_change": -0.021267929648679185,
+      "decision_change": -0.0063076519336978665
+    },
+    "M_s20260912": {
+      "arm": "M",
+      "spearman": 0.872330966742154,
+      "decision_at_1": 0.127420159234771,
+      "spearman_change": -0.026104187820997216,
+      "decision_change": -0.006078423287908391
+    },
+    "P_n1000_s20260910": {
+      "arm": "P|n1000",
+      "spearman": 0.8796778718900906,
+      "decision_at_1": 0.12819231981287765,
+      "spearman_change": -0.01875728267306065,
+      "decision_change": -0.005306262709801751
+    },
+    "P_n200_s20260910": {
+      "arm": "P|n200",
+      "spearman": 0.8982224903950398,
+      "decision_at_1": 0.1335797713066097,
+      "spearman_change": -0.00021266416811149824,
+      "decision_change": 8.118878393029161e-05
+    },
+    "P_n5000_s20260910": {
+      "arm": "P|n5000",
+      "spearman": 0.8770037573957796,
+      "decision_at_1": 0.12779956575529733,
+      "spearman_change": -0.021431397167371635,
+      "decision_change": -0.005699016767382076
+    },
+    "P_s20260910": {
+      "arm": "P",
+      "spearman": 0.8697908537385018,
+      "decision_at_1": 0.12786260154914558,
+      "spearman_change": -0.028644300824649416,
+      "decision_change": -0.005635980973533822
+    },
+    "P_s20260911": {
+      "arm": "P",
+      "spearman": 0.8693358921893056,
+      "decision_at_1": 0.12767969207138755,
+      "spearman_change": -0.029099262373845636,
+      "decision_change": -0.005818890451291858
+    },
+    "P_s20260912": {
+      "arm": "P",
+      "spearman": 0.8699920989955899,
+      "decision_at_1": 0.12775185617185233,
+      "spearman_change": -0.028443055567561326,
+      "decision_change": -0.005746726350827069
+    },
+    "S_listnet_s20260910": {
+      "arm": "S|listnet",
+      "spearman": 0.8939588327789441,
+      "decision_at_1": 0.13381730039205741,
+      "spearman_change": -0.0044763217842072045,
+      "decision_change": 0.00031871786937801017
+    },
+    "S_pairwise_s20260910": {
+      "arm": "S|pairwise",
+      "spearman": 0.8912499321718905,
+      "decision_at_1": 0.13426283433361585,
+      "spearman_change": -0.007185222391260737,
+      "decision_change": 0.0007642518109364504
+    },
+    "S_s20260910": {
+      "arm": "S",
+      "spearman": 0.8894727284128621,
+      "decision_at_1": 0.13293823075056732,
+      "spearman_change": -0.008962426150289193,
+      "decision_change": -0.0005603517721120832
+    },
+    "S_s20260911": {
+      "arm": "S",
+      "spearman": 0.8915672521470578,
+      "decision_at_1": 0.13423576304956938,
+      "spearman_change": -0.006867902416093474,
+      "decision_change": 0.00073718052688998
+    },
+    "S_s20260912": {
+      "arm": "S",
+      "spearman": 0.8916917860221718,
+      "decision_at_1": 0.1325057969234518,
+      "spearman_change": -0.006743368540979455,
+      "decision_change": -0.000992785599227608
+    },
+    "Z_s20260910": {
+      "arm": "Z",
+      "spearman": 0.8984351545631513,
+      "decision_at_1": 0.1334985825226794,
+      "spearman_change": 0.0,
+      "decision_change": 0.0
+    },
+    "shared_s20260910": {
+      "arm": "shared",
+      "spearman": 0.8456644189964199,
+      "decision_at_1": 0.12526528296389608,
+      "spearman_change": -0.0527707355667314,
+      "decision_change": -0.008233299558783325
+    },
+    "shared_s20260911": {
+      "arm": "shared",
+      "spearman": 0.847456391454663,
+      "decision_at_1": 0.1263385396461654,
+      "spearman_change": -0.050978763108488256,
+      "decision_change": -0.007160042876514006
+    },
+    "shared_s20260912": {
+      "arm": "shared",
+      "spearman": 0.8337420619062929,
+      "decision_at_1": 0.1259005231393438,
+      "spearman_change": -0.06469309265685841,
+      "decision_change": -0.007598059383335604
+    }
+  },
+  "mean_spearman_change_by_arm": {
+    "M": -0.022987356281312616,
+    "P|n1000": -0.01875728267306065,
+    "P|n200": -0.00021266416811149824,
+    "P|n5000": -0.021431397167371635,
+    "P": -0.028728872922018794,
+    "S|listnet": -0.0044763217842072045,
+    "S|pairwise": -0.007185222391260737,
+    "S": -0.007524565702454041,
+    "Z": 0.0,
+    "shared": -0.05614753044402602
+  }
+}

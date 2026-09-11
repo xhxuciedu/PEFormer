@@ -1,0 +1,170 @@
+{
+  "fits_verified": 32,
+  "distinct_fingerprints_verified": 456,
+  "checkpoint_prediction_tables_verified": 32,
+  "selected_and_last_endpoint_checks": 288,
+  "test_scoring_present": false,
+  "checks": [
+    {
+      "tag": "A_h100_lr1_none_mixture_w1_b1000_sub20260910_s20260910",
+      "checkpoint_policy_verified": true,
+      "endpoints_recomputed": 9
+    },
+    {
+      "tag": "A_h100_lr3_none_mixture_w1_b1000_sub20260910_s20260910",
+      "checkpoint_policy_verified": true,
+      "endpoints_recomputed": 9
+    },
+    {
+      "tag": "A_h500_lr1_none_mixture_w1_b1000_sub20260910_s20260910",
+      "checkpoint_policy_verified": true,
+      "endpoints_recomputed": 9
+    },
+    {
+      "tag": "A_h500_lr3_none_mixture_w1_b1000_sub20260910_s20260910",
+      "checkpoint_policy_verified": true,
+      "endpoints_recomputed": 9
+    },
+    {
+      "tag": "B_h100_lr1_none_mixture_w1_b1000_sub20260910_s20260910",
+      "checkpoint_policy_verified": true,
+      "endpoints_recomputed": 9
+    },
+    {
+      "tag": "B_h100_lr3_none_mixture_w1_b1000_sub20260910_s20260910",
+      "checkpoint_policy_verified": true,
+      "endpoints_recomputed": 9
+    },
+    {
+      "tag": "B_h500_lr1_none_mixture_w1_b1000_sub20260910_s20260910",
+      "checkpoint_policy_verified": true,
+      "endpoints_recomputed": 9
+    },
+    {
+      "tag": "B_h500_lr3_none_mixture_w1_b1000_sub20260910_s20260910",
+      "checkpoint_policy_verified": true,
+      "endpoints_recomputed": 9
+    },
+    {
+      "tag": "C_frozen_h100_lr1_none_mixture_w1_b1000_sub20260910_s20260910",
+      "checkpoint_policy_verified": true,
+      "endpoints_recomputed": 9
+    },
+    {
+      "tag": "C_frozen_h100_lr3_none_mixture_w1_b1000_sub20260910_s20260910",
+      "checkpoint_policy_verified": true,
+      "endpoints_recomputed": 9
+    },
+    {
+      "tag": "C_frozen_h500_lr1_none_mixture_w1_b1000_sub20260910_s20260910",
+      "checkpoint_policy_verified": true,
+      "endpoints_recomputed": 9
+    },
+    {
+      "tag": "C_frozen_h500_lr3_none_mixture_w1_b1000_sub20260910_s20260910",
+      "checkpoint_policy_verified": true,
+      "endpoints_recomputed": 9
+    },
+    {
+      "tag": "D_h100_lr1_none_mixture_w1_b1000_sub20260910_s20260910",
+      "checkpoint_policy_verified": true,
+      "endpoints_recomputed": 9
+    },
+    {
+      "tag": "D_h100_lr3_none_mixture_w1_b1000_sub20260910_s20260910",
+      "checkpoint_policy_verified": true,
+      "endpoints_recomputed": 9
+    },
+    {
+      "tag": "D_h500_lr1_none_mixture_w1_b1000_sub20260910_s20260910",
+      "checkpoint_policy_verified": true,
+      "endpoints_recomputed": 9
+    },
+    {
+      "tag": "D_h500_lr3_none_mixture_w1_b1000_sub20260910_s20260910",
+      "checkpoint_policy_verified": true,
+      "endpoints_recomputed": 9
+    },
+    {
+      "tag": "E_h100_lr1_kl_balanced_w0.1_b1000_sub20260910_s20260910",
+      "checkpoint_policy_verified": true,
+      "endpoints_recomputed": 9
+    },
+    {
+      "tag": "E_h100_lr1_kl_balanced_w1_b1000_sub20260910_s20260910",
+      "checkpoint_policy_verified": true,
+      "endpoints_recomputed": 9
+    },
+    {
+      "tag": "E_h100_lr1_kl_mixture_w0.1_b1000_sub20260910_s20260910",
+      "checkpoint_policy_verified": true,
+      "endpoints_recomputed": 9
+    },
+    {
+      "tag": "E_h100_lr1_kl_mixture_w1_b1000_sub20260910_s20260910",
+      "checkpoint_policy_verified": true,
+      "endpoints_recomputed": 9
+    },
+    {
+      "tag": "E_h100_lr1_margin_balanced_w0.1_b1000_sub20260910_s20260910",
+      "checkpoint_policy_verified": true,
+      "endpoints_recomputed": 9
+    },
+    {
+      "tag": "E_h100_lr1_margin_balanced_w1_b1000_sub20260910_s20260910",
+      "checkpoint_policy_verified": true,
+      "endpoints_recomputed": 9
+    },
+    {
+      "tag": "E_h100_lr1_margin_mixture_w0.1_b1000_sub20260910_s20260910",
+      "checkpoint_policy_verified": true,
+      "endpoints_recomputed": 9
+    },
+    {
+      "tag": "E_h100_lr1_margin_mixture_w1_b1000_sub20260910_s20260910",
+      "checkpoint_policy_verified": true,
+      "endpoints_recomputed": 9
+    },
+    {
+      "tag": "E_h100_lr1_none_mixture_w1_b1000_sub20260910_s20260910",
+      "checkpoint_policy_verified": true,
+      "endpoints_recomputed": 9
+    },
+    {
+      "tag": "E_h100_lr1_utility_balanced_w0.1_b1000_sub20260910_s20260910",
+      "checkpoint_policy_verified": true,
+      "endpoints_recomputed": 9
+    },
+    {
+      "tag": "E_h100_lr1_utility_balanced_w1_b1000_sub20260910_s20260910",
+      "checkpoint_policy_verified": true,
+      "endpoints_recomputed": 9
+    },
+    {
+      "tag": "E_h100_lr1_utility_mixture_w0.1_b1000_sub20260910_s20260910",
+      "checkpoint_policy_verified": true,
+      "endpoints_recomputed": 9
+    },
+    {
+      "tag": "E_h100_lr1_utility_mixture_w1_b1000_sub20260910_s20260910",
+      "checkpoint_policy_verified": true,
+      "endpoints_recomputed": 9
+    },
+    {
+      "tag": "E_h100_lr3_none_mixture_w1_b1000_sub20260910_s20260910",
+      "checkpoint_policy_verified": true,
+      "endpoints_recomputed": 9
+    },
+    {
+      "tag": "E_h500_lr1_none_mixture_w1_b1000_sub20260910_s20260910",
+      "checkpoint_policy_verified": true,
+      "endpoints_recomputed": 9
+    },
+    {
+      "tag": "E_h500_lr3_none_mixture_w1_b1000_sub20260910_s20260910",
+      "checkpoint_policy_verified": true,
+      "endpoints_recomputed": 9
+    }
+  ],
+  "analysis_selection_verified": true
+}

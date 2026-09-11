@@ -1,0 +1,274 @@
+{
+  "completed_new": [
+    {
+      "tag": "A_h100_lr3_none_mixture_w1_b200_sub20260910_s20260910",
+      "label": "A",
+      "gpu": 0,
+      "returncode": 0
+    },
+    {
+      "tag": "E_h100_lr1_none_mixture_w1_b200_sub20260911_s20260910",
+      "label": "E",
+      "gpu": 0,
+      "returncode": 0
+    },
+    {
+      "tag": "E_h100_lr1_margin_balanced_w1_b200_sub20260911_s20260910",
+      "label": "M",
+      "gpu": 0,
+      "returncode": 0
+    },
+    {
+      "tag": "E_h100_lr1_margin_balanced_w1_b200_sub20260911_s20260911",
+      "label": "M",
+      "gpu": 0,
+      "returncode": 0
+    },
+    {
+      "tag": "E_h100_lr1_none_mixture_w1_b200_sub20260912_s20260910",
+      "label": "E",
+      "gpu": 0,
+      "returncode": 0
+    },
+    {
+      "tag": "A_h100_lr3_none_mixture_w1_b200_sub20260912_s20260911",
+      "label": "A",
+      "gpu": 0,
+      "returncode": 0
+    },
+    {
+      "tag": "E_h100_lr1_margin_balanced_w1_b1000_sub20260910_s20260911",
+      "label": "M",
+      "gpu": 0,
+      "returncode": 0
+    },
+    {
+      "tag": "E_h100_lr1_none_mixture_w1_b1000_sub20260911_s20260910",
+      "label": "E",
+      "gpu": 0,
+      "returncode": 0
+    },
+    {
+      "tag": "A_h100_lr3_none_mixture_w1_b1000_sub20260911_s20260911",
+      "label": "A",
+      "gpu": 0,
+      "returncode": 0
+    },
+    {
+      "tag": "A_h100_lr3_none_mixture_w1_b1000_sub20260912_s20260911",
+      "label": "A",
+      "gpu": 0,
+      "returncode": 0
+    },
+    {
+      "tag": "C_frozen_h500_lr1_none_mixture_w1_b200_sub20260910_s20260910",
+      "label": "C_frozen",
+      "gpu": 1,
+      "returncode": 0
+    },
+    {
+      "tag": "C_frozen_h500_lr1_none_mixture_w1_b200_sub20260910_s20260911",
+      "label": "C_frozen",
+      "gpu": 1,
+      "returncode": 0
+    },
+    {
+      "tag": "E_h100_lr1_margin_balanced_w1_b200_sub20260910_s20260911",
+      "label": "M",
+      "gpu": 1,
+      "returncode": 0
+    },
+    {
+      "tag": "C_frozen_h500_lr1_none_mixture_w1_b200_sub20260911_s20260910",
+      "label": "C_frozen",
+      "gpu": 1,
+      "returncode": 0
+    },
+    {
+      "tag": "E_h100_lr1_none_mixture_w1_b200_sub20260911_s20260911",
+      "label": "E",
+      "gpu": 1,
+      "returncode": 0
+    },
+    {
+      "tag": "A_h100_lr3_none_mixture_w1_b200_sub20260912_s20260910",
+      "label": "A",
+      "gpu": 1,
+      "returncode": 0
+    },
+    {
+      "tag": "A_h100_lr3_none_mixture_w1_b1000_sub20260910_s20260911",
+      "label": "A",
+      "gpu": 1,
+      "returncode": 0
+    },
+    {
+      "tag": "C_frozen_h500_lr1_none_mixture_w1_b1000_sub20260911_s20260911",
+      "label": "C_frozen",
+      "gpu": 1,
+      "returncode": 0
+    },
+    {
+      "tag": "A_h100_lr3_none_mixture_w1_b1000_sub20260912_s20260910",
+      "label": "A",
+      "gpu": 1,
+      "returncode": 0
+    },
+    {
+      "tag": "E_h100_lr1_none_mixture_w1_b200_sub20260910_s20260910",
+      "label": "E",
+      "gpu": 3,
+      "returncode": 0
+    },
+    {
+      "tag": "A_h100_lr3_none_mixture_w1_b200_sub20260910_s20260911",
+      "label": "A",
+      "gpu": 3,
+      "returncode": 0
+    },
+    {
+      "tag": "A_h100_lr3_none_mixture_w1_b200_sub20260911_s20260911",
+      "label": "A",
+      "gpu": 3,
+      "returncode": 0
+    },
+    {
+      "tag": "C_frozen_h500_lr1_none_mixture_w1_b200_sub20260912_s20260911",
+      "label": "C_frozen",
+      "gpu": 3,
+      "returncode": 0
+    },
+    {
+      "tag": "E_h100_lr1_margin_balanced_w1_b200_sub20260912_s20260911",
+      "label": "M",
+      "gpu": 3,
+      "returncode": 0
+    },
+    {
+      "tag": "E_h100_lr1_none_mixture_w1_b1000_sub20260910_s20260911",
+      "label": "E",
+      "gpu": 3,
+      "returncode": 0
+    },
+    {
+      "tag": "C_frozen_h500_lr1_none_mixture_w1_b1000_sub20260911_s20260910",
+      "label": "C_frozen",
+      "gpu": 3,
+      "returncode": 0
+    },
+    {
+      "tag": "E_h100_lr1_margin_balanced_w1_b1000_sub20260911_s20260910",
+      "label": "M",
+      "gpu": 3,
+      "returncode": 0
+    },
+    {
+      "tag": "E_h100_lr1_margin_balanced_w1_b1000_sub20260911_s20260911",
+      "label": "M",
+      "gpu": 3,
+      "returncode": 0
+    },
+    {
+      "tag": "E_h100_lr1_none_mixture_w1_b1000_sub20260912_s20260910",
+      "label": "E",
+      "gpu": 3,
+      "returncode": 0
+    },
+    {
+      "tag": "E_h100_lr1_margin_balanced_w1_b1000_sub20260912_s20260910",
+      "label": "M",
+      "gpu": 3,
+      "returncode": 0
+    },
+    {
+      "tag": "E_h100_lr1_none_mixture_w1_b1000_sub20260912_s20260911",
+      "label": "E",
+      "gpu": 3,
+      "returncode": 0
+    },
+    {
+      "tag": "E_h100_lr1_margin_balanced_w1_b200_sub20260910_s20260910",
+      "label": "M",
+      "gpu": 7,
+      "returncode": 0
+    },
+    {
+      "tag": "E_h100_lr1_none_mixture_w1_b200_sub20260910_s20260911",
+      "label": "E",
+      "gpu": 7,
+      "returncode": 0
+    },
+    {
+      "tag": "A_h100_lr3_none_mixture_w1_b200_sub20260911_s20260910",
+      "label": "A",
+      "gpu": 7,
+      "returncode": 0
+    },
+    {
+      "tag": "C_frozen_h500_lr1_none_mixture_w1_b200_sub20260911_s20260911",
+      "label": "C_frozen",
+      "gpu": 7,
+      "returncode": 0
+    },
+    {
+      "tag": "C_frozen_h500_lr1_none_mixture_w1_b200_sub20260912_s20260910",
+      "label": "C_frozen",
+      "gpu": 7,
+      "returncode": 0
+    },
+    {
+      "tag": "E_h100_lr1_margin_balanced_w1_b200_sub20260912_s20260910",
+      "label": "M",
+      "gpu": 7,
+      "returncode": 0
+    },
+    {
+      "tag": "E_h100_lr1_none_mixture_w1_b200_sub20260912_s20260911",
+      "label": "E",
+      "gpu": 7,
+      "returncode": 0
+    },
+    {
+      "tag": "C_frozen_h500_lr1_none_mixture_w1_b1000_sub20260910_s20260911",
+      "label": "C_frozen",
+      "gpu": 7,
+      "returncode": 0
+    },
+    {
+      "tag": "A_h100_lr3_none_mixture_w1_b1000_sub20260911_s20260910",
+      "label": "A",
+      "gpu": 7,
+      "returncode": 0
+    },
+    {
+      "tag": "E_h100_lr1_none_mixture_w1_b1000_sub20260911_s20260911",
+      "label": "E",
+      "gpu": 7,
+      "returncode": 0
+    },
+    {
+      "tag": "C_frozen_h500_lr1_none_mixture_w1_b1000_sub20260912_s20260910",
+      "label": "C_frozen",
+      "gpu": 7,
+      "returncode": 0
+    },
+    {
+      "tag": "C_frozen_h500_lr1_none_mixture_w1_b1000_sub20260912_s20260911",
+      "label": "C_frozen",
+      "gpu": 7,
+      "returncode": 0
+    },
+    {
+      "tag": "E_h100_lr1_margin_balanced_w1_b1000_sub20260912_s20260911",
+      "label": "M",
+      "gpu": 7,
+      "returncode": 0
+    }
+  ],
+  "reused": [
+    "A_h100_lr3_none_mixture_w1_b1000_sub20260910_s20260910",
+    "C_frozen_h500_lr1_none_mixture_w1_b1000_sub20260910_s20260910",
+    "E_h100_lr1_none_mixture_w1_b1000_sub20260910_s20260910",
+    "E_h100_lr1_margin_balanced_w1_b1000_sub20260910_s20260910"
+  ]
+}

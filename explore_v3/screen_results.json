@@ -1,0 +1,1874 @@
+{
+  "status": "Exploratory development screen, not confirmation",
+  "baselines": {
+    "target_outer_val": {
+      "achieved": 0.03962670039251304,
+      "groups": 5561
+    },
+    "optiprime": {
+      "achieved": 0.041409386155913504,
+      "groups": 5561
+    },
+    "source_val": {
+      "achieved": 0.3537673386671708,
+      "groups": 685
+    },
+    "source_audit": {
+      "achieved": 0.13363463481650031,
+      "groups": 1463
+    }
+  },
+  "runs": [
+    {
+      "arm": "A",
+      "budget": 1000,
+      "seed": 20260910,
+      "subset_seed": 20260910,
+      "best_step": 10,
+      "training_seconds": 47.13066554069519,
+      "total_seconds": 96.59085130691528,
+      "replay_rows_processed": 0,
+      "tag": "A_b1000_sub20260910_s20260910",
+      "label_budget": {
+        "train": {
+          "groups": 839,
+          "candidates": 3208,
+          "measurements": 3208,
+          "components": 438
+        },
+        "inner_val": {
+          "groups": 162,
+          "candidates": 640,
+          "measurements": 640,
+          "components": 82
+        }
+      },
+      "surfaces": {
+        "target_outer_val": {
+          "achieved": 0.03930162411586495,
+          "regret": 0.011897866794965834,
+          "groups": 5561
+        },
+        "source_val": {
+          "achieved": 0.3541846778852811,
+          "regret": 0.0051153849005922385,
+          "groups": 685
+        },
+        "source_audit": {
+          "achieved": 0.13196209888476418,
+          "regret": 0.011074256983082705,
+          "groups": 1463
+        }
+      },
+      "contrasts": {
+        "target_outer_val_minus_start": {
+          "observed": -0.00032507627664808485,
+          "ci95": [
+            -0.0006267711570083149,
+            -1.8755169768263218e-05
+          ],
+          "two_sided_p": 0.034,
+          "groups": 5561,
+          "clusters": 4952,
+          "n_boot": 2000,
+          "degenerate": false
+        },
+        "target_minus_optiprime": {
+          "observed": -0.0021077620400485526,
+          "ci95": [
+            -0.002755239847149825,
+            -0.001460627224775897
+          ],
+          "two_sided_p": 0.001,
+          "groups": 5561,
+          "clusters": 4952,
+          "n_boot": 2000,
+          "degenerate": false
+        },
+        "source_val_minus_start": {
+          "observed": 0.00041733921811021275,
+          "ci95": [
+            -0.0005551479694231047,
+            0.0014980934470059254
+          ],
+          "two_sided_p": 0.459,
+          "groups": 685,
+          "clusters": 364,
+          "n_boot": 2000,
+          "degenerate": false
+        },
+        "source_audit_minus_start": {
+          "observed": -0.0016725359317361584,
+          "ci95": [
+            -0.0037405404198884796,
+            0.0004948653951823803
+          ],
+          "two_sided_p": 0.138,
+          "groups": 1463,
+          "clusters": 437,
+          "n_boot": 2000,
+          "degenerate": false
+        }
+      }
+    },
+    {
+      "arm": "A",
+      "budget": 200,
+      "seed": 20260910,
+      "subset_seed": 20260910,
+      "best_step": 10,
+      "training_seconds": 36.368470907211304,
+      "total_seconds": 65.29918146133423,
+      "replay_rows_processed": 0,
+      "tag": "A_b200_sub20260910_s20260910",
+      "label_budget": {
+        "train": {
+          "groups": 168,
+          "candidates": 651,
+          "measurements": 651,
+          "components": 99
+        },
+        "inner_val": {
+          "groups": 34,
+          "candidates": 137,
+          "measurements": 137,
+          "components": 19
+        }
+      },
+      "surfaces": {
+        "target_outer_val": {
+          "achieved": 0.03944767841459,
+          "regret": 0.011751812496240783,
+          "groups": 5561
+        },
+        "source_val": {
+          "achieved": 0.3542311872509829,
+          "regret": 0.005068875534890358,
+          "groups": 685
+        },
+        "source_audit": {
+          "achieved": 0.13163844906820915,
+          "regret": 0.01139790679963773,
+          "groups": 1463
+        }
+      },
+      "contrasts": {
+        "target_outer_val_minus_start": {
+          "observed": -0.00017902197792303543,
+          "ci95": [
+            -0.00048768095983031114,
+            0.00013125666923579713
+          ],
+          "two_sided_p": 0.254,
+          "groups": 5561,
+          "clusters": 4952,
+          "n_boot": 2000,
+          "degenerate": false
+        },
+        "target_minus_optiprime": {
+          "observed": -0.001961707741323503,
+          "ci95": [
+            -0.002597249626903306,
+            -0.001310551627244929
+          ],
+          "two_sided_p": 0.001,
+          "groups": 5561,
+          "clusters": 4952,
+          "n_boot": 2000,
+          "degenerate": false
+        },
+        "source_val_minus_start": {
+          "observed": 0.00046384858381209285,
+          "ci95": [
+            -0.0005242607266584241,
+            0.0015441175215751154
+          ],
+          "two_sided_p": 0.391,
+          "groups": 685,
+          "clusters": 364,
+          "n_boot": 2000,
+          "degenerate": false
+        },
+        "source_audit_minus_start": {
+          "observed": -0.001996185748291182,
+          "ci95": [
+            -0.004267938507006788,
+            0.00021097296228556308
+          ],
+          "two_sided_p": 0.083,
+          "groups": 1463,
+          "clusters": 437,
+          "n_boot": 2000,
+          "degenerate": false
+        }
+      }
+    },
+    {
+      "arm": "B",
+      "budget": 1000,
+      "seed": 20260910,
+      "subset_seed": 20260910,
+      "best_step": 10,
+      "training_seconds": 81.27315139770508,
+      "total_seconds": 108.17309165000916,
+      "replay_rows_processed": 0,
+      "tag": "B_b1000_sub20260910_s20260910",
+      "label_budget": {
+        "train": {
+          "groups": 839,
+          "candidates": 3208,
+          "measurements": 3208,
+          "components": 438
+        },
+        "inner_val": {
+          "groups": 162,
+          "candidates": 640,
+          "measurements": 640,
+          "components": 82
+        }
+      },
+      "surfaces": {
+        "target_outer_val": {
+          "achieved": 0.039913492683517356,
+          "regret": 0.011285998227313434,
+          "groups": 5561
+        },
+        "source_val": {
+          "achieved": 0.3313536186851061,
+          "regret": 0.02794644410076714,
+          "groups": 685
+        },
+        "source_audit": {
+          "achieved": 0.10870422743211892,
+          "regret": 0.03433212843572796,
+          "groups": 1463
+        }
+      },
+      "contrasts": {
+        "target_outer_val_minus_start": {
+          "observed": 0.00028679229100431577,
+          "ci95": [
+            -0.00022883799283488198,
+            0.0007854901172276576
+          ],
+          "two_sided_p": 0.264,
+          "groups": 5561,
+          "clusters": 4952,
+          "n_boot": 2000,
+          "degenerate": false
+        },
+        "target_minus_optiprime": {
+          "observed": -0.0014958934723961518,
+          "ci95": [
+            -0.0021440862604389993,
+            -0.0008863481627191791
+          ],
+          "two_sided_p": 0.001,
+          "groups": 5561,
+          "clusters": 4952,
+          "n_boot": 2000,
+          "degenerate": false
+        },
+        "source_val_minus_start": {
+          "observed": -0.02241371998206469,
+          "ci95": [
+            -0.028419263667426177,
+            -0.01674303690224468
+          ],
+          "two_sided_p": 0.001,
+          "groups": 685,
+          "clusters": 364,
+          "n_boot": 2000,
+          "degenerate": false
+        },
+        "source_audit_minus_start": {
+          "observed": -0.02493040738438141,
+          "ci95": [
+            -0.03056608027714165,
+            -0.019535644621775747
+          ],
+          "two_sided_p": 0.001,
+          "groups": 1463,
+          "clusters": 437,
+          "n_boot": 2000,
+          "degenerate": false
+        }
+      }
+    },
+    {
+      "arm": "B",
+      "budget": 200,
+      "seed": 20260910,
+      "subset_seed": 20260910,
+      "best_step": 80,
+      "training_seconds": 38.3540825843811,
+      "total_seconds": 66.4445173740387,
+      "replay_rows_processed": 0,
+      "tag": "B_b200_sub20260910_s20260910",
+      "label_budget": {
+        "train": {
+          "groups": 168,
+          "candidates": 651,
+          "measurements": 651,
+          "components": 99
+        },
+        "inner_val": {
+          "groups": 34,
+          "candidates": 137,
+          "measurements": 137,
+          "components": 19
+        }
+      },
+      "surfaces": {
+        "target_outer_val": {
+          "achieved": 0.038855478206398134,
+          "regret": 0.012344012704432656,
+          "groups": 5561
+        },
+        "source_val": {
+          "achieved": 0.317694793850266,
+          "regret": 0.04160526893560724,
+          "groups": 685
+        },
+        "source_audit": {
+          "achieved": 0.11604582824880383,
+          "regret": 0.026990527619043057,
+          "groups": 1463
+        }
+      },
+      "contrasts": {
+        "target_outer_val_minus_start": {
+          "observed": -0.0007712221861149075,
+          "ci95": [
+            -0.0013955238326338619,
+            -0.00014842222089567276
+          ],
+          "two_sided_p": 0.015,
+          "groups": 5561,
+          "clusters": 4952,
+          "n_boot": 2000,
+          "degenerate": false
+        },
+        "target_minus_optiprime": {
+          "observed": -0.0025539079495153754,
+          "ci95": [
+            -0.003236521434756282,
+            -0.0018562456760482
+          ],
+          "two_sided_p": 0.001,
+          "groups": 5561,
+          "clusters": 4952,
+          "n_boot": 2000,
+          "degenerate": false
+        },
+        "source_val_minus_start": {
+          "observed": -0.036072544816904785,
+          "ci95": [
+            -0.04550466738563299,
+            -0.027844908648962663
+          ],
+          "two_sided_p": 0.001,
+          "groups": 685,
+          "clusters": 364,
+          "n_boot": 2000,
+          "degenerate": false
+        },
+        "source_audit_minus_start": {
+          "observed": -0.017588806567696513,
+          "ci95": [
+            -0.023001390635166062,
+            -0.012675751493194738
+          ],
+          "two_sided_p": 0.001,
+          "groups": 1463,
+          "clusters": 437,
+          "n_boot": 2000,
+          "degenerate": false
+        }
+      }
+    },
+    {
+      "arm": "C",
+      "budget": 1000,
+      "seed": 20260910,
+      "subset_seed": 20260910,
+      "best_step": 60,
+      "training_seconds": 69.13843202590942,
+      "total_seconds": 107.07835412025452,
+      "replay_rows_processed": 0,
+      "tag": "C_b1000_sub20260910_s20260910",
+      "label_budget": {
+        "train": {
+          "groups": 839,
+          "candidates": 3208,
+          "measurements": 3208,
+          "components": 438
+        },
+        "inner_val": {
+          "groups": 162,
+          "candidates": 640,
+          "measurements": 640,
+          "components": 82
+        }
+      },
+      "surfaces": {
+        "target_outer_val": {
+          "achieved": 0.04133378904588743,
+          "regret": 0.009865701864943354,
+          "groups": 5561
+        },
+        "source_val": {
+          "achieved": 0.3422553184227326,
+          "regret": 0.017044744363140706,
+          "groups": 685
+        },
+        "source_audit": {
+          "achieved": 0.1247348756143609,
+          "regret": 0.018301480253485984,
+          "groups": 1463
+        }
+      },
+      "contrasts": {
+        "target_outer_val_minus_start": {
+          "observed": 0.0017070886533743928,
+          "ci95": [
+            0.0011085974746945781,
+            0.002373204880607377
+          ],
+          "two_sided_p": 0.001,
+          "groups": 5561,
+          "clusters": 4952,
+          "n_boot": 2000,
+          "degenerate": false
+        },
+        "target_minus_optiprime": {
+          "observed": -7.559711002607446e-05,
+          "ci95": [
+            -0.0006956694547182066,
+            0.0005378694750613908
+          ],
+          "two_sided_p": 0.831,
+          "groups": 5561,
+          "clusters": 4952,
+          "n_boot": 2000,
+          "degenerate": false
+        },
+        "source_val_minus_start": {
+          "observed": -0.011512020244438254,
+          "ci95": [
+            -0.016331328056550673,
+            -0.007071454078850754
+          ],
+          "two_sided_p": 0.001,
+          "groups": 685,
+          "clusters": 364,
+          "n_boot": 2000,
+          "degenerate": false
+        },
+        "source_audit_minus_start": {
+          "observed": -0.008899759202139437,
+          "ci95": [
+            -0.01251355421179397,
+            -0.0055238749705506145
+          ],
+          "two_sided_p": 0.001,
+          "groups": 1463,
+          "clusters": 437,
+          "n_boot": 2000,
+          "degenerate": false
+        }
+      }
+    },
+    {
+      "arm": "C",
+      "budget": 200,
+      "seed": 20260910,
+      "subset_seed": 20260910,
+      "best_step": 60,
+      "training_seconds": 40.811378479003906,
+      "total_seconds": 85.39590454101562,
+      "replay_rows_processed": 0,
+      "tag": "C_b200_sub20260910_s20260910",
+      "label_budget": {
+        "train": {
+          "groups": 168,
+          "candidates": 651,
+          "measurements": 651,
+          "components": 99
+        },
+        "inner_val": {
+          "groups": 34,
+          "candidates": 137,
+          "measurements": 137,
+          "components": 19
+        }
+      },
+      "surfaces": {
+        "target_outer_val": {
+          "achieved": 0.03933658938895972,
+          "regret": 0.011862901521871066,
+          "groups": 5561
+        },
+        "source_val": {
+          "achieved": 0.336886081810456,
+          "regret": 0.022413980975417313,
+          "groups": 685
+        },
+        "source_audit": {
+          "achieved": 0.12739915024359535,
+          "regret": 0.015637205624251537,
+          "groups": 1463
+        }
+      },
+      "contrasts": {
+        "target_outer_val_minus_start": {
+          "observed": -0.00029011100355331776,
+          "ci95": [
+            -0.0009172722092362473,
+            0.00038135188937483917
+          ],
+          "two_sided_p": 0.375,
+          "groups": 5561,
+          "clusters": 4952,
+          "n_boot": 2000,
+          "degenerate": false
+        },
+        "target_minus_optiprime": {
+          "observed": -0.002072796766953785,
+          "ci95": [
+            -0.00277264108565174,
+            -0.0013556633453128582
+          ],
+          "two_sided_p": 0.001,
+          "groups": 5561,
+          "clusters": 4952,
+          "n_boot": 2000,
+          "degenerate": false
+        },
+        "source_val_minus_start": {
+          "observed": -0.016881256856714863,
+          "ci95": [
+            -0.022300344197280646,
+            -0.012148511686267958
+          ],
+          "two_sided_p": 0.001,
+          "groups": 685,
+          "clusters": 364,
+          "n_boot": 2000,
+          "degenerate": false
+        },
+        "source_audit_minus_start": {
+          "observed": -0.0062354845729049885,
+          "ci95": [
+            -0.009568234475126381,
+            -0.00302924825810351
+          ],
+          "two_sided_p": 0.001,
+          "groups": 1463,
+          "clusters": 437,
+          "n_boot": 2000,
+          "degenerate": false
+        }
+      }
+    },
+    {
+      "arm": "D",
+      "budget": 1000,
+      "seed": 20260910,
+      "subset_seed": 20260910,
+      "best_step": 60,
+      "training_seconds": 38.51725149154663,
+      "total_seconds": 65.81759715080261,
+      "replay_rows_processed": 0,
+      "tag": "D_b1000_sub20260910_s20260910",
+      "label_budget": {
+        "train": {
+          "groups": 839,
+          "candidates": 3208,
+          "measurements": 3208,
+          "components": 438
+        },
+        "inner_val": {
+          "groups": 162,
+          "candidates": 640,
+          "measurements": 640,
+          "components": 82
+        }
+      },
+      "surfaces": {
+        "target_outer_val": {
+          "achieved": 0.04166499480233591,
+          "regret": 0.009534496108494874,
+          "groups": 5561
+        },
+        "source_val": {
+          "achieved": 0.3265453016326557,
+          "regret": 0.03275476115321757,
+          "groups": 685
+        },
+        "source_audit": {
+          "achieved": 0.11066357872762815,
+          "regret": 0.032372777140218724,
+          "groups": 1463
+        }
+      },
+      "contrasts": {
+        "target_outer_val_minus_start": {
+          "observed": 0.002038294409822874,
+          "ci95": [
+            0.0014492439123441501,
+            0.002669727501991868
+          ],
+          "two_sided_p": 0.001,
+          "groups": 5561,
+          "clusters": 4952,
+          "n_boot": 2000,
+          "degenerate": false
+        },
+        "target_minus_optiprime": {
+          "observed": 0.000255608646422406,
+          "ci95": [
+            -0.0003326017271245093,
+            0.0008622444736031078
+          ],
+          "two_sided_p": 0.403,
+          "groups": 5561,
+          "clusters": 4952,
+          "n_boot": 2000,
+          "degenerate": false
+        },
+        "source_val_minus_start": {
+          "observed": -0.027222037034515117,
+          "ci95": [
+            -0.035454992584079005,
+            -0.020127981942400924
+          ],
+          "two_sided_p": 0.001,
+          "groups": 685,
+          "clusters": 364,
+          "n_boot": 2000,
+          "degenerate": false
+        },
+        "source_audit_minus_start": {
+          "observed": -0.022971056088872177,
+          "ci95": [
+            -0.02810813426541595,
+            -0.018184476560251437
+          ],
+          "two_sided_p": 0.001,
+          "groups": 1463,
+          "clusters": 437,
+          "n_boot": 2000,
+          "degenerate": false
+        }
+      }
+    },
+    {
+      "arm": "D",
+      "budget": 200,
+      "seed": 20260910,
+      "subset_seed": 20260910,
+      "best_step": 70,
+      "training_seconds": 27.938081979751587,
+      "total_seconds": 84.04335117340088,
+      "replay_rows_processed": 0,
+      "tag": "D_b200_sub20260910_s20260910",
+      "label_budget": {
+        "train": {
+          "groups": 168,
+          "candidates": 651,
+          "measurements": 651,
+          "components": 99
+        },
+        "inner_val": {
+          "groups": 34,
+          "candidates": 137,
+          "measurements": 137,
+          "components": 19
+        }
+      },
+      "surfaces": {
+        "target_outer_val": {
+          "achieved": 0.038625943101648984,
+          "regret": 0.0125735478091818,
+          "groups": 5561
+        },
+        "source_val": {
+          "achieved": 0.322131250970377,
+          "regret": 0.037168811815496285,
+          "groups": 685
+        },
+        "source_audit": {
+          "achieved": 0.11477578029748461,
+          "regret": 0.028260575570362267,
+          "groups": 1463
+        }
+      },
+      "contrasts": {
+        "target_outer_val_minus_start": {
+          "observed": -0.0010007572908640532,
+          "ci95": [
+            -0.0016523844713291038,
+            -0.0003398894185821488
+          ],
+          "two_sided_p": 0.005,
+          "groups": 5561,
+          "clusters": 4952,
+          "n_boot": 2000,
+          "degenerate": false
+        },
+        "target_minus_optiprime": {
+          "observed": -0.002783443054264521,
+          "ci95": [
+            -0.0034861248851461163,
+            -0.0020826321299422393
+          ],
+          "two_sided_p": 0.001,
+          "groups": 5561,
+          "clusters": 4952,
+          "n_boot": 2000,
+          "degenerate": false
+        },
+        "source_val_minus_start": {
+          "observed": -0.03163608769679383,
+          "ci95": [
+            -0.04033664169323958,
+            -0.024502846996104544
+          ],
+          "two_sided_p": 0.001,
+          "groups": 685,
+          "clusters": 364,
+          "n_boot": 2000,
+          "degenerate": false
+        },
+        "source_audit_minus_start": {
+          "observed": -0.01885885451901572,
+          "ci95": [
+            -0.023674075986807538,
+            -0.014461675680260968
+          ],
+          "two_sided_p": 0.001,
+          "groups": 1463,
+          "clusters": 437,
+          "n_boot": 2000,
+          "degenerate": false
+        }
+      }
+    },
+    {
+      "arm": "E",
+      "budget": 1000,
+      "seed": 20260910,
+      "subset_seed": 20260910,
+      "best_step": 60,
+      "training_seconds": 14.690918445587158,
+      "total_seconds": 20.021418809890747,
+      "replay_rows_processed": 0,
+      "tag": "E_b1000_sub20260910_s20260910",
+      "label_budget": {
+        "train": {
+          "groups": 839,
+          "candidates": 3208,
+          "measurements": 3208,
+          "components": 438
+        },
+        "inner_val": {
+          "groups": 162,
+          "candidates": 640,
+          "measurements": 640,
+          "components": 82
+        }
+      },
+      "surfaces": {
+        "target_outer_val": {
+          "achieved": 0.04130414827939399,
+          "regret": 0.009895342631436791,
+          "groups": 5561
+        },
+        "source_val": {
+          "achieved": 0.34667782234855804,
+          "regret": 0.012622240437315236,
+          "groups": 685
+        },
+        "source_audit": {
+          "achieved": 0.133085223317676,
+          "regret": 0.00995113255017088,
+          "groups": 1463
+        }
+      },
+      "contrasts": {
+        "target_outer_val_minus_start": {
+          "observed": 0.0016774478868809566,
+          "ci95": [
+            0.0011284403485628688,
+            0.002246930042588739
+          ],
+          "two_sided_p": 0.001,
+          "groups": 5561,
+          "clusters": 4952,
+          "n_boot": 2000,
+          "degenerate": false
+        },
+        "target_minus_optiprime": {
+          "observed": -0.00010523787651951095,
+          "ci95": [
+            -0.0006973595265120603,
+            0.0004867860595037796
+          ],
+          "two_sided_p": 0.757,
+          "groups": 5561,
+          "clusters": 4952,
+          "n_boot": 2000,
+          "degenerate": false
+        },
+        "source_val_minus_start": {
+          "observed": -0.007089516318612786,
+          "ci95": [
+            -0.009967739489967452,
+            -0.0045315904413463105
+          ],
+          "two_sided_p": 0.001,
+          "groups": 685,
+          "clusters": 364,
+          "n_boot": 2000,
+          "degenerate": false
+        },
+        "source_audit_minus_start": {
+          "observed": -0.0005494114988243326,
+          "ci95": [
+            -0.0027642258269713277,
+            0.0016918235812703817
+          ],
+          "two_sided_p": 0.596,
+          "groups": 1463,
+          "clusters": 437,
+          "n_boot": 2000,
+          "degenerate": false
+        }
+      }
+    },
+    {
+      "arm": "E",
+      "budget": 200,
+      "seed": 20260910,
+      "subset_seed": 20260910,
+      "best_step": 80,
+      "training_seconds": 37.34755873680115,
+      "total_seconds": 88.49717044830322,
+      "replay_rows_processed": 0,
+      "tag": "E_b200_sub20260910_s20260910",
+      "label_budget": {
+        "train": {
+          "groups": 168,
+          "candidates": 651,
+          "measurements": 651,
+          "components": 99
+        },
+        "inner_val": {
+          "groups": 34,
+          "candidates": 137,
+          "measurements": 137,
+          "components": 19
+        }
+      },
+      "surfaces": {
+        "target_outer_val": {
+          "achieved": 0.03868032084558803,
+          "regret": 0.012519170065242762,
+          "groups": 5561
+        },
+        "source_val": {
+          "achieved": 0.315207338394171,
+          "regret": 0.04409272439170227,
+          "groups": 685
+        },
+        "source_audit": {
+          "achieved": 0.12978679175951469,
+          "regret": 0.013249564108332192,
+          "groups": 1463
+        }
+      },
+      "contrasts": {
+        "target_outer_val_minus_start": {
+          "observed": -0.0009463795469250134,
+          "ci95": [
+            -0.0016104991196631139,
+            -0.0002481981767774756
+          ],
+          "two_sided_p": 0.008,
+          "groups": 5561,
+          "clusters": 4952,
+          "n_boot": 2000,
+          "degenerate": false
+        },
+        "target_minus_optiprime": {
+          "observed": -0.002729065310325481,
+          "ci95": [
+            -0.0034186923201785574,
+            -0.002016329988592282
+          ],
+          "two_sided_p": 0.001,
+          "groups": 5561,
+          "clusters": 4952,
+          "n_boot": 2000,
+          "degenerate": false
+        },
+        "source_val_minus_start": {
+          "observed": -0.038560000272999814,
+          "ci95": [
+            -0.04705081614130571,
+            -0.031139883054924534
+          ],
+          "two_sided_p": 0.001,
+          "groups": 685,
+          "clusters": 364,
+          "n_boot": 2000,
+          "degenerate": false
+        },
+        "source_audit_minus_start": {
+          "observed": -0.0038478430569856446,
+          "ci95": [
+            -0.006477689670882466,
+            -0.001109333621483618
+          ],
+          "two_sided_p": 0.005,
+          "groups": 1463,
+          "clusters": 437,
+          "n_boot": 2000,
+          "degenerate": false
+        }
+      }
+    },
+    {
+      "arm": "F",
+      "budget": 1000,
+      "seed": 20260910,
+      "subset_seed": 20260910,
+      "best_step": 100,
+      "training_seconds": 17.541054725646973,
+      "total_seconds": 46.59915542602539,
+      "replay_rows_processed": 25376,
+      "tag": "F_b1000_sub20260910_s20260910",
+      "label_budget": {
+        "train": {
+          "groups": 839,
+          "candidates": 3208,
+          "measurements": 3208,
+          "components": 438
+        },
+        "inner_val": {
+          "groups": 162,
+          "candidates": 640,
+          "measurements": 640,
+          "components": 82
+        }
+      },
+      "surfaces": {
+        "target_outer_val": {
+          "achieved": 0.04115699020109333,
+          "regret": 0.010042500709737459,
+          "groups": 5561
+        },
+        "source_val": {
+          "achieved": 0.3473412924242367,
+          "regret": 0.01195877036163654,
+          "groups": 685
+        },
+        "source_audit": {
+          "achieved": 0.1299913316383937,
+          "regret": 0.01304502422945318,
+          "groups": 1463
+        }
+      },
+      "contrasts": {
+        "target_outer_val_minus_start": {
+          "observed": 0.0015302898085802915,
+          "ci95": [
+            0.0009722898481120657,
+            0.0021346912189458872
+          ],
+          "two_sided_p": 0.001,
+          "groups": 5561,
+          "clusters": 4952,
+          "n_boot": 2000,
+          "degenerate": false
+        },
+        "target_minus_optiprime": {
+          "observed": -0.00025239595482017625,
+          "ci95": [
+            -0.0008185524617474871,
+            0.0003338095498527044
+          ],
+          "two_sided_p": 0.432,
+          "groups": 5561,
+          "clusters": 4952,
+          "n_boot": 2000,
+          "degenerate": false
+        },
+        "source_val_minus_start": {
+          "observed": -0.00642604624293409,
+          "ci95": [
+            -0.011583414080248019,
+            -0.0024668405145011098
+          ],
+          "two_sided_p": 0.001,
+          "groups": 685,
+          "clusters": 364,
+          "n_boot": 2000,
+          "degenerate": false
+        },
+        "source_audit_minus_start": {
+          "observed": -0.00364330317810663,
+          "ci95": [
+            -0.006708995712598586,
+            -0.0006380699709059225
+          ],
+          "two_sided_p": 0.014,
+          "groups": 1463,
+          "clusters": 437,
+          "n_boot": 2000,
+          "degenerate": false
+        }
+      }
+    },
+    {
+      "arm": "F",
+      "budget": 200,
+      "seed": 20260910,
+      "subset_seed": 20260910,
+      "best_step": 50,
+      "training_seconds": 39.20623564720154,
+      "total_seconds": 47.15552306175232,
+      "replay_rows_processed": 25376,
+      "tag": "F_b200_sub20260910_s20260910",
+      "label_budget": {
+        "train": {
+          "groups": 168,
+          "candidates": 651,
+          "measurements": 651,
+          "components": 99
+        },
+        "inner_val": {
+          "groups": 34,
+          "candidates": 137,
+          "measurements": 137,
+          "components": 19
+        }
+      },
+      "surfaces": {
+        "target_outer_val": {
+          "achieved": 0.040051848407670385,
+          "regret": 0.011147642503160403,
+          "groups": 5561
+        },
+        "source_val": {
+          "achieved": 0.34187831873080665,
+          "regret": 0.017421744055066565,
+          "groups": 685
+        },
+        "source_audit": {
+          "achieved": 0.12453189504499657,
+          "regret": 0.018504460822850306,
+          "groups": 1463
+        }
+      },
+      "contrasts": {
+        "target_outer_val_minus_start": {
+          "observed": 0.00042514801515734584,
+          "ci95": [
+            -0.0002065965020873691,
+            0.0010660638072984882
+          ],
+          "two_sided_p": 0.182,
+          "groups": 5561,
+          "clusters": 4952,
+          "n_boot": 2000,
+          "degenerate": false
+        },
+        "target_minus_optiprime": {
+          "observed": -0.0013575377482431216,
+          "ci95": [
+            -0.0019823609129991713,
+            -0.0007128910522065883
+          ],
+          "two_sided_p": 0.001,
+          "groups": 5561,
+          "clusters": 4952,
+          "n_boot": 2000,
+          "degenerate": false
+        },
+        "source_val_minus_start": {
+          "observed": -0.011889019936364114,
+          "ci95": [
+            -0.018225014269836876,
+            -0.00654731935910663
+          ],
+          "two_sided_p": 0.001,
+          "groups": 685,
+          "clusters": 364,
+          "n_boot": 2000,
+          "degenerate": false
+        },
+        "source_audit_minus_start": {
+          "observed": -0.009102739771503759,
+          "ci95": [
+            -0.012191982621878839,
+            -0.006205604795149366
+          ],
+          "two_sided_p": 0.001,
+          "groups": 1463,
+          "clusters": 437,
+          "n_boot": 2000,
+          "degenerate": false
+        }
+      }
+    },
+    {
+      "arm": "G",
+      "budget": 1000,
+      "seed": 20260910,
+      "subset_seed": 20260910,
+      "best_step": 20,
+      "training_seconds": 31.969255924224854,
+      "total_seconds": 50.63000512123108,
+      "replay_rows_processed": 25376,
+      "tag": "G_b1000_sub20260910_s20260910",
+      "label_budget": {
+        "train": {
+          "groups": 839,
+          "candidates": 3208,
+          "measurements": 3208,
+          "components": 438
+        },
+        "inner_val": {
+          "groups": 162,
+          "candidates": 640,
+          "measurements": 640,
+          "components": 82
+        }
+      },
+      "surfaces": {
+        "target_outer_val": {
+          "achieved": 0.04162658946143859,
+          "regret": 0.009572901449392195,
+          "groups": 5561
+        },
+        "source_val": {
+          "achieved": 0.3447015231564025,
+          "regret": 0.01459853962947077,
+          "groups": 685
+        },
+        "source_audit": {
+          "achieved": 0.1272421520967259,
+          "regret": 0.015794203771120983,
+          "groups": 1463
+        }
+      },
+      "contrasts": {
+        "target_outer_val_minus_start": {
+          "observed": 0.001999889068925553,
+          "ci95": [
+            0.0015236437876019564,
+            0.0025109955012381224
+          ],
+          "two_sided_p": 0.001,
+          "groups": 5561,
+          "clusters": 4952,
+          "n_boot": 2000,
+          "degenerate": false
+        },
+        "target_minus_optiprime": {
+          "observed": 0.00021720330552508533,
+          "ci95": [
+            -0.0003828894950126333,
+            0.0007907155776577517
+          ],
+          "two_sided_p": 0.435,
+          "groups": 5561,
+          "clusters": 4952,
+          "n_boot": 2000,
+          "degenerate": false
+        },
+        "source_val_minus_start": {
+          "observed": -0.00906581551076832,
+          "ci95": [
+            -0.013120537750208158,
+            -0.005327529332714084
+          ],
+          "two_sided_p": 0.001,
+          "groups": 685,
+          "clusters": 364,
+          "n_boot": 2000,
+          "degenerate": false
+        },
+        "source_audit_minus_start": {
+          "observed": -0.006392482719774436,
+          "ci95": [
+            -0.009406344941490535,
+            -0.003464309041755038
+          ],
+          "two_sided_p": 0.001,
+          "groups": 1463,
+          "clusters": 437,
+          "n_boot": 2000,
+          "degenerate": false
+        }
+      }
+    },
+    {
+      "arm": "G",
+      "budget": 200,
+      "seed": 20260910,
+      "subset_seed": 20260910,
+      "best_step": 10,
+      "training_seconds": 32.35110402107239,
+      "total_seconds": 48.638648986816406,
+      "replay_rows_processed": 25376,
+      "tag": "G_b200_sub20260910_s20260910",
+      "label_budget": {
+        "train": {
+          "groups": 168,
+          "candidates": 651,
+          "measurements": 651,
+          "components": 99
+        },
+        "inner_val": {
+          "groups": 34,
+          "candidates": 137,
+          "measurements": 137,
+          "components": 19
+        }
+      },
+      "surfaces": {
+        "target_outer_val": {
+          "achieved": 0.03918336767046215,
+          "regret": 0.01201612324036864,
+          "groups": 5561
+        },
+        "source_val": {
+          "achieved": 0.35103912492913736,
+          "regret": 0.008260937856735918,
+          "groups": 685
+        },
+        "source_audit": {
+          "achieved": 0.13253108762146956,
+          "regret": 0.010505268246377306,
+          "groups": 1463
+        }
+      },
+      "contrasts": {
+        "target_outer_val_minus_start": {
+          "observed": -0.0004433327220508901,
+          "ci95": [
+            -0.0008878637314698049,
+            -7.96123781176424e-06
+          ],
+          "two_sided_p": 0.047,
+          "groups": 5561,
+          "clusters": 4952,
+          "n_boot": 2000,
+          "degenerate": false
+        },
+        "target_minus_optiprime": {
+          "observed": -0.0022260184854513577,
+          "ci95": [
+            -0.0028566112106894904,
+            -0.0015850140803145788
+          ],
+          "two_sided_p": 0.001,
+          "groups": 5561,
+          "clusters": 4952,
+          "n_boot": 2000,
+          "degenerate": false
+        },
+        "source_val_minus_start": {
+          "observed": -0.002728213738033466,
+          "ci95": [
+            -0.004608738052052785,
+            -0.0008200352996474537
+          ],
+          "two_sided_p": 0.004,
+          "groups": 685,
+          "clusters": 364,
+          "n_boot": 2000,
+          "degenerate": false
+        },
+        "source_audit_minus_start": {
+          "observed": -0.0011035471950307585,
+          "ci95": [
+            -0.003204244208918159,
+            0.0011451824271267554
+          ],
+          "two_sided_p": 0.35,
+          "groups": 1463,
+          "clusters": 437,
+          "n_boot": 2000,
+          "degenerate": false
+        }
+      }
+    }
+  ],
+  "direct_contrasts": [
+    {
+      "budget": 200,
+      "left": "E",
+      "right": "A",
+      "surface": "target_outer_val",
+      "observed": -0.0007673575690019782,
+      "ci95": [
+        -0.0014565468008616441,
+        -9.105510611221353e-05
+      ],
+      "two_sided_p": 0.031,
+      "groups": 5561,
+      "clusters": 4952,
+      "n_boot": 2000,
+      "degenerate": false
+    },
+    {
+      "budget": 200,
+      "left": "E",
+      "right": "A",
+      "surface": "source_val",
+      "observed": -0.039023848856811906,
+      "ci95": [
+        -0.047501581185781246,
+        -0.03165318515859341
+      ],
+      "two_sided_p": 0.001,
+      "groups": 685,
+      "clusters": 364,
+      "n_boot": 2000,
+      "degenerate": false
+    },
+    {
+      "budget": 200,
+      "left": "E",
+      "right": "A",
+      "surface": "source_audit",
+      "observed": -0.0018516573086944624,
+      "ci95": [
+        -0.0037170658364057193,
+        -5.062002118559553e-05
+      ],
+      "two_sided_p": 0.042,
+      "groups": 1463,
+      "clusters": 437,
+      "n_boot": 2000,
+      "degenerate": false
+    },
+    {
+      "budget": 200,
+      "left": "F",
+      "right": "A",
+      "surface": "target_outer_val",
+      "observed": 0.0006041699930803813,
+      "ci95": [
+        -5.2344765198175906e-05,
+        0.001277802696579708
+      ],
+      "two_sided_p": 0.072,
+      "groups": 5561,
+      "clusters": 4952,
+      "n_boot": 2000,
+      "degenerate": false
+    },
+    {
+      "budget": 200,
+      "left": "F",
+      "right": "A",
+      "surface": "source_val",
+      "observed": -0.012352868520176207,
+      "ci95": [
+        -0.018674565459256273,
+        -0.007174658372250158
+      ],
+      "two_sided_p": 0.001,
+      "groups": 685,
+      "clusters": 364,
+      "n_boot": 2000,
+      "degenerate": false
+    },
+    {
+      "budget": 200,
+      "left": "F",
+      "right": "A",
+      "surface": "source_audit",
+      "observed": -0.007106554023212576,
+      "ci95": [
+        -0.01051455455455178,
+        -0.003824630715987276
+      ],
+      "two_sided_p": 0.001,
+      "groups": 1463,
+      "clusters": 437,
+      "n_boot": 2000,
+      "degenerate": false
+    },
+    {
+      "budget": 200,
+      "left": "F",
+      "right": "E",
+      "surface": "target_outer_val",
+      "observed": 0.0013715275620823594,
+      "ci95": [
+        0.0009417632091267839,
+        0.0018076576911850717
+      ],
+      "two_sided_p": 0.001,
+      "groups": 5561,
+      "clusters": 4952,
+      "n_boot": 2000,
+      "degenerate": false
+    },
+    {
+      "budget": 200,
+      "left": "F",
+      "right": "E",
+      "surface": "source_val",
+      "observed": 0.026670980336635706,
+      "ci95": [
+        0.018035024178886954,
+        0.036128714355209486
+      ],
+      "two_sided_p": 0.001,
+      "groups": 685,
+      "clusters": 364,
+      "n_boot": 2000,
+      "degenerate": false
+    },
+    {
+      "budget": 200,
+      "left": "F",
+      "right": "E",
+      "surface": "source_audit",
+      "observed": -0.005254896714518114,
+      "ci95": [
+        -0.008580252998126823,
+        -0.0022257643618584363
+      ],
+      "two_sided_p": 0.001,
+      "groups": 1463,
+      "clusters": 437,
+      "n_boot": 2000,
+      "degenerate": false
+    },
+    {
+      "budget": 200,
+      "left": "G",
+      "right": "F",
+      "surface": "target_outer_val",
+      "observed": -0.000868480737208236,
+      "ci95": [
+        -0.0015021342580019274,
+        -0.000253480839395336
+      ],
+      "two_sided_p": 0.011,
+      "groups": 5561,
+      "clusters": 4952,
+      "n_boot": 2000,
+      "degenerate": false
+    },
+    {
+      "budget": 200,
+      "left": "G",
+      "right": "F",
+      "surface": "source_val",
+      "observed": 0.009160806198330648,
+      "ci95": [
+        0.0038717916610299286,
+        0.015284219262807217
+      ],
+      "two_sided_p": 0.001,
+      "groups": 685,
+      "clusters": 364,
+      "n_boot": 2000,
+      "degenerate": false
+    },
+    {
+      "budget": 200,
+      "left": "G",
+      "right": "F",
+      "surface": "source_audit",
+      "observed": 0.007999192576473,
+      "ci95": [
+        0.005106002627393108,
+        0.011164636549538122
+      ],
+      "two_sided_p": 0.001,
+      "groups": 1463,
+      "clusters": 437,
+      "n_boot": 2000,
+      "degenerate": false
+    },
+    {
+      "budget": 200,
+      "left": "D",
+      "right": "C",
+      "surface": "target_outer_val",
+      "observed": -0.0007106462873107355,
+      "ci95": [
+        -0.0013565999219882186,
+        -7.187388889796987e-05
+      ],
+      "two_sided_p": 0.029,
+      "groups": 5561,
+      "clusters": 4952,
+      "n_boot": 2000,
+      "degenerate": false
+    },
+    {
+      "budget": 200,
+      "left": "D",
+      "right": "C",
+      "surface": "source_val",
+      "observed": -0.014754830840078973,
+      "ci95": [
+        -0.021345431518752775,
+        -0.008725802755123217
+      ],
+      "two_sided_p": 0.001,
+      "groups": 685,
+      "clusters": 364,
+      "n_boot": 2000,
+      "degenerate": false
+    },
+    {
+      "budget": 200,
+      "left": "D",
+      "right": "C",
+      "surface": "source_audit",
+      "observed": -0.012623369946110732,
+      "ci95": [
+        -0.01657855481777224,
+        -0.008992571558522625
+      ],
+      "two_sided_p": 0.001,
+      "groups": 1463,
+      "clusters": 437,
+      "n_boot": 2000,
+      "degenerate": false
+    },
+    {
+      "budget": 1000,
+      "left": "E",
+      "right": "A",
+      "surface": "target_outer_val",
+      "observed": 0.0020025241635290418,
+      "ci95": [
+        0.0014426482697830541,
+        0.002615041508828268
+      ],
+      "two_sided_p": 0.001,
+      "groups": 5561,
+      "clusters": 4952,
+      "n_boot": 2000,
+      "degenerate": false
+    },
+    {
+      "budget": 1000,
+      "left": "E",
+      "right": "A",
+      "surface": "source_val",
+      "observed": -0.007506855536722998,
+      "ci95": [
+        -0.010441778365956363,
+        -0.004958852171135111
+      ],
+      "two_sided_p": 0.001,
+      "groups": 685,
+      "clusters": 364,
+      "n_boot": 2000,
+      "degenerate": false
+    },
+    {
+      "budget": 1000,
+      "left": "E",
+      "right": "A",
+      "surface": "source_audit",
+      "observed": 0.0011231244329118256,
+      "ci95": [
+        -0.0006871570748855037,
+        0.002948515606520052
+      ],
+      "two_sided_p": 0.258,
+      "groups": 1463,
+      "clusters": 437,
+      "n_boot": 2000,
+      "degenerate": false
+    },
+    {
+      "budget": 1000,
+      "left": "F",
+      "right": "A",
+      "surface": "target_outer_val",
+      "observed": 0.001855366085228376,
+      "ci95": [
+        0.0012674924524543063,
+        0.0024756516574066935
+      ],
+      "two_sided_p": 0.001,
+      "groups": 5561,
+      "clusters": 4952,
+      "n_boot": 2000,
+      "degenerate": false
+    },
+    {
+      "budget": 1000,
+      "left": "F",
+      "right": "A",
+      "surface": "source_val",
+      "observed": -0.006843385461044304,
+      "ci95": [
+        -0.012104115592213905,
+        -0.0028912234602055577
+      ],
+      "two_sided_p": 0.001,
+      "groups": 685,
+      "clusters": 364,
+      "n_boot": 2000,
+      "degenerate": false
+    },
+    {
+      "budget": 1000,
+      "left": "F",
+      "right": "A",
+      "surface": "source_audit",
+      "observed": -0.0019707672463704713,
+      "ci95": [
+        -0.005202248992206959,
+        0.001161514254304745
+      ],
+      "two_sided_p": 0.189,
+      "groups": 1463,
+      "clusters": 437,
+      "n_boot": 2000,
+      "degenerate": false
+    },
+    {
+      "budget": 1000,
+      "left": "F",
+      "right": "E",
+      "surface": "target_outer_val",
+      "observed": -0.00014715807830066537,
+      "ci95": [
+        -0.0005636562980821627,
+        0.0002730663873875425
+      ],
+      "two_sided_p": 0.516,
+      "groups": 5561,
+      "clusters": 4952,
+      "n_boot": 2000,
+      "degenerate": false
+    },
+    {
+      "budget": 1000,
+      "left": "F",
+      "right": "E",
+      "surface": "source_val",
+      "observed": 0.0006634700756786951,
+      "ci95": [
+        -0.003276385352557479,
+        0.004345450483382745
+      ],
+      "two_sided_p": 0.697,
+      "groups": 685,
+      "clusters": 364,
+      "n_boot": 2000,
+      "degenerate": false
+    },
+    {
+      "budget": 1000,
+      "left": "F",
+      "right": "E",
+      "surface": "source_audit",
+      "observed": -0.003093891679282298,
+      "ci95": [
+        -0.006021059527661533,
+        -0.0006002270094130599
+      ],
+      "two_sided_p": 0.02,
+      "groups": 1463,
+      "clusters": 437,
+      "n_boot": 2000,
+      "degenerate": false
+    },
+    {
+      "budget": 1000,
+      "left": "G",
+      "right": "F",
+      "surface": "target_outer_val",
+      "observed": 0.00046959926034526175,
+      "ci95": [
+        -5.135562091649027e-05,
+        0.0009497310159666347
+      ],
+      "two_sided_p": 0.076,
+      "groups": 5561,
+      "clusters": 4952,
+      "n_boot": 2000,
+      "degenerate": false
+    },
+    {
+      "budget": 1000,
+      "left": "G",
+      "right": "F",
+      "surface": "source_val",
+      "observed": -0.002639769267834229,
+      "ci95": [
+        -0.0062725573820406845,
+        0.0013447175353654174
+      ],
+      "two_sided_p": 0.176,
+      "groups": 685,
+      "clusters": 364,
+      "n_boot": 2000,
+      "degenerate": false
+    },
+    {
+      "budget": 1000,
+      "left": "G",
+      "right": "F",
+      "surface": "source_audit",
+      "observed": -0.0027491795416678066,
+      "ci95": [
+        -0.005259776291504611,
+        -0.0002984207043450535
+      ],
+      "two_sided_p": 0.027,
+      "groups": 1463,
+      "clusters": 437,
+      "n_boot": 2000,
+      "degenerate": false
+    },
+    {
+      "budget": 1000,
+      "left": "D",
+      "right": "C",
+      "surface": "target_outer_val",
+      "observed": 0.0003312057564484805,
+      "ci95": [
+        -7.712451535811579e-05,
+        0.000746645429773798
+      ],
+      "two_sided_p": 0.126,
+      "groups": 5561,
+      "clusters": 4952,
+      "n_boot": 2000,
+      "degenerate": false
+    },
+    {
+      "budget": 1000,
+      "left": "D",
+      "right": "C",
+      "surface": "source_val",
+      "observed": -0.015710016790076862,
+      "ci95": [
+        -0.02228843453046068,
+        -0.010094740028966702
+      ],
+      "two_sided_p": 0.001,
+      "groups": 685,
+      "clusters": 364,
+      "n_boot": 2000,
+      "degenerate": false
+    },
+    {
+      "budget": 1000,
+      "left": "D",
+      "right": "C",
+      "surface": "source_audit",
+      "observed": -0.01407129688673274,
+      "ci95": [
+        -0.019328175125662633,
+        -0.008946974865014749
+      ],
+      "two_sided_p": 0.001,
+      "groups": 1463,
+      "clusters": 437,
+      "n_boot": 2000,
+      "degenerate": false
+    }
+  ],
+  "source_mix": [
+    {
+      "surface": "source_audit",
+      "source_study": "deepprime",
+      "candidates": 11266,
+      "groups": 8697
+    },
+    {
+      "surface": "source_audit",
+      "source_study": "hsu2026",
+      "candidates": 9175,
+      "groups": 9175
+    },
+    {
+      "surface": "source_replay",
+      "source_study": "deepprime",
+      "candidates": 2711,
+      "groups": 1710
+    },
+    {
+      "surface": "source_replay",
+      "source_study": "hsu2026",
+      "candidates": 4752,
+      "groups": 4752
+    },
+    {
+      "surface": "source_replay",
+      "source_study": "pridict_pridict2",
+      "candidates": 12047,
+      "groups": 4425
+    },
+    {
+      "surface": "source_val",
+      "source_study": "deepprime",
+      "candidates": 492,
+      "groups": 367
+    },
+    {
+      "surface": "source_val",
+      "source_study": "hsu2026",
+      "candidates": 1986,
+      "groups": 1986
+    },
+    {
+      "surface": "source_val",
+      "source_study": "pridict_pridict2",
+      "candidates": 3279,
+      "groups": 1062
+    },
+    {
+      "surface": "target_budget_pool",
+      "source_study": "deepprime",
+      "candidates": 10507,
+      "groups": 2853
+    },
+    {
+      "surface": "target_outer_val",
+      "source_study": "deepprime",
+      "candidates": 23120,
+      "groups": 5561
+    }
+  ],
+  "total_process_hours": 0.27232910295327506,
+  "input_sha256": {
+    "explore_v3/runs/A_b1000_sub20260910_s20260910/results.json": "4f8b87b2ef3be0aa38e8fe06420d06855e4f3b80a23922d59a132ac846431397",
+    "explore_v3/runs/A_b200_sub20260910_s20260910/results.json": "568a7901822568594117737f9d8598e1a9acead4a76e8c5fc48b06a8db950ddc",
+    "explore_v3/runs/B_b1000_sub20260910_s20260910/results.json": "8de12190c63ccefbf23c334f6a818ca25e663e580c59464f7a6cf4c61908e52b",
+    "explore_v3/runs/B_b200_sub20260910_s20260910/results.json": "50c027a9f54770aa3c831593734c21b6b01b6dfed9c742082086af5736aea0d0",
+    "explore_v3/runs/C_b1000_sub20260910_s20260910/results.json": "e0cc69da21bbee39348378f76946fbd1eddbfbd8c4ed7007631db3a5fd372b07",
+    "explore_v3/runs/C_b200_sub20260910_s20260910/results.json": "dc88828584f11bca1d783b56881eab7a504d31347ede7fa305d459d20715d366",
+    "explore_v3/runs/D_b1000_sub20260910_s20260910/results.json": "f3adba1047f12ff6f66b4177da8a01933f89da79d5c8902ce06a8892ff90c5c2",
+    "explore_v3/runs/D_b200_sub20260910_s20260910/results.json": "106e64472c20cf89613c2572fb7e110eefea25a10a42a25164ec33817834ac22",
+    "explore_v3/runs/E_b1000_sub20260910_s20260910/results.json": "e3e7c969180afb3931f85b8f0b075435c2a055167f4d06d5737ca73e05ad1397",
+    "explore_v3/runs/E_b200_sub20260910_s20260910/results.json": "8a654bd56ce594ec97ef8ad50e3ab82ab0b8a53da32310e9a15ecf2c1d91c607",
+    "explore_v3/runs/F_b1000_sub20260910_s20260910/results.json": "8bbb39a561cf32b96f04ad79ad15f6f9e84c53caac29936e97047f516e6e5f57",
+    "explore_v3/runs/F_b200_sub20260910_s20260910/results.json": "bac5d6054eb21263e34df33c73ee3b4a5c72bdb9dbebf5816ea441da5d2d1395",
+    "explore_v3/runs/G_b1000_sub20260910_s20260910/results.json": "00032604b37c5806847b73b481c2a3ce5e18f0e2f5303216268f4845014d7f7d",
+    "explore_v3/runs/G_b200_sub20260910_s20260910/results.json": "704ed78effc3e61aa105a425847995a4caa90487f57e8500700db6eb934cd376",
+    "explore_v3/summarize.py": "3477bed6cd50efd258b594d9d5a2367d45633e34adff886205a37d6213523029",
+    "explore_v3/cache/prepared.json": "3e944e617c1781b60fae11d3b467a3483b5c4dce570efafe2d49da3ac2340cf9"
+  }
+}

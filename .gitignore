@@ -95,3 +95,13 @@ external/*/
 # call, not ours. See reports/research_log.md 2026-08-18.
 data/optiprime_train_mix/
 data/__MACOSX/
+
+# explore_v2 build products: embeddings (~470 MB) and cached intermediates, all rebuildable
+explore_v2/cache/
+explore_v2/__pycache__/
+
+# LaTeX build intermediates for reports/
+reports/*.aux
+reports/*.log
+reports/*.out
+reports/*.toc

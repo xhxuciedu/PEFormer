@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Regenerate every number, table and figure the manuscript reports.
+# Regenerate the historical benchmark analyses and corrected utility table.
+# Adaptation follow-ups have separate versioned protocols in explore_v3{,_1}.
 #
 # This script does NOT train. It re-derives all reported results from the frozen
 # prediction files and checkpoints already in the repository, then rebuilds the tables
@@ -68,6 +69,9 @@ $PY revision/audit_00_consistency.py > /dev/null
 
 step "4. manuscript tables, generated from the artifacts"
 $PY revision/make_paper_tables.py
+# The legacy generator above includes the retired protospacer utility estimand.
+# Restore the corrected fixed-allele/context table using the existing v2 artifacts.
+$PY explore_v2/make_utility_table.py
 
 step "5. figures"
 $PY scripts/evaluate/make_paper_figures.py

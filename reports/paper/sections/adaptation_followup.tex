@@ -1,0 +1,146 @@
+\subsection{Retrospective adaptation exposes a target--source trade-off}
+\label{sec:adaptation-followup}
+
+We next studied adaptation on a separate Kim library using fixed intended-allele
+and experimental-context groups. This is a retrospective development experiment,
+not an independently collected confirmation study. Its outer validation contains
+5{,}561 groups and 23{,}120 distinct candidates, including all-zero groups; it is
+distinct from both the original benchmark and the previously inspected adaptation
+test. Checkpoint selection uses validation groups \emph{inside} the adaptation
+label budget, while the exposed outer validation informs research-level decisions.
+For the initial acquisition, nominal budgets of 200 and 1{,}000 groups contain
+202 and 1{,}001 groups,
+respectively: 168/34 and 839/162 training/inner-validation groups, requiring 788
+and 3{,}848 distinct labelled candidates. These are per-fit adaptation costs, not
+the total label cost of developing the method.
+
+This low-label question is distinct from the earlier full-budget adaptation
+result. With 19{,}357 labelled training groups and 5{,}561 labelled validation
+groups, ordinary fine-tuning achieved mean top-choice efficiency 0.04178 across
+three optimizer seeds versus released OptiPrime's 0.04020 on the separate
+5{,}557-group adaptation test; each seed's paired interval was positive. That
+retrospective, target-supervised improvement remains valid. It does not establish
+low-label superiority, matched-supervision architectural superiority, or
+independent cross-study transfer, and its test efficiencies must not be compared
+directly with the different v3 validation population below.
+
+The v3 screen comprised 34 fits, all with 100 target updates. Four arms were
+replicated across three optimizer seeds at both budgets, using the same acquisition
+subset. The source-anchored selector adds a zero-initialized residual readout to a
+fixed positive affine transformation of our frozen source score. Its backbone is
+frozen; the same final score selects candidates in both domains. No OptiPrime
+predictions, features or parameters are used during adaptation. Source replay and
+retention validation exclude components connected to source fold 0 or target
+alleles/full spacers; retention-validation examples were seen in pretraining.
+
+At 1{,}000 nominal groups, mean achieved top-choice efficiency over optimizer seeds
+is 0.039754 for ordinary ordinal fine-tuning (A), 0.041465 for a shared
+Huber-plus-ranking score (D), 0.041199 for the anchored pairwise selector (E), and
+0.041254 for E with soft pairwise source distillation (F). Released OptiPrime reaches
+0.041409 on these identical candidates. E improves on A by 0.001445
+(95\% paired component-bootstrap interval [0.000975, 0.001950]), but its difference
+from OptiPrime is $-0.000210$ [${-}0.000759$, 0.000327]. A nonsignificant difference
+does not establish equivalence. The released comparator receives no target
+adaptation labels, so this comparison is not matched for target supervision.
+
+Source retention is evaluated on the actually deployed selector using 1{,}463
+informative source-audit groups. E reaches 0.132948; the original checkpoint
+reaches 0.133635. The change of $-0.000687$ has interval
+[${-}0.002613$, 0.001337] and does not establish noninferiority at the working
+$-0.001$ margin. F loses a further 0.003896 relative to E
+([${-}0.006337$, ${-}0.001795$]) despite reducing source-replay pairwise KL in a
+first-seed diagnostic. D has greater source loss, reaching 0.112274. These
+findings motivate directly testing preservation of useful choices, rather than
+treating agreement in soft pairwise probabilities as evidence of retained utility.
+They do not identify a unique mechanism: source-domain mixture, loss scale and
+checkpoint selection remain alternatives. Indeed, E trails A on the separate
+source-retention validation mixture, despite leading it on the source audit.
+
+The replicated values above are averages of achieved outcomes, not a score
+ensemble. A separate equal-weight E score ensemble reaches target efficiency
+0.041312, also without a reliable OptiPrime advantage. All intervals in this
+development analysis are exploratory and unadjusted. The archived v3 protocol,
+run-level results and subsequent optimization study are versioned separately
+from the original benchmark artifacts.
+
+\subsubsection{Stronger optimization controls narrow the architectural claim}
+
+The subsequent v3.1 screen crossed five methods with two learning-rate
+multipliers and two horizons (100 or 500 target updates), yielding 20 fits on
+the first 1{,}001-group acquisition and one optimizer seed. Each trajectory
+offered the original deployment plus ten evenly spaced checkpoint choices;
+hyperparameters were selected by inner target utility, not outer validation.
+Ordinary fine-tuning A then reached target efficiency 0.041101, close to E's
+0.041304. Their difference was 0.000203
+([${-}0.000295$, 0.000736]), so the target advantage observed under v3's fixed
+optimization budget was not established after this search. E retained more
+source-audit utility than A (difference 0.004746 [0.002327, 0.007184]), but again
+trailed it on the different source-validation mixture. The fresh frozen head
+had the highest conventional inner utility, yet its selected outer efficiency
+was only 0.038883. These results expose model-selection variability rather than
+supporting promotion of a post-hoc outer-validation winner.
+
+We next held E's target recipe fixed and tested twelve combinations of source
+objective (soft pairwise KL, teacher top-choice margin, or label-aware expected
+regret), study sampling (mixture or balanced), and penalty weight (0.1 or 1).
+The teacher was our own frozen source checkpoint. A constrained checkpoint
+policy required source-validation point loss no greater than 0.001 in each of
+two studies, then maximized inner target utility, with original deployment as
+fallback. Balanced teacher-margin preservation at weight 1 was the only recipe
+to select a nonzero feasible checkpoint in this screen. This point-estimate
+filter is not a statistical noninferiority guarantee, and equal scalar weights
+did not match gradient pressure across objectives. The resulting recipe was
+frozen before acquisition replication; it is not an OptiPrime hybrid.
+
+\subsubsection{Acquisition replication reveals a preservation trade-off}
+
+The locked replication crossed two total label budgets, three acquisition
+subsets and two optimizer seeds for A, the inner-selected fresh frozen control,
+E and balanced margin preservation. Four exact screen configurations were
+reused, requiring 44 new fits and bringing v3.1 to 76 fits in total. The
+acquisitions contain 200--202 or 1{,}000--1{,}002 groups, including inner
+validation. Their union comprises 2{,}853 groups and 10{,}507 labelled
+candidates; these development costs exclude the additional 23{,}120 outer
+validation candidates and all source/pretraining labels.
+
+At the 1{,}000-group budget, target-only selection gives mean target efficiency
+0.041233 for tuned A, 0.041047 for E and 0.041126 for margin preservation
+(Table~\ref{tab:v31-replication}). E's difference from A is now
+$-0.000186$ [${-}0.000506$, 0.000157]. Its source advantage also fails to
+persist: source efficiency averages 0.128462 for E and 0.128679 for A, versus
+initialization at 0.133635. Across acquisition subsets, E's source means are
+0.133997, 0.117906 and 0.133483. Thus a frozen backbone and an anchored score do
+not alone guarantee retention of useful source choices.
+
+Margin preservation improves source efficiency relative to E by 0.004822
+[0.003636, 0.006004] under target-only selection, with target difference
+0.000079 [${-}0.000102$, 0.000266]. Its own source change relative to
+initialization is $-0.000351$ [${-}0.001626$, 0.001106], so this policy does not
+clear the working retention margin. Its target difference from released
+OptiPrime is $-0.000284$ [${-}0.000809$, 0.000237], which does not establish
+superiority or equivalence. Pooled target Spearman remains higher for A and
+margin preservation (0.732025 and 0.712110) than OptiPrime (0.695996), illustrating
+again that better pooled prediction is not sufficient evidence of better @1.
+
+With source-constrained selection, margin preservation adapts in five of six
+1{,}000-group runs, whereas constrained A, fresh frozen and E always fall back.
+The margin procedure reaches target/source efficiencies 0.040652/0.133858.
+Its averaged source-audit change is 0.000223 [${-}0.000821$, 0.001351], whose
+lower bound exceeds the working $-0.001$ margin on this exposed audit.
+However, target utility falls below tuned A by 0.000580
+([${-}0.000883$, ${-}0.000264$] for margin minus A), and below OptiPrime by
+0.000757 ([${-}0.001324$, ${-}0.000219$]). At budget 200, the source interval
+does not clear the retention margin. This is a measurable trade-off, not a
+joint target-superiority and source-retention result.
+
+All replication intervals condition on the six fitted runs and resample the
+same evaluation components after averaging their outcomes; they do not capture
+all possible acquisitions or constitute independent-study confirmation. The
+stronger RNA/DNA-normalized 19-base-spacer overlap audit identifies one additional
+target component (one group, eight candidates); excluding that entire component
+does not change the qualitative comparisons. No matching source row enters
+informative replay. Independent public-data confirmation remains gated by
+linked outcome availability and input compatibility, so larger-budget and
+architecture branches were deferred, not counted as failed experiments.
+
+\input{tables/tab_v31_replication}

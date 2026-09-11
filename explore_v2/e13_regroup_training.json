@@ -1,0 +1,48 @@
+{
+  "provenance": {
+    "git_commit": "83ffae1c5b8f",
+    "working_tree_dirty": true,
+    "seed": 20260908,
+    "inputs": {
+      "data/processed/optiprime_official_318471.parquet": "fe62229d50a08fa3",
+      "data/processed/featurized_official.npz": "2e475a6a0cdc98c4"
+    }
+  },
+  "canon_version": 2,
+  "grouping_comparison": {
+    "train_folds_2_5": {
+      "rows": 238381,
+      "groups": 209161,
+      "singleton_groups": 196098,
+      "singleton_fraction": 0.9375457183700594,
+      "rows_in_multi_design_groups": 38509,
+      "fraction_of_rows_in_multi_design_groups": 0.16154391499322512,
+      "within_group_design_pairs": 14277,
+      "designs_per_group": {
+        "1": 196098,
+        "2": 12456,
+        "3": 607
+      }
+    },
+    "train_folds_2_5_canonical": {
+      "rows": 238381,
+      "groups": 132066,
+      "singleton_groups": 89828,
+      "singleton_fraction": 0.68017506398316,
+      "rows_in_multi_design_groups": 148416,
+      "fraction_of_rows_in_multi_design_groups": 0.6225999555333689,
+      "within_group_design_pairs": 368307,
+      "designs_per_group": {
+        "1": 89828,
+        "2": 27605,
+        "3": 1848,
+        "4": 5636,
+        "5": 225,
+        "6": 611
+      }
+    },
+    "pair_ratio_canonical_over_current": 25.8,
+    "fraction_of_available_pairs_the_current_key_sees": 0.0388,
+    "note": "These are counts of POSSIBLE within-group design pairs, not measured training exposure. The sampler takes at most 8 members per group per batch and keeps at most 4 pairs per group per batch subject to a 0.02 target gap, so the objective sees far fewer. E17a replays the real sampler: 15,695 sampled pair instances per epoch under the current key against 62,028 under the canonical key, a factor of 3.95, with the share of training groups receiving any ranking update rising from 3.2% to 19.1%."
+  }
+}

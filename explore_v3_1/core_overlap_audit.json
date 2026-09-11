@@ -1,0 +1,28 @@
+{
+  "shared_cores": 1,
+  "direct_target_groups": 1,
+  "whole_target_components": 1,
+  "excluded_target_groups": 1,
+  "excluded_target_candidates": 8,
+  "target_components": [
+    "target_4772"
+  ],
+  "source_rows": 46,
+  "source_groups": 46,
+  "source_surfaces": [
+    {
+      "surface": "source_replay",
+      "rows": 46,
+      "groups": 46
+    }
+  ],
+  "exact_full_spacer_match": false,
+  "exact_normalized_full_spacer_match": false,
+  "exact_allele_match": false,
+  "interpretation": "Local core19 match despite original full-spacer/allele isolation. Exclude whole connected evaluation components in a secondary sensitivity, keeping the frozen primary population unchanged.",
+  "inputs_sha256": {
+    "explore_v3_1/audit_core_overlap.py": "5d428eae7ddb10f0636015d5a533e5058fcf93e1b22f000c1c7467041f96e229",
+    "explore_v3_1/alphabet_audit.json": "32dcd616233fa0efb74a15fde6caf7177326174c1eb1746ceb643d3259871a48",
+    "explore_v3/cache/prepared.json": "3e944e617c1781b60fae11d3b467a3483b5c4dce570efafe2d49da3ac2340cf9"
+  }
+}

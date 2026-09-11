@@ -19,9 +19,9 @@
 
 \newcommand{\rhoS}{\rho}
 
-\title{\textbf{PE-RankFormer: metric-matched ordinal\\
-supervision and state-space sequence mixing\\
-for prime-editing efficiency prediction}}
+\title{\textbf{Decision-aligned evaluation reveals a disconnect\\
+between prime-editing efficiency prediction\\
+and pegRNA selection}}
 
 % TODO(authors): replace with the real author list before submission.
 \author[1]{Author Name\thanks{Corresponding author.}}
@@ -51,14 +51,16 @@ $0.8690$: a difference of $+0.0389$ (95\% CI $[+0.0286,+0.0498]$; ahead in all 5
 protospacer-clustered bootstrap resamples, $p < 0.0002$).
 
 That pooled figure conflates which locus is easy to edit with which pegRNA is best at a
-locus, and only the second is the design problem. Evaluated \emph{within} a protospacer
---- the deployment-relevant task --- absolute performance is far lower for both models
+locus, and only the second is the design problem. Evaluated \emph{within} a protospacer,
+absolute performance is far lower for both models
 ($\rho = 0.6356$ against $0.5472$) while the margin more than doubles to $+0.0884$
 (95\% CI $[+0.0761,+0.1007]$, ahead on $78.4\%$ of 670 targets). We report both, because
-the first tempers the headline and the second strengthens the comparison. On the
-retrieval metric a user cares about, the model identifies a target's best design in
-$36.7\%$ of cases against the baseline's $22.4\%$; the efficiency actually obtained from
-its top pick, however, improves by only $+0.015$. It is $+0.0804$ on the more
+the first tempers the headline and the second strengthens the comparison. However,
+protospacer groups can still mix intended alleles and experimental contexts. On
+1{,}463 informative fixed-allele/context source decisions, achieved top-choice
+efficiency is 0.1364 versus 0.1272. On an external library the zero-shot advantage
+reverses: 0.0363 versus 0.0369 across all 30{,}475 eligible decisions. The source
+Spearman margin is $+0.0804$ on the more
 experimentally diverse Kim partition and $+0.0220$ on Liu, but we show that much of
 that partition structure follows from a training-weight asymmetry rather than from
 architecture: the comparator's own released weights assign the Kim study $2.0\%$ of its
@@ -86,6 +88,13 @@ remaining headroom (held-out gap $+0.1040$, 95\% CI $[+0.0529,+0.1204]$), and we
 tied scores in the zero-inflated regime gain $+0.013$--$0.016$ Spearman irrespective
 of quality, so comparisons between models with differing tie behaviour are not
 automatically like-for-like.
+
+Retrospective low-label adaptation on a separate library improves target selection,
+but stronger optimization controls and acquisition replication do not establish
+superiority over released OptiPrime. Source-anchored adaptation alone does not
+reliably preserve source choices; decision-preservation training improves retention
+at an explicit target-utility cost under constrained selection. This distinguishes
+benchmark prediction gains from a validated, transferable design-selection method.
 \end{abstract}
 
 \tableofcontents
@@ -732,19 +741,20 @@ rather than a biological covariate.
 We therefore report the comparison at three levels of stratification
 (Table~\ref{tab:stratified}), and the two findings point in opposite directions.
 
-\textbf{The absolute level falls a long way.} Within a protospacer group --- the actual
-design problem --- our model reaches $\rhoS = 0.6356$, not $0.9079$. Choosing among
-pegRNAs at a fixed locus is a substantially harder task than the headline number
-suggests, and we regard $0.64$, not $0.91$, as the honest statement of what the model
-does for a user with one target in hand. The pooled figure should not be read as a
-design-ranking capability.
+\textbf{The absolute level falls a long way.} Within a protospacer group our model
+reaches $\rhoS = 0.6356$, not $0.9079$. This removes some between-locus signal, but
+protospacer groups can still combine different intended alleles and experimental
+conditions. The statistic is therefore an intermediate stratified comparison, not
+a pure measure of the fixed-edit design problem. The deployment-aligned grouping
+is evaluated in \S\ref{sec:utility}.
 
 \textbf{The margin more than doubles.} Against the same rows, the advantage over
 OptiPrime grows from $+0.0389$ pooled to $+0.0506$ within condition to $+0.0884$ within
-target, ahead on $78.4\%$ of the 670 scorable targets. Removing the locus effect removes
-signal that \emph{both} models exploit equally, and what remains is the part attributable
-to modelling. Pooling therefore inflates the absolute level while making the reported
-\emph{difference} conservative.
+target, ahead on $78.4\%$ of the 670 scorable targets. Removing between-protospacer
+variation increases the observed margin, although remaining within-group
+allele/context variation prevents attributing the entire difference to choosing
+alternative designs for one fixed edit. Pooling inflates the absolute level while
+reducing this particular stratified difference.
 
 \input{tables/tab_stratified}
 
@@ -753,23 +763,30 @@ to modelling. Pooling therefore inflates the absolute level while making the rep
 
 Rank correlation measures how well a whole list is ordered. A user asks something
 narrower: if I synthesise the design this model puts first, do I get an edit? We
-therefore report per-target retrieval and regret metrics
-(Table~\ref{tab:utility}), computed within a protospacer group and averaged over groups,
-against OptiPrime and against selecting a design at random.
+therefore report retrieval and regret within one intended allele and experimental
+context, averaging repeated measurements of the same design before selecting
+(Table~\ref{tab:utility}). Historical protospacer-only groups remain as a
+descriptive comparison, not the deployment task.
 
-The ranking metrics and the outcome metrics disagree, and the disagreement is the
-result. PE-RankFormer identifies the single best design at a target far more often than
-the comparator --- precision@1 of $0.367$ against $0.224$, a $64\%$ relative gain --- and
-its regret, the efficiency forgone by taking its first pick instead of the target's best
-design, falls from $0.049$ to $0.033$. But the efficiency actually obtained from the top
-pick rises only $+0.015$, and the probability that the top pick works at all
-($\geq5\%$ efficiency) rises $+0.011$ with an interval spanning zero. Both models'
-first picks are usually already viable, so the gain is concentrated in finding the
-\emph{best} design rather than in avoiding a failed one. A reader deciding whether to
-adopt the model should weigh $+0.143$ precision@1 against $+0.011$ on "does the first
-pick work", and we give both rather than the flattering one.
+On 1{,}463 informative source decisions, PE-RankFormer's achieved top-choice
+efficiency is 0.1364 versus 0.1272, a difference of 0.00915
+(95\% CI [0.00633, 0.01215]). Best-design hit rate is 0.7423 versus 0.6535;
+these groups are shallow, and none contains five distinct candidates. They cannot
+establish performance at deeper library-selection budgets.
+
+The external library reverses the zero-shot utility comparison. Across all
+30{,}475 eligible fixed-allele groups, including all-zero groups, achieved
+efficiency is approximately 0.0363 for our ordinal--state-space ensemble versus
+0.0369 for OptiPrime. On the 24{,}668 informative groups shown in panel C,
+the corresponding values are 0.0448 versus 0.0456, with difference $-0.00078$
+(95\% CI [$-0.00111$, $-0.00046$]). The source final ensemble and external
+ordinal--state-space ensemble are different configurations. Better source ranking
+and higher external pooled correlation therefore do not establish better external
+top-choice utility; target adaptation is evaluated separately below.
 
 \input{tables/tab_utility}
+
+\input{sections/adaptation_followup}
 
 \subsection{Tie-robust and decomposed metrics}
 \label{sec:tierobust}
@@ -1530,10 +1547,15 @@ claims rest on out-of-fold development folds and a once-consulted lockbox.
 aggregation convention we tried, and no evaluation script was released. The direction
 favours the baseline and so does not undermine our claims, but it caps the precision of
 the comparison.
-\item\label{sec:limitations-baselines} All results are on a single benchmark, and
-against one external comparator plus the feature baseline of \S\ref{sec:gbm}. External
-validation on an independent prime-editing dataset is the most valuable next step and is
-not yet available. We attempted two further baselines, PRIDICT2.0 and DeepPrime-FT, and
+\item\label{sec:limitations-baselines} The original architecture comparisons use a
+single benchmark and one external comparator plus the feature baseline of
+\S\ref{sec:gbm}. The separate-library adaptation study
+(\S\ref{sec:adaptation-followup}) is retrospective development within a
+source-adjacent study family, not independent confirmation. Its optimizer-seed
+replications use one acquisition subset, and its per-fit label budgets do not
+include all labels used in research-level model development. Independent,
+adequately powered selection validation is not yet available. We attempted two
+further baselines, PRIDICT2.0 and DeepPrime-FT, and
 report neither: both require reproducing hand-engineered feature pipelines exactly ---
 including melting temperatures, ViennaRNA folding energies \citep{lorenz2011} and a
 separate pretrained on-target cutting model \citep{kim2019} --- and a subtly mismatched
@@ -1588,18 +1610,20 @@ five-member ensemble, and the same model also leads on absolute error once calib
 ($0.0478$ against $0.0590$ MAE, against a trivial floor of $0.1227$).
 
 Three qualifications belong in any summary of that result, and we would rather state
-them than have them found. Evaluated \emph{within} a target --- the design problem a
-user actually faces --- both models score far lower than the pooled figure implies
+them than have them found. Evaluated within historical protospacer groups, both
+models score far lower than the pooled figure implies
 ($0.6356$ against $0.5472$), though the margin there more than doubles to $+0.0884$;
-pooling flatters the level while making the difference conservative. On the
+these groups still mix alleles and conditions, so fixed-edit utility requires a
+separate evaluation. On the
 partition the comparator itself reports, the margin is $+0.0220$ at $p=0.028$, and the
 much larger Kim margin is substantially explained by a training-weight asymmetry rather
 than by modelling: the comparator's own released weights allocate the Kim study $2.0\%$
 of its training gradient while that study supplies $55.3\%$ of the evaluation rows, and
 adopting those weights costs us $+0.0136$ across three folds, essentially all of it on
-Kim. And the gain concentrates in identifying a target's \emph{best} design
-(precision@1 $0.367$ against $0.224$) rather than in avoiding a failed one, where the
-improvement is $+0.011$ and not statistically distinguishable from zero.
+Kim. Finally, fixed-allele source selection improves (0.1364 versus 0.1272 achieved
+efficiency), whereas external-library zero-shot selection does not (0.0363 versus
+0.0369 across all eligible decisions). The latter is a direct limit on transfer
+of the benchmark advantage.
 
 The benchmark is not saturated: replicate analysis indicates roughly $+0.10$ Spearman of
 reducible error remains on its largest partition (95\% CI $[+0.05,+0.12]$). Our evidence
@@ -1610,8 +1634,16 @@ built specifically to supply the capacity our own diagnostics said was missing, 
 scored identically to a control that cannot see context at all. What remains is most
 likely the absence of covariates describing how experimental context reorders designs,
 and no objective over a categorical label can recover biology the label does not encode.
-Progress will require richer context annotation, or an independent dataset, rather than
-further architectural search.
+These original-benchmark results motivate richer context annotation and independent
+data rather than an unrestricted architecture search. They do not rule out gains
+from target-domain supervision: the separate adaptation experiments improve target
+selection at the historical full label budget, but expose source-retention costs.
+The low-label studies have not established a reliable external-library advantage
+over released OptiPrime. Stronger optimization and acquisition replication remove
+the simple claim that anchoring alone improves the target--source trade-off;
+explicit choice preservation improves source robustness but does not establish
+joint target superiority and retention. An independently validated
+selection method remains an objective, not a conclusion of the present work.
 
 % =====================================================================
 \section*{Data and code availability}
@@ -1620,8 +1652,8 @@ further architectural search.
 log including every negative result, and the frozen model specification are in the
 project repository, together with 232 unit tests.
 
-\paragraph{Reproducing the reported results.} A single command,
-\path{reproduce/run_all.sh}, regenerates every number, table and figure in this paper
+\paragraph{Reproducing the original benchmark results.} A single command,
+\path{reproduce/run_all.sh}, regenerates the original benchmark numbers, tables and figures
 from the frozen prediction files, in roughly 25 minutes on one CPU and with no GPU. It
 also runs \path{reproduce/verify_manuscript.py}, which checks 44 numeric claims made in
 the body text against the artifacts that produced them and fails if any has drifted; and
@@ -1630,6 +1662,14 @@ analysis JSON so that no tabulated number is stored twice. Each analysis script 
 its git commit, random seed, and a SHA-256 prefix of every input file into its output.
 Retraining from scratch is documented separately in \path{reproduce/README.md} and takes
 approximately 60 GPU-hours.
+
+\paragraph{Adaptation follow-up.} The v3 and v3.1 adaptation analyses are separate
+from that historical reproduction command. Their execution protocols, total-label
+manifests, checkpoint-selection rules, full input/output fingerprints and result
+ledgers are documented in \path{explore_v3/README.md} and
+\path{explore_v3_1/README.md}. Their private-data-dependent training and cached
+evaluations are not claimed to be reproducible from the original public benchmark
+prediction files alone.
 
 \paragraph{Data.} The corpus is a harmonisation of measurements from three previously
 published studies \citep{kim2021,mathis2023,yu2023,mathis2024}, assembled by the authors
@@ -1641,7 +1681,7 @@ the original authors can rebuild our inputs exactly and verify the dataset hash 
 record. The frozen per-row prediction vectors for both models on the held-out set
 \emph{are} included, which is what the re-analyses in \S\ref{sec:stratified}--
 \S\ref{sec:leakage} and Tables~\ref{tab:stratified}--\ref{tab:ceiling} operate on, so
-every comparison in this paper can be checked without access to the training data.
+the original benchmark comparisons can be checked without access to the training data.
 
 We regard the absence of a public corpus as the most significant limitation on the
 reproducibility of this work, and we note that it is not ours to remove.

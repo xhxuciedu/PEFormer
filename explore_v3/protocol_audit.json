@@ -1,0 +1,114 @@
+{
+  "inputs_sha256": {
+    "explore_v3/cache/prepared.json": "3e944e617c1781b60fae11d3b467a3483b5c4dce570efafe2d49da3ac2340cf9",
+    "explore_v2/cache/adapt_followup_predictions/start_checkpoint__target_val.parquet": "66db68dacb553ce087324e17a401163a52b3c4f300337c837b30832fa30eedc6",
+    "explore_v3/data/raw/oped_run_metadata.tsv": "d9058530437a62d1aaf150260ec52dfa8bbb975a7b7d1c7cfc8feb394a9c401b",
+    "explore_v3/protocol_audit.py": "ec7c5c496d50a636c13bb8cba5a4b6bd00d647d6e6b44650a62bfd3940e8ea05"
+  },
+  "precision": {
+    "new_fp32": {
+      "rows": 23120,
+      "groups": 5561,
+      "eligibility": "all E25 eligible groups",
+      "prediction": {
+        "achieved_at_1": 0.03962670039251304,
+        "spearman": 0.6946084210582589,
+        "regret_at_1": 0.01157279051831775
+      },
+      "selection": {
+        "achieved_at_1": 0.03962670039251304,
+        "spearman": 0.6946084210582589,
+        "regret_at_1": 0.01157279051831775
+      }
+    },
+    "historical_bf16": {
+      "rows": 23120,
+      "groups": 5561,
+      "eligibility": "all E25 eligible groups",
+      "prediction": {
+        "achieved_at_1": 0.03956370458659324,
+        "spearman": 0.6946317157335123,
+        "regret_at_1": 0.011635786324237549
+      },
+      "selection": {
+        "achieved_at_1": 0.03956370458659324,
+        "spearman": 0.6946317157335123,
+        "regret_at_1": 0.011635786324237549
+      }
+    },
+    "candidate_max_abs_delta": 0.0036634504795074463,
+    "achieved_delta": 6.299580591979936e-05,
+    "groups_with_changed_selected_outcome": 39
+  },
+  "released_optiprime_outer_validation": {
+    "rows": 23120,
+    "groups": 5561,
+    "eligibility": "all E25 eligible groups",
+    "prediction": {
+      "achieved_at_1": 0.041409386155913504,
+      "spearman": 0.6959957190331468,
+      "regret_at_1": 0.00979010475491728
+    },
+    "selection": {
+      "achieved_at_1": 0.041409386155913504,
+      "spearman": 0.6959957190331468,
+      "regret_at_1": 0.00979010475491728
+    }
+  },
+  "start_minus_op": {
+    "observed": -0.0017826857634004676,
+    "ci95": [
+      -0.002435277137662136,
+      -0.0011577940410552614
+    ],
+    "two_sided_p": 0.001,
+    "groups": 5561,
+    "clusters": 4952,
+    "n_boot": 2000,
+    "degenerate": false
+  },
+  "feasibility": {
+    "kim_development_paired_delta_sd": 0.024401174827303827,
+    "illustrative_independent_groups_for_delta_0p001_80pct_power": 4669,
+    "illustrative_95pct_halfwidth_at_15_groups": 0.012348698247915,
+    "warning": "Normal independent-group approximation using Kim development variance; not K562 study-level power; clustering/domain heterogeneity may worsen precision"
+  },
+  "oped_metadata": {
+    "runs": 30,
+    "compressed_fastq_bytes": 49431811727,
+    "sample_titles": [
+      "1s",
+      "OPED_S15",
+      "OPED_N9",
+      "OPED_S13",
+      "OPED_S6",
+      "OPED_S5",
+      "OPED_N11",
+      "OPED_N10",
+      "OPED_N8",
+      "OPED_NS6",
+      "OPED_NS4",
+      "OPED_NS3",
+      "OPED_NS1",
+      "2s",
+      "OPED_S14",
+      "OPED_N7",
+      "OPED_NS2",
+      "6s",
+      "3s",
+      "OPED_S12",
+      "OPED_S10",
+      "OPED_S8",
+      "OPED_S4",
+      "OPED_N12",
+      "OPED_NS5",
+      "5s",
+      "4s",
+      "OPED_S11",
+      "OPED_S9",
+      "OPED_S7"
+    ],
+    "raw_reads_downloaded": false,
+    "missing": "Verified mapping from multiplexed runs/read barcodes to pegRNA, PE2 condition and biological replicate"
+  }
+}

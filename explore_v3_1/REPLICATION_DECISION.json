@@ -1,0 +1,18 @@
+{
+  "proceed": true,
+  "date": "2026-09-11",
+  "reason": "Balanced margin, weight 1, passes the preregistered constrained-inner promotion threshold; test acquisition/optimizer robustness, not external confirmation.",
+  "screen_fits_completed_and_verified": 32,
+  "candidate": "E_h100_lr1_margin_balanced_w1_b1000_sub20260910_s20260910",
+  "candidate_inner_gain_vs_constrained_E": 0.0019055104355555491,
+  "promotion_threshold": 0.0005,
+  "methods": ["A", "C_frozen", "E", "M"],
+  "budgets": [200, 1000],
+  "acquisition_seeds": [20260910, 20260911, 20260912],
+  "optimizer_seeds": [20260910, 20260911],
+  "configurations": 48,
+  "expected_screen_reuses": 4,
+  "maximum_new_fits": 44,
+  "independent_confirmation_ready": false,
+  "scope": "Locked-recipe replication only; evaluate both source-constrained and target-only policies. No higher-label curve or architecture change in this tranche."
+}

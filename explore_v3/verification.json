@@ -1,0 +1,7 @@
+{
+  "fits_verified": 34,
+  "distinct_fingerprints_verified": 142,
+  "replicated_aggregate_rows_verified": 8,
+  "test_scoring_present": false,
+  "deployment_choices_match": true
+}

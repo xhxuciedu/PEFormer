@@ -1,0 +1,208 @@
+{
+  "acquisitions": [
+    {
+      "nominal_groups": 200,
+      "subset_seed": 20260910,
+      "roles": {
+        "train": {
+          "groups": 168,
+          "candidates": 651,
+          "measurements": 651,
+          "components": 99
+        },
+        "inner_val": {
+          "groups": 34,
+          "candidates": 137,
+          "measurements": 137,
+          "components": 19
+        },
+        "total": {
+          "groups": 202,
+          "candidates": 788,
+          "measurements": 788,
+          "components": 118
+        }
+      }
+    },
+    {
+      "nominal_groups": 200,
+      "subset_seed": 20260911,
+      "roles": {
+        "train": {
+          "groups": 159,
+          "candidates": 545,
+          "measurements": 545,
+          "components": 76
+        },
+        "inner_val": {
+          "groups": 41,
+          "candidates": 150,
+          "measurements": 150,
+          "components": 14
+        },
+        "total": {
+          "groups": 200,
+          "candidates": 695,
+          "measurements": 695,
+          "components": 90
+        }
+      }
+    },
+    {
+      "nominal_groups": 200,
+      "subset_seed": 20260912,
+      "roles": {
+        "train": {
+          "groups": 152,
+          "candidates": 594,
+          "measurements": 594,
+          "components": 99
+        },
+        "inner_val": {
+          "groups": 49,
+          "candidates": 156,
+          "measurements": 156,
+          "components": 23
+        },
+        "total": {
+          "groups": 201,
+          "candidates": 750,
+          "measurements": 750,
+          "components": 122
+        }
+      }
+    },
+    {
+      "nominal_groups": 1000,
+      "subset_seed": 20260910,
+      "roles": {
+        "train": {
+          "groups": 839,
+          "candidates": 3208,
+          "measurements": 3208,
+          "components": 438
+        },
+        "inner_val": {
+          "groups": 162,
+          "candidates": 640,
+          "measurements": 640,
+          "components": 82
+        },
+        "total": {
+          "groups": 1001,
+          "candidates": 3848,
+          "measurements": 3848,
+          "components": 520
+        }
+      }
+    },
+    {
+      "nominal_groups": 1000,
+      "subset_seed": 20260911,
+      "roles": {
+        "train": {
+          "groups": 807,
+          "candidates": 2847,
+          "measurements": 2847,
+          "components": 411
+        },
+        "inner_val": {
+          "groups": 193,
+          "candidates": 708,
+          "measurements": 708,
+          "components": 93
+        },
+        "total": {
+          "groups": 1000,
+          "candidates": 3555,
+          "measurements": 3555,
+          "components": 504
+        }
+      }
+    },
+    {
+      "nominal_groups": 1000,
+      "subset_seed": 20260912,
+      "roles": {
+        "train": {
+          "groups": 776,
+          "candidates": 2881,
+          "measurements": 2882,
+          "components": 428
+        },
+        "inner_val": {
+          "groups": 226,
+          "candidates": 817,
+          "measurements": 817,
+          "components": 114
+        },
+        "total": {
+          "groups": 1002,
+          "candidates": 3698,
+          "measurements": 3699,
+          "components": 542
+        }
+      }
+    }
+  ],
+  "overlap": [
+    {
+      "budget": 200,
+      "subset_a": 20260910,
+      "subset_b": 20260911,
+      "shared_groups": 0,
+      "group_jaccard": 0.0
+    },
+    {
+      "budget": 200,
+      "subset_a": 20260910,
+      "subset_b": 20260912,
+      "shared_groups": 4,
+      "group_jaccard": 0.010025062656641603
+    },
+    {
+      "budget": 200,
+      "subset_a": 20260911,
+      "subset_b": 20260912,
+      "shared_groups": 0,
+      "group_jaccard": 0.0
+    },
+    {
+      "budget": 1000,
+      "subset_a": 20260910,
+      "subset_b": 20260911,
+      "shared_groups": 41,
+      "group_jaccard": 0.020918367346938777
+    },
+    {
+      "budget": 1000,
+      "subset_a": 20260910,
+      "subset_b": 20260912,
+      "shared_groups": 74,
+      "group_jaccard": 0.0383618455158113
+    },
+    {
+      "budget": 1000,
+      "subset_a": 20260911,
+      "subset_b": 20260912,
+      "shared_groups": 35,
+      "group_jaccard": 0.017793594306049824
+    }
+  ],
+  "union_across_budgets_and_subsets": {
+    "groups": 2853,
+    "candidates": 10507,
+    "measurements": 10508,
+    "components": 1499
+  },
+  "additional_exposed_outer_validation": {
+    "groups": 5561,
+    "candidates": 23120
+  },
+  "note": "Union counts do not include source/pretraining labels or the rest of historical target development. Repeated optimizer fits reuse the same labels.",
+  "inputs_sha256": {
+    "explore_v3_1/acquisition_audit.py": "7df2b889e9e4d67fb5a8ffb06e001d6f2180140eef41aaf45d4751ae9e377da8",
+    "explore_v2/cache/adapt_followup_budget_components.parquet": "68db4b867fec87ce92b789aba17bd332ead03cdc8ba151183fecfa1487390421",
+    "explore_v3/cache/prepared.json": "3e944e617c1781b60fae11d3b467a3483b5c4dce570efafe2d49da3ac2340cf9"
+  }
+}

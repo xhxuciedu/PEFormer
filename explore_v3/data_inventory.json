@@ -1,0 +1,277 @@
+{
+  "inputs_sha256": {
+    "explore_v2/cache/corpus_canonical_v2.parquet": "26ad13917cecdb5023e1f0d680e08d65a7b5e9a57db2d948748eb46d86ef679e",
+    "explore_v3/data/raw/oped_clinvar.xlsx": "5f20d2de9df341a3fc5920946f01cd59cefcb3b9e2b67cf861dc71063be65387",
+    "explore_v3/data/raw/epridict_supplements.xlsx": "7221e3c80c5b6fefe4f8c4cce3c3947cd98c9793e5e622a855c90a5cbaba893a",
+    "explore_v3/data/raw/epridict_highlow_batch.txt": "b17b3b034a355320c809712366362acf38babebbd519b59bcf15865b092c853c",
+    "explore_v3/data/raw/epridict_additional_batch.txt": "c2f5ef51b4c644c53a802af1e7da2a7036fe8fbcf5fe15b75139a11a2d4af24f",
+    "explore_v3/audit_data.py": "aeb9f8913a4d9d38a3b81570c67af948b3fc0fed02291cb7e91a0c15b0f94183"
+  },
+  "oped": {
+    "Table S3": {
+      "design_rows": 30,
+      "alleles": 30,
+      "max_design_rows_per_allele": 1,
+      "measured_efficiency_columns": [],
+      "columns": [
+        "ClinVarAlleleID",
+        "VariantType",
+        "GeneID",
+        "GeneSymbol",
+        "HGNC_ID",
+        "Chromosome",
+        "Start",
+        "Stop",
+        "ReferenceAllele",
+        "AlternateAllele",
+        "EditingStrand",
+        "Spacer",
+        "3'-extension sequence",
+        "sgRNA sequence",
+        "PBS length (bp)",
+        "RTT length (bp)",
+        "amplicon sequence"
+      ],
+      "status": "designs only; cannot evaluate efficiency without linked outcomes"
+    },
+    "PE tools": {
+      "design_rows": 40,
+      "alleles": 8,
+      "max_design_rows_per_allele": 5,
+      "measured_efficiency_columns": [],
+      "columns": [
+        "ClinVar AlleleID",
+        "Variant Type",
+        "Gene Symbol",
+        "Chromosome",
+        "Start",
+        "Stop",
+        "Reference Allele",
+        "Alternate Allele",
+        "PE design tool",
+        "Strand",
+        "Spacer",
+        "PBS",
+        "RTT",
+        "sgRNA spacer"
+      ],
+      "status": "designs only; cannot evaluate efficiency without linked outcomes"
+    },
+    "top 3 designs": {
+      "design_rows": 18,
+      "alleles": 6,
+      "max_design_rows_per_allele": 3,
+      "measured_efficiency_columns": [],
+      "columns": [
+        "ClinVar AlleleID",
+        "Variant Type",
+        "Gene Symbol",
+        "Chromosome",
+        "Start",
+        "Stop",
+        "Reference Allele",
+        "Alternate Allele",
+        "Rank of pegRNA",
+        "Strand",
+        "Spacer",
+        "PBS",
+        "RTT",
+        "Spacer of top-3-ranked sgRNA (delimited by |)"
+      ],
+      "status": "designs only; cannot evaluate efficiency without linked outcomes"
+    },
+    "NG PAM": {
+      "design_rows": 6,
+      "alleles": 6,
+      "max_design_rows_per_allele": 1,
+      "measured_efficiency_columns": [],
+      "columns": [
+        "ClinVar AlleleID",
+        "Variant Type",
+        "Gene Symbol",
+        "Chromosome",
+        "Start",
+        "Stop",
+        "Reference Allele",
+        "Alternate Allele",
+        "Strand",
+        "Spacer",
+        "PBS",
+        "RTT",
+        "sgRNASpacer"
+      ],
+      "status": "designs only; cannot evaluate efficiency without linked outcomes"
+    }
+  },
+  "epridict": {
+    "rows": 146,
+    "unambiguous_alleles": 143,
+    "ambiguous_rows": 2,
+    "unmapped_rows": 1,
+    "recognized_scaffold_rows": 146,
+    "contexts": {
+      "K562_mapped": {
+        "rows": 143,
+        "alleles": 114,
+        "groups_ge2": 15,
+        "groups_ge5": 0,
+        "groups_ge8": 0,
+        "max_depth": 3
+      },
+      "K562_sequence_overlap_excluded": {
+        "rows": 143,
+        "alleles": 114,
+        "groups_ge2": 15,
+        "groups_ge5": 0,
+        "groups_ge8": 0,
+        "max_depth": 3
+      },
+      "HEK293T_mapped": {
+        "rows": 54,
+        "alleles": 54,
+        "groups_ge2": 0,
+        "groups_ge5": 0,
+        "groups_ge8": 0,
+        "max_depth": 1
+      },
+      "HEK293T_sequence_overlap_excluded": {
+        "rows": 54,
+        "alleles": 54,
+        "groups_ge2": 0,
+        "groups_ge5": 0,
+        "groups_ge8": 0,
+        "max_depth": 1
+      }
+    }
+  },
+  "source_contexts": [
+    {
+      "source_study": "deepprime",
+      "cell_type": "A549",
+      "pe_type": "PE2",
+      "rows": 7964
+    },
+    {
+      "source_study": "deepprime",
+      "cell_type": "A549",
+      "pe_type": "PE4",
+      "rows": 7864
+    },
+    {
+      "source_study": "deepprime",
+      "cell_type": "DLD1",
+      "pe_type": "PE2",
+      "rows": 4085
+    },
+    {
+      "source_study": "deepprime",
+      "cell_type": "DLD1",
+      "pe_type": "PE4",
+      "rows": 7284
+    },
+    {
+      "source_study": "deepprime",
+      "cell_type": "HCT116",
+      "pe_type": "PE2",
+      "rows": 3985
+    },
+    {
+      "source_study": "deepprime",
+      "cell_type": "HEK293T",
+      "pe_type": "PE2",
+      "rows": 19693
+    },
+    {
+      "source_study": "deepprime",
+      "cell_type": "HEK293T",
+      "pe_type": "PE4",
+      "rows": 6997
+    },
+    {
+      "source_study": "deepprime",
+      "cell_type": "HeLa",
+      "pe_type": "PE2",
+      "rows": 4050
+    },
+    {
+      "source_study": "deepprime",
+      "cell_type": "MDA-MB-231",
+      "pe_type": "PE2",
+      "rows": 3765
+    },
+    {
+      "source_study": "deepprime",
+      "cell_type": "NIH3T3",
+      "pe_type": "PE4",
+      "rows": 3948
+    },
+    {
+      "source_study": "hsu2026",
+      "cell_type": "HEK293T",
+      "pe_type": "PE2",
+      "rows": 17836
+    },
+    {
+      "source_study": "hsu2026",
+      "cell_type": "HEK293T",
+      "pe_type": "PE4",
+      "rows": 17746
+    },
+    {
+      "source_study": "hsu2026",
+      "cell_type": "HeLa",
+      "pe_type": "PE2",
+      "rows": 19594
+    },
+    {
+      "source_study": "hsu2026",
+      "cell_type": "HeLa",
+      "pe_type": "PE4",
+      "rows": 19593
+    },
+    {
+      "source_study": "pridict_pridict2",
+      "cell_type": "HEK293T",
+      "pe_type": "PE2",
+      "rows": 116685
+    },
+    {
+      "source_study": "pridict_pridict2",
+      "cell_type": "HEK293T",
+      "pe_type": "PE4",
+      "rows": 1642
+    },
+    {
+      "source_study": "pridict_pridict2",
+      "cell_type": "K562",
+      "pe_type": "PE2",
+      "rows": 25852
+    },
+    {
+      "source_study": "pridict_pridict2",
+      "cell_type": "K562",
+      "pe_type": "PE4",
+      "rows": 23657
+    },
+    {
+      "source_study": "pridict_pridict2",
+      "cell_type": "U2OS",
+      "pe_type": "PE2",
+      "rows": 3118
+    },
+    {
+      "source_study": "pridict_pridict2",
+      "cell_type": "U2OS",
+      "pe_type": "PE4",
+      "rows": 3113
+    }
+  ],
+  "confirmation_status": "Not established: OPED outcomes missing; see actual ePRIDICT fixed-allele depths",
+  "no_external_model_scoring": true,
+  "limitations": [
+    "Core-19 spacer exclusion is conservative, not full homology clustering",
+    "ePRIDICT is an independent experiment within a source-adjacent study family",
+    "Some displayed spreadsheet examples were inspected for schema; no model-outcome comparisons performed",
+    "No outcome values used to select decision groups or resolve allele identities"
+  ]
+}

@@ -1,0 +1,121 @@
+{
+  "provenance": {
+    "git_commit": "83ffae1c5b8f",
+    "working_tree_dirty": true,
+    "seed": 20260910,
+    "inputs": {
+      "data/processed/optiprime_official_318471.parquet": "fe62229d50a08fa3"
+    }
+  },
+  "canon_version": 2,
+  "disclosure": "The panel already informed E11-E24. This partition prevents new training leakage and supports a retrospective adaptation evaluation; it is not a pristine confirmatory surface and the no-target-label comparison remains the manuscript's claim.",
+  "graph": {
+    "alleles": 30475,
+    "protospacers": 30302,
+    "candidates": 118174,
+    "components": 20276,
+    "component_size_in_groups": {
+      "max": 30,
+      "mean": 1.5030084829354902,
+      "median": 1.0,
+      "frac_singleton": 0.7612448214637996,
+      "largest_5": [
+        30,
+        29,
+        28,
+        28,
+        27
+      ]
+    },
+    "alleles_reached_by_multiple_protospacers": 13803,
+    "protospacers_installing_multiple_alleles": 9893
+  },
+  "splits": {
+    "train": {
+      "components": 10370,
+      "groups": 19357,
+      "candidates": 72010,
+      "measurements": 72014,
+      "eligible_groups_depth_ge2": 19357,
+      "informative_groups": 15337,
+      "groups_depth_ge5": 4658,
+      "mean_efficiency": 0.023267330113774267,
+      "zero_fraction": 0.3920844327176781,
+      "share_of_groups": 0.6351763740771124
+    },
+    "val": {
+      "components": 4952,
+      "groups": 5561,
+      "candidates": 23120,
+      "measurements": 23126,
+      "eligible_groups_depth_ge2": 5561,
+      "informative_groups": 4656,
+      "groups_depth_ge5": 2056,
+      "mean_efficiency": 0.02584716791954087,
+      "zero_fraction": 0.36820934256055365,
+      "share_of_groups": 0.18247744052502052
+    },
+    "test": {
+      "components": 4954,
+      "groups": 5557,
+      "candidates": 23044,
+      "measurements": 23047,
+      "eligible_groups_depth_ge2": 5557,
+      "informative_groups": 4675,
+      "groups_depth_ge5": 2061,
+      "mean_efficiency": 0.02532431079706691,
+      "zero_fraction": 0.37072556847769483,
+      "share_of_groups": 0.1823461853978671
+    }
+  },
+  "geometry_by_split": {
+    "train": {
+      "pbs_len_mean": 9.648257186501874,
+      "rtt_len_mean": 24.446188029440357
+    },
+    "val": {
+      "pbs_len_mean": 9.62288062283737,
+      "rtt_len_mean": 24.639965397923877
+    },
+    "test": {
+      "pbs_len_mean": 9.635696927616733,
+      "rtt_len_mean": 24.55459121680264
+    }
+  },
+  "edit_class_by_split": {
+    "train": {
+      "sub1": 0.4393,
+      "ins1": 0.1755,
+      "del1": 0.1405,
+      "ins2": 0.0865,
+      "del2": 0.0547,
+      "ins3": 0.033,
+      "sub2": 0.0305,
+      "sub3": 0.021,
+      "del3": 0.0191
+    },
+    "val": {
+      "sub1": 0.4612,
+      "ins1": 0.1887,
+      "del1": 0.1514,
+      "ins2": 0.0775,
+      "del2": 0.0418,
+      "ins3": 0.0268,
+      "sub3": 0.0227,
+      "del3": 0.0215,
+      "sub2": 0.0083
+    },
+    "test": {
+      "sub1": 0.4613,
+      "ins1": 0.2021,
+      "del1": 0.1592,
+      "ins2": 0.0724,
+      "del2": 0.0395,
+      "sub3": 0.0224,
+      "del3": 0.0192,
+      "ins3": 0.0172,
+      "sub2": 0.0066
+    }
+  },
+  "artifact": "explore_v2/cache/adaptation_partition_v2.parquet"
+}

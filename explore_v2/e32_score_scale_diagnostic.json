@@ -1,0 +1,98 @@
+{
+  "note": "Label-free score-scale diagnostic, not a temperature-tuned performance result. Post-hoc positive temperature scaling cannot change argmax selection.",
+  "bounded_score_eight_candidate_max_probability_at_T1": 0.27970806737656245,
+  "models": {
+    "M_s20260910": {
+      "1.0": {
+        "groups": 5561,
+        "median_score_range": 87.5,
+        "p90_score_range": 199.25,
+        "mean_max_probability": 0.9823492949426625,
+        "mean_normalized_entropy": 0.037863594878528244
+      },
+      "0.1": {
+        "groups": 5561,
+        "median_score_range": 87.5,
+        "p90_score_range": 199.25,
+        "mean_max_probability": 0.995948355936663,
+        "mean_normalized_entropy": 0.005560550874657862
+      },
+      "0.01": {
+        "groups": 5561,
+        "median_score_range": 87.5,
+        "p90_score_range": 199.25,
+        "mean_max_probability": 0.9961038175879563,
+        "mean_normalized_entropy": 0.005139915262833807
+      }
+    },
+    "shared_s20260910": {
+      "1.0": {
+        "groups": 5561,
+        "median_score_range": 0.2451171875,
+        "p90_score_range": 0.59375,
+        "mean_max_probability": 0.3408607030224878,
+        "mean_normalized_entropy": 0.9929061097911613
+      },
+      "0.1": {
+        "groups": 5561,
+        "median_score_range": 0.2451171875,
+        "p90_score_range": 0.59375,
+        "mean_max_probability": 0.6181395080102174,
+        "mean_normalized_entropy": 0.6805522611138481
+      },
+      "0.01": {
+        "groups": 5561,
+        "median_score_range": 0.2451171875,
+        "p90_score_range": 0.59375,
+        "mean_max_probability": 0.8973092509470666,
+        "mean_normalized_entropy": 0.2009471036035818
+      }
+    },
+    "S_s20260910": {
+      "1.0": {
+        "groups": 5561,
+        "median_score_range": 96.375,
+        "p90_score_range": 207.25,
+        "mean_max_probability": 0.9800388080018289,
+        "mean_normalized_entropy": 0.04132943680630015
+      },
+      "0.1": {
+        "groups": 5561,
+        "median_score_range": 96.375,
+        "p90_score_range": 207.25,
+        "mean_max_probability": 0.9942638359193484,
+        "mean_normalized_entropy": 0.008887982721089564
+      },
+      "0.01": {
+        "groups": 5561,
+        "median_score_range": 96.375,
+        "p90_score_range": 207.25,
+        "mean_max_probability": 0.9946352540968992,
+        "mean_normalized_entropy": 0.008083983504200885
+      }
+    },
+    "S_pairwise_s20260910": {
+      "1.0": {
+        "groups": 5561,
+        "median_score_range": 3.8359375,
+        "p90_score_range": 7.34375,
+        "mean_max_probability": 0.659534320139674,
+        "mean_normalized_entropy": 0.6066864234166842
+      },
+      "0.1": {
+        "groups": 5561,
+        "median_score_range": 3.8359375,
+        "p90_score_range": 7.34375,
+        "mean_max_probability": 0.9479830006085797,
+        "mean_normalized_entropy": 0.09921960977054027
+      },
+      "0.01": {
+        "groups": 5561,
+        "median_score_range": 3.8359375,
+        "p90_score_range": 7.34375,
+        "mean_max_probability": 0.9935293000197744,
+        "mean_normalized_entropy": 0.01164268630887932
+      }
+    }
+  }
+}

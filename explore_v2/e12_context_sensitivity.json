@@ -1,0 +1,50 @@
+{
+  "provenance": {
+    "git_commit": "83ffae1c5b8f",
+    "working_tree_dirty": true,
+    "seed": 20260908,
+    "inputs": {
+      "data/processed/optiprime_official_318471.parquet": "fe62229d50a08fa3"
+    }
+  },
+  "canon_version": 2,
+  "variants": [
+    {
+      "context": "assigned (Kim HEK293T PE2max, conventional pegRNA)",
+      "pooled_spearman_vs_observed": 0.7090869889497085,
+      "rank_correlation_with_assigned_context": 1.0,
+      "same_top_pick_as_assigned": 1.0,
+      "achieved_efficiency_at_1": 0.04482014757223528,
+      "best_design_hit_rate": 0.5797794713799254,
+      "regret_at_1": 0.012163645277322038
+    },
+    {
+      "context": "epegRNA motif instead of none",
+      "pooled_spearman_vs_observed": 0.7074704819832842,
+      "rank_correlation_with_assigned_context": 0.9725231125859262,
+      "same_top_pick_as_assigned": 0.8403937653814603,
+      "achieved_efficiency_at_1": 0.04517675330068105,
+      "best_design_hit_rate": 0.5832252310685909,
+      "regret_at_1": 0.011807039548876278
+    },
+    {
+      "context": "PE4max instead of PE2max",
+      "pooled_spearman_vs_observed": 0.711241454320719,
+      "rank_correlation_with_assigned_context": 0.9976556621077207,
+      "same_top_pick_as_assigned": 0.9326989335520919,
+      "achieved_efficiency_at_1": 0.04467744849094981,
+      "best_design_hit_rate": 0.5786443976001298,
+      "regret_at_1": 0.012306344358607509
+    },
+    {
+      "context": "K562 instead of HEK293T",
+      "pooled_spearman_vs_observed": 0.6362676584818914,
+      "rank_correlation_with_assigned_context": 0.8379269638202973,
+      "same_top_pick_as_assigned": 0.726726825266612,
+      "achieved_efficiency_at_1": 0.0452846801309794,
+      "best_design_hit_rate": 0.5792930111885845,
+      "regret_at_1": 0.011699112718577915
+    }
+  ],
+  "n_groups_scored": 24668
+}

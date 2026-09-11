@@ -1,0 +1,73 @@
+{
+  "provenance": {
+    "git_commit": "83ffae1c5b8f",
+    "working_tree_dirty": true,
+    "seed": 20260812,
+    "inputs": {
+      "data/processed/optiprime_official_318471.parquet": "fe62229d50a08fa3"
+    }
+  },
+  "canon_version": 2,
+  "settings": {
+    "min_target_gap": 0.02,
+    "max_pairs_per_group_per_batch": 4,
+    "batch_size": 512,
+    "max_group_take": 8,
+    "epochs_replayed": 1
+  },
+  "confound": "corpus.group_key is passed to GroupedBatchSampler (train_pilot.py:668) and to sample_ranking_pairs (train_pilot.py:704). E13 changed both channels at once, so E14/E15 measure the combined effect, not the ranking channel alone.",
+  "replays": {
+    "current ranking key": {
+      "npz": "data/processed/featurized_official.npz",
+      "train_rows": 238381,
+      "distinct_group_keys": 209161,
+      "batches_per_epoch": 465,
+      "sampled_pair_instances_per_epoch": 15695,
+      "unique_row_pairs_visited_per_epoch": 15695,
+      "groups_receiving_an_update_per_epoch": 6792,
+      "share_of_groups_updated": 0.03247259288299444,
+      "pairs_spanning_two_alleles": 3,
+      "target_gap": {
+        "mean": 0.12130168789238753,
+        "median": 0.0801287293434143,
+        "p90": 0.2760459065437317
+      },
+      "abs_rtt_length_difference_within_sampled_pairs": {
+        "0": 15695
+      },
+      "share_of_sampled_pairs_with_equal_rtt_length": 1.0
+    },
+    "canonical decision group": {
+      "npz": "data/processed/featurized_official_canongroup.npz",
+      "train_rows": 238381,
+      "distinct_group_keys": 132066,
+      "batches_per_epoch": 465,
+      "sampled_pair_instances_per_epoch": 62028,
+      "unique_row_pairs_visited_per_epoch": 62028,
+      "groups_receiving_an_update_per_epoch": 25175,
+      "share_of_groups_updated": 0.1906243847773083,
+      "pairs_spanning_two_alleles": 0,
+      "target_gap": {
+        "mean": 0.21160388936751642,
+        "median": 0.1399644911289215,
+        "p90": 0.520777201652527
+      },
+      "abs_rtt_length_difference_within_sampled_pairs": {
+        "0": 4199,
+        "1": 2208,
+        "2": 1576,
+        "3": 7553,
+        "4": 8597,
+        "5": 7344,
+        "6": 1612,
+        "7": 8367
+      },
+      "share_of_sampled_pairs_with_equal_rtt_length": 0.06769523441026633
+    }
+  },
+  "ratios": {
+    "sampled_pair_instances": 3.95,
+    "unique_row_pairs": 3.95,
+    "groups_updated": 3.71
+  }
+}

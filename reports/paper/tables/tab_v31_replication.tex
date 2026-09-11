@@ -1,0 +1,28 @@
+\begin{table}[htbp]
+\centering
+\small
+\caption{Locked-recipe acquisition replication on the exposed external-library validation population. Each entry averages achieved outcomes over three acquisition subsets and two optimizer seeds, not averaged scores. All efficiencies are fractions. Target-only (T) and per-study source-constrained (C) checkpoint policies are distinct procedures. Fallback counts indicate deployment of the unchanged starting model.}
+\label{tab:v31-replication}
+\begin{tabular}{rlcrrrr}
+\toprule
+Budget & Method & Policy & Target @1 & $\Delta$ OptiPrime & Source @1 & Fallbacks \\
+\midrule
+200 & Ordinal A & T & 0.040158 & $-0.001251$ & 0.127608 & 0/6 \\
+200 & Fresh frozen & T & 0.039208 & $-0.002201$ & 0.129882 & 4/6 \\
+200 & Anchored E & T & 0.039381 & $-0.002028$ & 0.127029 & 1/6 \\
+200 & Margin & T & 0.039669 & $-0.001740$ & 0.132864 & 2/6 \\
+200 & Margin & C & 0.039853 & $-0.001556$ & 0.133149 & 2/6 \\
+\midrule
+1,000 & Ordinal A & T & 0.041233 & $-0.000177$ & 0.128679 & 0/6 \\
+1,000 & Fresh frozen & T & 0.039800 & $-0.001609$ & 0.117924 & 0/6 \\
+1,000 & Anchored E & T & 0.041047 & $-0.000363$ & 0.128462 & 0/6 \\
+1,000 & Margin & T & 0.041126 & $-0.000284$ & 0.133284 & 0/6 \\
+1,000 & Margin & C & 0.040652 & $-0.000757$ & 0.133858 & 1/6 \\
+\bottomrule
+\end{tabular}
+\par\smallskip
+\begin{minipage}{0.98\textwidth}\footnotesize
+Released OptiPrime target @1 is 0.041409; starting-model target/source @1 are 0.039627/0.133635.
+Target evaluation retains all 5,561 groups; source audit uses 1,463 informative groups. All checkpoint policies, run-level outcomes, conditional component intervals and acquisition-specific results are reported in the v3.1 replication ledger. Released OptiPrime receives no target adaptation labels.
+\end{minipage}
+\end{table}

@@ -1,0 +1,204 @@
+{
+  "selection": "Inner target only; per-study feasibility for constrained policy.",
+  "recipes": {
+    "A": {
+      "target": {
+        "tag": "A_h100_lr3_none_mixture_w1_b1000_sub20260910_s20260910",
+        "args": {
+          "arm": "A",
+          "steps": 100,
+          "lr_mult": 3,
+          "source_loss": "none",
+          "sampling": "mixture",
+          "weight": 1.0,
+          "budget": 1000,
+          "subset_seed": 20260910,
+          "seed": 20260910
+        },
+        "inner": 0.04093624927407408
+      },
+      "constrained": {
+        "tag": "A_h100_lr1_none_mixture_w1_b1000_sub20260910_s20260910",
+        "args": {
+          "arm": "A",
+          "steps": 100,
+          "lr_mult": 1,
+          "source_loss": "none",
+          "sampling": "mixture",
+          "weight": 1.0,
+          "budget": 1000,
+          "subset_seed": 20260910,
+          "seed": 20260910
+        },
+        "inner": 0.038033481699938275
+      }
+    },
+    "B": {
+      "target": {
+        "tag": "B_h500_lr3_none_mixture_w1_b1000_sub20260910_s20260910",
+        "args": {
+          "arm": "B",
+          "steps": 500,
+          "lr_mult": 3,
+          "source_loss": "none",
+          "sampling": "mixture",
+          "weight": 1.0,
+          "budget": 1000,
+          "subset_seed": 20260910,
+          "seed": 20260910
+        },
+        "inner": 0.04068220056555556
+      },
+      "constrained": {
+        "tag": "B_h100_lr1_none_mixture_w1_b1000_sub20260910_s20260910",
+        "args": {
+          "arm": "B",
+          "steps": 100,
+          "lr_mult": 1,
+          "source_loss": "none",
+          "sampling": "mixture",
+          "weight": 1.0,
+          "budget": 1000,
+          "subset_seed": 20260910,
+          "seed": 20260910
+        },
+        "inner": 0.038033481699938275
+      }
+    },
+    "D": {
+      "target": {
+        "tag": "D_h500_lr1_none_mixture_w1_b1000_sub20260910_s20260910",
+        "args": {
+          "arm": "D",
+          "steps": 500,
+          "lr_mult": 1,
+          "source_loss": "none",
+          "sampling": "mixture",
+          "weight": 1.0,
+          "budget": 1000,
+          "subset_seed": 20260910,
+          "seed": 20260910
+        },
+        "inner": 0.041177271112037034
+      },
+      "constrained": {
+        "tag": "D_h100_lr1_none_mixture_w1_b1000_sub20260910_s20260910",
+        "args": {
+          "arm": "D",
+          "steps": 100,
+          "lr_mult": 1,
+          "source_loss": "none",
+          "sampling": "mixture",
+          "weight": 1.0,
+          "budget": 1000,
+          "subset_seed": 20260910,
+          "seed": 20260910
+        },
+        "inner": 0.038033481699938275
+      }
+    },
+    "C_frozen": {
+      "target": {
+        "tag": "C_frozen_h500_lr1_none_mixture_w1_b1000_sub20260910_s20260910",
+        "args": {
+          "arm": "C_frozen",
+          "steps": 500,
+          "lr_mult": 1,
+          "source_loss": "none",
+          "sampling": "mixture",
+          "weight": 1.0,
+          "budget": 1000,
+          "subset_seed": 20260910,
+          "seed": 20260910
+        },
+        "inner": 0.04225993400148149
+      },
+      "constrained": {
+        "tag": "C_frozen_h100_lr1_none_mixture_w1_b1000_sub20260910_s20260910",
+        "args": {
+          "arm": "C_frozen",
+          "steps": 100,
+          "lr_mult": 1,
+          "source_loss": "none",
+          "sampling": "mixture",
+          "weight": 1.0,
+          "budget": 1000,
+          "subset_seed": 20260910,
+          "seed": 20260910
+        },
+        "inner": 0.038033481699938275
+      }
+    },
+    "E": {
+      "target": {
+        "tag": "E_h100_lr1_none_mixture_w1_b1000_sub20260910_s20260910",
+        "args": {
+          "arm": "E",
+          "steps": 100,
+          "lr_mult": 1,
+          "source_loss": "none",
+          "sampling": "mixture",
+          "weight": 1.0,
+          "budget": 1000,
+          "subset_seed": 20260910,
+          "seed": 20260910
+        },
+        "inner": 0.041426382850185184
+      },
+      "constrained": {
+        "tag": "E_h100_lr1_none_mixture_w1_b1000_sub20260910_s20260910",
+        "args": {
+          "arm": "E",
+          "steps": 100,
+          "lr_mult": 1,
+          "source_loss": "none",
+          "sampling": "mixture",
+          "weight": 1.0,
+          "budget": 1000,
+          "subset_seed": 20260910,
+          "seed": 20260910
+        },
+        "inner": 0.038033481699938275
+      }
+    }
+  },
+  "strongest_other_conventional": {
+    "target": "C_frozen",
+    "constrained": "B"
+  },
+  "inputs_sha256": {
+    "explore_v3_1/runs/A_h100_lr1_none_mixture_w1_b1000_sub20260910_s20260910/results.json": "a33d985c63b737ae37ccb01663b629d12afc636d181d4f2911df823f6103fe5c",
+    "explore_v3_1/runs/A_h100_lr3_none_mixture_w1_b1000_sub20260910_s20260910/results.json": "68701fe3990edbcc974ed520d5ac08d8740d79db0f78a90cc682d3fcbcdc2c06",
+    "explore_v3_1/runs/A_h500_lr1_none_mixture_w1_b1000_sub20260910_s20260910/results.json": "f6b358ccb8538f23e1e00332d3765f58ffdf4191f3f40a4dc1a62147726ccba0",
+    "explore_v3_1/runs/A_h500_lr3_none_mixture_w1_b1000_sub20260910_s20260910/results.json": "5c7e086e089d5b69bfb0e26726eafe710f584b40babf85c26dd0f16771ff3d0d",
+    "explore_v3_1/runs/B_h100_lr1_none_mixture_w1_b1000_sub20260910_s20260910/results.json": "79b25b5c34282d804a215b69e5377f9be0add03093fe9432cf1e63795a1e208b",
+    "explore_v3_1/runs/B_h100_lr3_none_mixture_w1_b1000_sub20260910_s20260910/results.json": "e8ededf738305ce917f89ebcc7c3a9115025d2fb1b52843e14b6558a9260dc87",
+    "explore_v3_1/runs/B_h500_lr1_none_mixture_w1_b1000_sub20260910_s20260910/results.json": "743d16f1bdbe6f24244f7d463182a791026c6fb4d1513437a326a7f03344038c",
+    "explore_v3_1/runs/B_h500_lr3_none_mixture_w1_b1000_sub20260910_s20260910/results.json": "a26d2041e7ed371d5a2de78213d8906c19f2fcbf57ea14ca23cab166765841a2",
+    "explore_v3_1/runs/C_frozen_h100_lr1_none_mixture_w1_b1000_sub20260910_s20260910/results.json": "1008d84be7b85b083e7e0436491cc1c44f9686aa5b63403d777419f97dcddc14",
+    "explore_v3_1/runs/C_frozen_h100_lr3_none_mixture_w1_b1000_sub20260910_s20260910/results.json": "8f2ae5b1c5cd6bc7647e7ffd875b6c30fcefbb17c115d275dfa7243538d00d47",
+    "explore_v3_1/runs/C_frozen_h500_lr1_none_mixture_w1_b1000_sub20260910_s20260910/results.json": "cff5a1fafb998dcd390ced4ba27ca32c5ea1dcf19e57d2d6a5ba304a984d4e4d",
+    "explore_v3_1/runs/C_frozen_h500_lr3_none_mixture_w1_b1000_sub20260910_s20260910/results.json": "7c330b0bf102f279501a16055b88ab10861e502abad46a32c8f28e19a02f8f35",
+    "explore_v3_1/runs/D_h100_lr1_none_mixture_w1_b1000_sub20260910_s20260910/results.json": "0279cb057032a758ee7852cc6fa676fe4e91c35f4fea50a5267c9b9c6cf719c6",
+    "explore_v3_1/runs/D_h100_lr3_none_mixture_w1_b1000_sub20260910_s20260910/results.json": "7a4c4b557e2c114f4bba84f6569b3bd0ea436421dd57293812aa3a6d91794fa4",
+    "explore_v3_1/runs/D_h500_lr1_none_mixture_w1_b1000_sub20260910_s20260910/results.json": "0f915a19c6a3a0b3baa480ce0b0fdbb29e48f5139defb7831f2291d729c7bcb9",
+    "explore_v3_1/runs/D_h500_lr3_none_mixture_w1_b1000_sub20260910_s20260910/results.json": "8387d08140672336145defc54d0afac8d99d6f3650fc2b1e09516fd6a4c28c67",
+    "explore_v3_1/runs/E_h100_lr1_kl_balanced_w0.1_b1000_sub20260910_s20260910/results.json": "a00be388e40d56e427867bd506374dea8a9493a1f380619e7e7d0a535f13801e",
+    "explore_v3_1/runs/E_h100_lr1_kl_balanced_w1_b1000_sub20260910_s20260910/results.json": "72e06a488ad76277da40715184c29c357a09b8d0fb67b17aa48da69330b8f474",
+    "explore_v3_1/runs/E_h100_lr1_kl_mixture_w0.1_b1000_sub20260910_s20260910/results.json": "350bce61e193ab203f6729599f08666c329a213a459a9949073e9af6768c8a3f",
+    "explore_v3_1/runs/E_h100_lr1_kl_mixture_w1_b1000_sub20260910_s20260910/results.json": "f5ed7965c2396bf1eede464992d0cdcb6deb23efa8a709ccb7e9e1620335d706",
+    "explore_v3_1/runs/E_h100_lr1_margin_balanced_w0.1_b1000_sub20260910_s20260910/results.json": "a7578bdcb5a17363bf5ab9a18d2e9e654c0222c7b906a3eccd3dae4997623c69",
+    "explore_v3_1/runs/E_h100_lr1_margin_balanced_w1_b1000_sub20260910_s20260910/results.json": "c2062c652ca5bd9811ca3c841dfa8d25637a4456b75f58115ee99ebd68e10c9d",
+    "explore_v3_1/runs/E_h100_lr1_margin_mixture_w0.1_b1000_sub20260910_s20260910/results.json": "dfeddd9ed8f1097a196e0ab1b15d80f78043dc6aa96f05fe1e65ed5252b3b29a",
+    "explore_v3_1/runs/E_h100_lr1_margin_mixture_w1_b1000_sub20260910_s20260910/results.json": "e51b50e5be8cd05705bda86cc5c503f4059f7484742c3079a4369ad7cb94ea08",
+    "explore_v3_1/runs/E_h100_lr1_none_mixture_w1_b1000_sub20260910_s20260910/results.json": "58d59c34794ce9c35b2d9c898774ab3e761d5330d0086a197f33a9a146fc753c",
+    "explore_v3_1/runs/E_h100_lr1_utility_balanced_w0.1_b1000_sub20260910_s20260910/results.json": "a9470c5030f58a7722066b82c292987e3b2a525efcfa06574657435752ac83a9",
+    "explore_v3_1/runs/E_h100_lr1_utility_balanced_w1_b1000_sub20260910_s20260910/results.json": "949d25ae5e18038f6a42bf1d7871ef5d7c4db35aab9fc77e4fc69ccefe023f58",
+    "explore_v3_1/runs/E_h100_lr1_utility_mixture_w0.1_b1000_sub20260910_s20260910/results.json": "8969aa423123ea3091ee81f5223385da77fc56cd44ff02357aa290b27c582b5a",
+    "explore_v3_1/runs/E_h100_lr1_utility_mixture_w1_b1000_sub20260910_s20260910/results.json": "267e71cfdea56178a2cf2a98735b840386d91a0c6676d78459247dd0b0f218a2",
+    "explore_v3_1/runs/E_h100_lr3_none_mixture_w1_b1000_sub20260910_s20260910/results.json": "891d9855eb42fc1288e99c7cfbc1e45eaec56ab383043b56ea20dabf1b031818",
+    "explore_v3_1/runs/E_h500_lr1_none_mixture_w1_b1000_sub20260910_s20260910/results.json": "25b6cc9bfb2506b89f233a81818719ef9abed23308b1ceef9e5dd42362afa0ff",
+    "explore_v3_1/runs/E_h500_lr3_none_mixture_w1_b1000_sub20260910_s20260910/results.json": "046b0b47c40e8b57608eee435f2a1690467d0f2ff5d0f23d34e44284dc9bf0e0",
+    "explore_v3_1/analyze.py": "359fecd4c9ef01d5dd52e61b55d2b38eb90872628562d0b67dc37b28836f9f7f"
+  }
+}

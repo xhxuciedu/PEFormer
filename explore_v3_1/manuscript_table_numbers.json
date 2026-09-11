@@ -1,0 +1,92 @@
+[
+  {
+    "budget": 200,
+    "label": "A",
+    "policy": "target",
+    "target": 0.040158272183571,
+    "source": 0.1276083243331989,
+    "delta_optiprime": -0.0012511139723425044,
+    "fallbacks": 0
+  },
+  {
+    "budget": 200,
+    "label": "C_frozen",
+    "policy": "target",
+    "target": 0.03920801285119613,
+    "source": 0.12988219737776827,
+    "delta_optiprime": -0.0022013733047173767,
+    "fallbacks": 4
+  },
+  {
+    "budget": 200,
+    "label": "E",
+    "policy": "target",
+    "target": 0.039381047183168344,
+    "source": 0.1270286736259159,
+    "delta_optiprime": -0.0020283389727451602,
+    "fallbacks": 1
+  },
+  {
+    "budget": 200,
+    "label": "M",
+    "policy": "target",
+    "target": 0.03966916854642945,
+    "source": 0.13286403315440645,
+    "delta_optiprime": -0.0017402176094840557,
+    "fallbacks": 2
+  },
+  {
+    "budget": 200,
+    "label": "M",
+    "policy": "constrained",
+    "target": 0.03985289926047653,
+    "source": 0.13314897581641377,
+    "delta_optiprime": -0.0015564868954369717,
+    "fallbacks": 2
+  },
+  {
+    "budget": 1000,
+    "label": "A",
+    "policy": "target",
+    "target": 0.041232517660240664,
+    "source": 0.12867916173091706,
+    "delta_optiprime": -0.00017686849567284077,
+    "fallbacks": 0
+  },
+  {
+    "budget": 1000,
+    "label": "C_frozen",
+    "policy": "target",
+    "target": 0.03979992204132545,
+    "source": 0.11792392077075073,
+    "delta_optiprime": -0.0016094641145880538,
+    "fallbacks": 0
+  },
+  {
+    "budget": 1000,
+    "label": "E",
+    "policy": "target",
+    "target": 0.04104678042247138,
+    "source": 0.1284620908263044,
+    "delta_optiprime": -0.0003626057334421268,
+    "fallbacks": 0
+  },
+  {
+    "budget": 1000,
+    "label": "M",
+    "policy": "target",
+    "target": 0.041125733473544174,
+    "source": 0.1332839213849396,
+    "delta_optiprime": -0.00028365268236932816,
+    "fallbacks": 0
+  },
+  {
+    "budget": 1000,
+    "label": "M",
+    "policy": "constrained",
+    "target": 0.04065202392451357,
+    "source": 0.1338580599002005,
+    "delta_optiprime": -0.0007573622313999282,
+    "fallbacks": 1
+  }
+]

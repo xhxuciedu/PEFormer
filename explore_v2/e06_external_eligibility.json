@@ -1,0 +1,139 @@
+{
+  "provenance": {
+    "git_commit": "83ffae1c5b8f",
+    "working_tree_dirty": true,
+    "seed": 20260908,
+    "inputs": {
+      "data/processed/optiprime_official_318471.parquet": "fe62229d50a08fa3",
+      "external/deepprime/data/DeepPrime_dataset_final_Feat8.csv": "e5e2a6d4e8ba42f1"
+    }
+  },
+  "kim_large_library": {
+    "file": "external/deepprime/data/DeepPrime_dataset_final_Feat8.csv",
+    "rows_in_file": 288793,
+    "rows_parsed": 288793,
+    "unique_wt_windows": 58217,
+    "canonical_alleles": 43744,
+    "designs": 287981,
+    "edit_type_mix": {
+      "sub": 153974,
+      "ins": 81503,
+      "del": 53316
+    },
+    "efficiency_units": "per cent in file, divided by 100 here",
+    "mean_efficiency": 0.02182648937695214,
+    "frac_exact_zero": 0.4097190721381751,
+    "candidate_depth": {
+      "alleles_ge_2": 40755,
+      "alleles_ge_3": 37787,
+      "alleles_ge_5": 29609,
+      "alleles_ge_8": 13114
+    },
+    "overlap_with_training_corpus": {
+      "rows_sharing_a_protospacer": 13294,
+      "rows_sharing_a_canonical_allele": 49276,
+      "alleles_sharing_a_canonical_allele": 6499
+    },
+    "after_removing_any_overlap": {
+      "rows": 233223,
+      "alleles": 36538,
+      "alleles_ge_2": 33897,
+      "alleles_ge_3": 31248,
+      "alleles_ge_5": 24133,
+      "alleles_ge_8": 10226,
+      "mean_within_allele_range_ge2": 0.05363539749860666,
+      "mean_best_design_ge2": 0.054431190751987206
+    }
+  },
+  "optiprime_endogenous_panel": {
+    "file": "data/raw/hsu2026/41587_2026_3261_MOESM3_ESM.xlsx",
+    "sheet": "Supp Table 3 Endo_gRNAs",
+    "rows": 283,
+    "columns": [
+      "Figure",
+      "Figure label / description",
+      "Editor",
+      "Editor modality",
+      "(e)pegRNA modality",
+      "(e)pegRNA spacer",
+      "(e)pegRNA scaffold",
+      "(e)pegRNA RTT",
+      "(e)pegRNA PBS",
+      "(e)pegRNA motif",
+      "Full (e)pegRNA sequence",
+      "nsgRNA modality",
+      "nsgRNA spacer",
+      "nsgRNA scaffold",
+      "Full nsgRNA sequence"
+    ],
+    "distinct_spacers": 60,
+    "spacers_with_more_than_one_design": 23,
+    "max_designs_per_spacer": 50,
+    "median_designs_per_spacer": 1.0,
+    "editors": {
+      "PEmax": 267,
+      "PE6b": 4,
+      "PE6a": 2,
+      "PE6c": 2,
+      "PE6d": 2,
+      "PE6e": 2,
+      "PE6f": 2,
+      "PE6g": 2
+    },
+    "has_efficiency_column": false,
+    "verdict": "Confirms the plan's inventory: 283 endogenous design rows with spacer, scaffold, RTT, PBS, motif and nicking guide, and no measured outcome in this sheet. It is a design panel, not an evaluation panel, until per-figure source data are recovered."
+  },
+  "acquisition_queue": [
+    {
+      "candidate": "MinsePIE / Koeppel et al.",
+      "status": "not acquired",
+      "why": "repair-dependent insertion behaviour; read-count tables released",
+      "blocking": "pooled insertion rates are library-abundance normalised, not per-design edited-allele fractions; long inserts may exceed the 90-token pegRNA input",
+      "fields_to_recover": "accession, replicate, cell line, MMR status, insert sequence, read counts, library abundance denominator"
+    },
+    {
+      "candidate": "OPED original prospective experiments (PRJNA882795)",
+      "status": "not acquired",
+      "why": "original endogenous measurements from a different group; the plan's first choice for external selection",
+      "blocking": "usable row counts require supplement extraction; restrict to the single-pegRNA configuration this model supports",
+      "fields_to_recover": "guide, target window, cell line, editor, replicate, efficiency denominator"
+    },
+    {
+      "candidate": "PRIDICT2 / ePRIDICT endogenous and chromatin panels (PRJNA1025026)",
+      "status": "partially on disk",
+      "why": "assay-shift test; endogenous rather than reporter",
+      "blocking": "the same source family already contributes 174,067 training rows, so only panels proven absent from training qualify; external/pridict2/dataset holds the 23k processed library and a ranking-percentile table, both of which need an overlap audit against the training mix before use",
+      "fields_to_recover": "endogenous vs mapped-reporter flag, integration site, coordinates, replicate identity"
+    },
+    {
+      "candidate": "Li et al. chromatin/repair experiments (PRJNA949965)",
+      "status": "not acquired",
+      "why": "position and chromatin-state effects at mapped integration sites",
+      "blocking": "few shared reporter designs, so probably cannot support alternative-pegRNA selection; mechanistic validation only",
+      "fields_to_recover": "integration site, chromatin annotation provenance, perturbation"
+    },
+    {
+      "candidate": "OptiPrime/Hsu endogenous panel (Supp Table 3)",
+      "status": "on disk, no outcomes",
+      "why": "matched-design endogenous panel from a training-adjacent source",
+      "blocking": "no efficiency column in the released sheet; needs per-figure source data",
+      "fields_to_recover": "measured efficiency per design per figure panel, replicate, cell"
+    },
+    {
+      "candidate": "StopPR functional screen",
+      "status": "not acquired",
+      "why": "downstream application validation",
+      "blocking": "readout is guide abundance/fitness, not editing efficiency; do not use as an efficiency label",
+      "fields_to_recover": "phenotype readout definition, genotype confirmation subset"
+    }
+  ],
+  "reserved_panel": {
+    "path": "explore_v2/reserved_panel_kim_large.parquet",
+    "sha256": "679d68f02e4d76b1fe2c4df84ec31ea3915f0896d04c8ba52182f5b751fdf3b3",
+    "rows": 230581,
+    "alleles": 33897,
+    "decision_groups_ge2": 33897,
+    "scored_by_any_model_in_this_program": false,
+    "seal_note": "Written and hashed without any model being run on it. The first evaluation on this panel must be a pre-declared comparison; any earlier use turns it into development data."
+  }
+}

@@ -1,0 +1,137 @@
+{
+  "panel_A_protospacer": {
+    "rand_at_1": 0.08954685476800094,
+    "op_at_1": 0.24104822087625416,
+    "ours_at_1": 0.2580153404531321,
+    "delta_at_1": {
+      "observed": 0.016967119576878006,
+      "ci95": [
+        0.010016236062002741,
+        0.023736058470427358
+      ],
+      "two_sided_p": 0.001,
+      "p_is_resolution_floor": true,
+      "degenerate_zero_difference": false,
+      "n": 670,
+      "n_clusters": 670,
+      "n_boot": 2000
+    },
+    "rand_at_3": 0.16362602908177368,
+    "op_at_3": 0.27299873842038463,
+    "ours_at_3": 0.2817918602074451,
+    "delta_at_3": {
+      "observed": 0.008793121787060543,
+      "ci95": [
+        0.0044667827425669635,
+        0.01314685407596299
+      ],
+      "two_sided_p": 0.001,
+      "p_is_resolution_floor": true,
+      "degenerate_zero_difference": false,
+      "n": 670,
+      "n_clusters": 670,
+      "n_boot": 2000
+    },
+    "rand_hit": 0.05024033356467259,
+    "op_hit": 0.2462686567164179,
+    "ours_hit": 0.4014925373134328,
+    "delta_hit": {
+      "observed": 0.15522388059701492,
+      "ci95": [
+        0.11492537313432835,
+        0.19402985074626866
+      ],
+      "two_sided_p": 0.001,
+      "p_is_resolution_floor": true,
+      "degenerate_zero_difference": false,
+      "n": 670,
+      "n_clusters": 670,
+      "n_boot": 2000
+    },
+    "rand_regret": 0.20504071591715609,
+    "op_regret": 0.05353934980890289,
+    "ours_regret": 0.03657223023202488,
+    "delta_regret": {
+      "observed": -0.01696711957687801,
+      "ci95": [
+        -0.02373605847042736,
+        -0.010016236062002751
+      ],
+      "two_sided_p": 0.001,
+      "p_is_resolution_floor": true,
+      "degenerate_zero_difference": false,
+      "n": 670,
+      "n_clusters": 670,
+      "n_boot": 2000
+    }
+  },
+  "panel_B_fold0_allele": {
+    "rand_at_1": 0.10856484000664615,
+    "op_at_1": 0.12721264889220094,
+    "ours_at_1": 0.13636373734997262,
+    "delta_at_1": {
+      "observed": 0.009151088457771702,
+      "ci95": [
+        0.0063296861867505345,
+        0.012148800184921359
+      ],
+      "two_sided_p": 0.001,
+      "p_is_resolution_floor": true,
+      "degenerate_zero_difference": false,
+      "n": 1463,
+      "n_clusters": 439,
+      "n_boot": 2000
+    },
+    "rand_at_3": 0.17266706994400682,
+    "op_at_3": 0.1863344097328767,
+    "ours_at_3": 0.1864300588787671,
+    "delta_at_3": {
+      "observed": 9.564914589041096e-05,
+      "ci95": [
+        -8.869494594594593e-07,
+        0.00028698988219791663
+      ],
+      "two_sided_p": 0.159,
+      "p_is_resolution_floor": false,
+      "degenerate_zero_difference": false,
+      "n": 73,
+      "n_clusters": 22,
+      "n_boot": 2000
+    },
+    "rand_hit": 0.4879813169286854,
+    "op_hit": 0.6534518113465482,
+    "ours_hit": 0.7423103212576897,
+    "delta_hit": {
+      "observed": 0.08885850991114148,
+      "ci95": [
+        0.0593067327249175,
+        0.11699446060047722
+      ],
+      "two_sided_p": 0.001,
+      "p_is_resolution_floor": true,
+      "degenerate_zero_difference": false,
+      "n": 1463,
+      "n_clusters": 439,
+      "n_boot": 2000
+    },
+    "rand_regret": 0.03447151586120073,
+    "op_regret": 0.015823706975645932,
+    "ours_regret": 0.0066726185178742296,
+    "delta_regret": {
+      "observed": -0.009151088457771702,
+      "ci95": [
+        -0.012148800184921359,
+        -0.006329686186750535
+      ],
+      "two_sided_p": 0.001,
+      "p_is_resolution_floor": true,
+      "degenerate_zero_difference": false,
+      "n": 1463,
+      "n_clusters": 439,
+      "n_boot": 2000
+    }
+  },
+  "panel_A_groups": 670,
+  "panel_B_groups": 1463,
+  "panel_C_groups": 24668
+}
