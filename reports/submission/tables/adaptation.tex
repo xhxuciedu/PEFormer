@@ -1,0 +1,22 @@
+\begin{table}[htbp]
+\centering\small
+\caption{Historical full-budget target-library adaptation.}
+\label{tab:adaptation}
+\begin{tabular}{lrrrr}
+\toprule
+Method & Test seeds & Target $U_1$ & Prediction $\rho_{\mathrm S}$ & $\Delta$ OptiPrime \\
+\midrule
+Ordinal P & 3 & 0.04178 & 0.7771 & +0.00158 \\
+Utility selector & 3 & 0.04176 & 0.7224 & +0.00156 \\
+Multi-task & 3 & 0.04173 & 0.7492 & +0.00153 \\
+Shared score & 3 & 0.04193 & 0.7624 & +0.00173 \\
+Pairwise selector & 1 & 0.04205 & 0.7107 & +0.00185 \\
+Listwise selector & 1 & 0.04189 & 0.7164 & +0.00169 \\
+Frozen encoder & 1 & 0.04112 & 0.6981 & +0.00092 \\
+Utility + geometry & 1 & 0.04156 & 0.7183 & +0.00136 \\
+Geometry only & 1 & 0.03968 & 0.6052 & -0.00052 \\
+\bottomrule
+\end{tabular}
+\par\smallskip
+\begin{minipage}{\linewidth}\footnotesize E25 retrospective test: 5,557 groups and 23,044 candidates. Full-budget adaptation uses 19,357 training groups and 5,561 validation groups. OptiPrime receives no target labels: its test utility is 0.04020 and Spearman is 0.6922. Utility evaluates the deployed score; the historical correlation column evaluates the prediction output, which differs from the deployed selector for separate-head arms. Entries average outcomes/metrics across the available seeds, not scores. Single-seed arms cannot establish a replicated advantage over ordinal P.\end{minipage}
+\end{table}

@@ -1,0 +1,134 @@
+\section{Methods}
+\subsection{Study design and data provenance}
+This is a retrospective computational study of previously measured prime-editing outcomes. No new biological experiments, patient recruitment or interventions were performed. The source corpus is the exact harmonized training/evaluation mixture supplied by the OptiPrime authors, comprising 58 input tables and 318,471 rows. The 297,962 figure refers to training/development rows, not the combined dataset. In particular, the 9,175 Liu-derived held-out measurements must not be removed through an inferred quality-control filter. Source-study identifiers follow the repository conventions \texttt{deepprime}, \texttt{hsu2026} and \texttt{pridict\_pridict2}; these denote harmonized sources rather than claims of uniform assay conditions within each study.
+
+Outcome values are editing-efficiency fractions in $[0,1]$. Indel measurements are absent for approximately 42.5\% of source rows and are not imputed as measured zeros. Approximately 16.0\% of training efficiencies are exactly zero; the corresponding proportions on source held-out and matched development populations are 26.8\% and 28.4\%. These are measurement properties, not proof that the latent editing probability is zero. The source files, processed-table hashes and reconstruction scripts are indexed in the accompanying evidence inventory.
+
+We preserve the official five development folds and held-out fold zero. Later matched development populations were sampled at the protospacer level to approximate the Liu/Kim evaluation mixture, with overlapping source identifiers handled by the documented exclusions. Every development-row ensemble prediction uses only its official-fold-held-out checkpoint, rather than averaging checkpoints that trained on that row. For genuinely external and fold-zero rows, all five checkpoints in a family can contribute. The historical internal gate comprises 17,975 rows and 367 protospacers disjoint from the matched development validation populations. It was nevertheless used to choose between shortlisted models, and is described as a selection gate rather than a wholly unused confirmatory test.
+
+\subsection{Canonical intended alleles, candidate identity and dependence}
+An intended edit is identified from its wild-type and edited target sequences, normalizing equivalent representations in repeated sequence and reconciling strand orientation. The corrected canonicalizer independently normalizes the forward and reverse-complement orientations before selecting a canonical representation. Reverse-complementing an already left-normalized indel alone is insufficient because each orientation has its own leftmost representation. This operation canonicalizes allele identity; it is not label-preserving augmentation of pegRNA molecules.
+
+A decision group fixes this intended allele and its experimental context, including the applicable cell/editor and construct metadata. A candidate is a distinct design in that group, not an individual measurement row. Repeated measurements for the same group/design are averaged before decision ranking; the number of contributing records is retained. This collapses thirteen external rows without reducing the 30,475 eligible group count. Prediction-level analyses that explicitly use measurement rows retain their original row denominator. Outcome-defined informative groups have at least two distinct candidates and nonconstant outcomes; primary target-adaptation and external-all analyses retain all eligible groups, including all-zero groups.
+
+The early source uncertainty analyses resample protospacers; corrected source decision analyses contain 439 such clusters. Later adaptation joins canonical alleles and protospacers into connected locus components for splitting and resampling, because an allele can be reached by several protospacers and a protospacer can install several alleles. The same 1,463 informative source-audit groups then form 437 connected components. These informative source decisions are Kim-derived; pooled source prediction metrics also include Liu-derived records. The E25 target-validation and test sets contain 4,952 and 4,954 components, respectively. These dependence definitions are recorded alongside the corresponding estimates rather than treated as interchangeable.
+
+\subsection{External-library reconstruction and overlap checks}
+The external library derives from the large DeepPrime variant dataset \citep{yu2023}, not the LibSmall files included in the harmonized source mix. Its released edited-target field is masked outside the RT/PBS footprint. Reconstruction uses the supplied wild-type sequence, edit annotations and PBS/RTT frame, with orientation and nick-position checks. The recorded checks include agreement on all 153,974 substitution rows for the nick-position relation and cross-checks of reconstructed PBS/RTT strings against matching source records. Eligibility and canonical grouping were fixed before the initial model scoring, with input fingerprints retained.
+
+The initial panel removes overlap under the declared protospacer/allele rules. Later audits additionally normalize RNA/DNA alphabets, compare spacer cores and inspect local homology. The final shared-core sensitivity excludes an entire affected component, not just the matching candidate. These checks reduce identifiable overlap but do not prove complete absence of all biological or evolutionary dependence. Released DeepPrime is not a clean held-out comparator on a library used in its own training; we therefore do not report its released score as an independent benchmark here. Separate PRIDICT/DeepPrime reproduction attempts were not completed and are not presented as negative performance results.
+
+\subsection{Sequence architecture}
+The edit stream represents aligned wild-type/edited base pairs, capped at 100 paired positions plus sentinels. The pegRNA stream represents a nucleotide sequence assembled in spacer/PBS/RTT order, capped at 90 total positions including sentinels (at most 88 nucleotides), with learned functional-segment embeddings. The actual RNA/string convention follows the frozen preprocessing implementation. Positional and segment information expose geometry in principle, although accessibility to a learned readout is an empirical issue.
+
+The base network has six edit-encoder blocks, four pegRNA-encoder blocks and two bidirectional cross-attention blocks, width 384, six attention heads, feed-forward width 1,536 and dropout 0.1. Attention follows the multi-head formulation of \citet{vaswani2017}. Attention-pooled stream representations are combined with experimental context. Cell type, editor system, Cas9 variant, PAM, scaffold, 3-prime motif and source are categorical inputs. Feature-wise linear modulation applies
+\begin{equation}
+ h'=\{1+\gamma(c)\}\odot h+\beta(c),
+\end{equation}
+where the context vector $c$ is mapped to channel-wise scale and shift \citep{perez2018}. Some model families apply conditioning at each block rather than only near the readout. Architecture variants have approximately 25 million parameters; a subset includes an explicit engineered-feature branch. We do not characterize the full heterogeneous ensemble as feature-free.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[node distance=8mm,box/.style={draw,rounded corners,align=center,text width=4.4cm,minimum height=10mm,font=\small},arr/.style={-{Latex},thick}]
+\node[box] (edit) {Aligned wild-type/edited pairs\\edit encoder (6 blocks)};
+\node[box,right=12mm of edit] (peg) {Segment-aware pegRNA\\pegRNA encoder (4 blocks)};
+\node[box,below=of edit,xshift=2.8cm,text width=6cm] (cross) {Bidirectional cross-attention (2 blocks)\\pooling and context conditioning};
+\node[box,below=of cross,text width=6cm] (source) {Source head: cumulative thresholds or proportions\\source score $q_0$ and representation $h_0$};
+\node[box,below=of source,text width=6cm] (adapt) {Adaptation: selected encoder/readout updates, or\\frozen $h_0$ with anchored score $q_0+r_\phi(h_0)$};
+\node[box,below=of adapt,text width=6cm] (select) {Select within a fixed allele/context candidate set\\evaluate the same deployed score on source and target};
+\draw[arr] (edit.south)--(cross.north west);
+\draw[arr] (peg.south)--(cross.north east);
+\draw[arr] (cross)--(source);\draw[arr] (source)--(adapt);\draw[arr] (adapt)--(select);
+\end{tikzpicture}
+\caption{\textbf{Sequence prediction and deployed-score adaptation.} Encoder blocks use self-attention or bidirectional S4D according to the model family. The anchored readout uses a training-standardized source score (normalization omitted from the diagram). Historical heterogeneous ensembling and the single-backbone adaptation procedures are distinct deployments. No comparator predictions enter the adaptation path.}
+\label{fig:architecture}
+\end{figure}
+
+S4D replaces the within-stream attention mixer with a diagonal state-space convolution \citep{gu2022s4d}; cross-attention remains. For diagonal state matrix $A$, discretization step $\Delta$ and output coefficients $C$, a kernel can be written as
+\begin{equation}
+K[\ell]=2\operatorname{Re}\sum_n C_n\frac{\exp(\Delta A_n)-1}{A_n}\exp(\ell\Delta A_n).
+\end{equation}
+Independent forward and reversed kernels provide bidirectional mixing, implemented with FFT convolution and padding masks. The tested state dimension is 64. These short sequence lengths and our implementation-specific controls do not support general computational superiority of state-space models over attention.
+
+\subsection{Source objectives, optimization and ensembling}
+The cumulative-threshold head uses de-duplicated quantiles $t_1<\cdots<t_J$ estimated only from the corresponding training rows. Independent logits $z_j(x)$ are trained by
+\begin{equation}
+\mathcal L_{\rm ord}(x,y)=\frac1J\sum_{j=1}^J\operatorname{BCEWithLogits}\left(z_j(x),\mathbf1\{y>t_j\}\right),\qquad
+q(x)=\frac1J\sum_{j=1}^J\sigma(z_j(x)).
+\label{eq:ordinal}
+\end{equation}
+Nominally twenty quantile levels yield seventeen distinct thresholds in the twenty audited official-fold ordinal checkpoints (including candidate families outside the final ensemble) and eighteen in the matched development-fold models. This target transformation encourages order-sensitive prediction but is not a direct optimization of sample Spearman or a proof of Fisher consistency for the deployment endpoint. Unlike a rank-consistent parameterization \citep{cao2020}, independent threshold logits need not be monotone across thresholds. Shared-parameter and monotonicity-penalty controls were tested separately.
+
+The simplex head predicts three softmax channels and uses soft cross-entropy for observed unedited, correctly edited and indel fractions, after clipping/renormalization in the implementation. When indel is missing, the implementation instead normalizes the first two logits and trains against $(1-y,y)$. We describe this precisely as a two-class fallback: without assumptions about the assay denominator, it is not automatically the exact marginal likelihood of an unobserved indel fraction. Its ranking score is $z_E-z_U$. Scalar Huber, auxiliary losses and additional head variants are catalogued in the supplement.
+
+The standard source recipe uses AdamW, learning rate $3\times10^{-4}$, weight decay 0.01, five-percent linear warmup followed by cosine decay, gradient clipping at norm one, batch size 512, BF16 mixed precision and a thirty-epoch budget. Validation Spearman chooses the checkpoint; patience equals the maximum epoch budget. Run configurations record departures from this base recipe. Group-aware batching supports optional ranking losses. Because the historical group key affects both batching and pair eligibility, changing it is not a pure objective intervention; the later arm matrix explicitly separates these factors.
+
+The final source ensemble includes ordinal--S4D, simplex--S4D, ordinal Transformer with layerwise FiLM, ordinal Transformer with a feature branch, and simplex Transformer with layerwise FiLM. The feature branch receives sixteen implemented scalar inputs: PBS/RTT lengths, PBS/RTT/extension GC fractions, edit length, edit position, edit position from the nick, mismatch count, PBS/RTT melting temperatures, four folding-energy features and RuleSet3 activity. Missingness indicators accompany training-standardized features. The corpus and source family configuration are fixed; this feature set is not selected on external outcomes.
+
+For source ensemble inference, each family's external predictions are averaged across its five fold checkpoints, converted to fractional ranks over the evaluation population, and equally averaged across the five selected families. Rank averaging is population-dependent; production use on isolated queries would require an explicitly fixed reference transformation or a validated alternative scoring interface. We do not assume arbitrary inference batching reproduces this ensemble. For development, each row contributes only an out-of-fold checkpoint prediction. Later adapted models use a directly deployable individual score rather than this population-rank ensemble.
+
+Isotonic regression maps source-development out-of-fold rank scores to efficiencies and is transferred without fitting to the evaluated outcomes. This is a nondecreasing map, which cannot reverse ordered pairs but may collapse distinctions into ties, especially with out-of-range clipping. We report raw-score rankings and calibrated absolute-error endpoints separately. Absolute calibration on a shifted study requires its own validation.
+
+\subsection{Decision endpoints}
+For group $g$, let $n_g$ denote distinct candidates, $y_{gi}$ their aggregated measured efficiencies, and $s_{gi}$ their deployed scores. Let $\pi_g$ sort candidates by decreasing score, breaking score ties deterministically by the stored canonical design order. For $\mathcal G_k=\{g:n_g\geq\max(2,k)\}$, define
+\begin{align}
+U_k(s)&=\frac{1}{|\mathcal G_k|}\sum_{g\in\mathcal G_k}\max_{1\leq j\leq k}y_{g,\pi_g(j)},\\
+R_1(s)&=\frac{1}{|\mathcal G_1|}\sum_g\left[\max_i y_{gi}-y_{g,\pi_g(1)}\right],\\
+H_1(s)&=\frac{1}{|\mathcal G_1|}\sum_g\mathbf1\{y_{g,\pi_g(1)}=\max_i y_{gi}\}.
+\end{align}
+All group means weight decisions equally rather than weighting by candidate count. Informative-only endpoints restrict the population explicitly. The oracle is the mean measured maximum on the same population; it is a retrospective upper reference, not an estimate of noise-free biological optimality. The random hit baseline credits every tied maximizer, including all candidates in an all-zero group. For ordered outcomes $y_{g(1)}\leq\cdots\leq y_{g(n)}$, random top-$k$ utility is computed exactly as
+\begin{equation}
+\mathbb E[U_{k,g}^{\rm random}]=\sum_{i=k}^{n}y_{g(i)}\frac{\binom{i-1}{k-1}}{\binom{n}{k}}.
+\end{equation}
+Top-$k$ denotes the best measured outcome among the nominated $k$, not the average nominated outcome. Groups with insufficient depth are undefined for that endpoint rather than silently truncated. Depth-conditioned curves must use their stated population-specific oracle and random references.
+
+\subsection{Historical target-supervised adaptation}
+All adaptation begins from the predetermined official-fold-one ordinal--S4D checkpoint, not the best checkpoint selected on external outcomes. Historical ordinal P updates the original head, pooling, context FiLM, cross-attention and final edit/pegRNA encoder blocks. Utility S adds a scalar selector and trains for selection; multitask M jointly trains original prediction and selection losses; frozen Z updates only the new head. A shared-score control allocates extra capacity without separate deployed scores. These historical letters are local experiment labels: historical multitask M is not the later margin-preservation M.
+
+The historical budget is twelve epochs with patience four, whole-group batches capped at 512 candidates, AdamW with weight decay 0.01, effective base learning rate $3\times10^{-5}$ and new-head learning rate $10^{-3}$. Computation uses BF16. The initial loss magnitudes are measured on up to twelve training batches to set fixed normalization constants; this normalization does not match gradient magnitudes or score scale across objectives. Checkpoints maximize validation top-choice utility. Historical runs using 200, 1,000 or 5,000 \emph{training} groups still use all 5,561 validation groups and are not total-label-budget experiments.
+
+Selection-only and multitask variants use a soft expected-regret loss,
+\begin{equation}
+\mathcal L_{\rm util,g}=\frac{\max_i y_{gi}-\sum_i p_{gi}y_{gi}}{a},\qquad
+p_{gi}=\frac{\exp(s_{gi}/T)}{\sum_j\exp(s_{gj}/T)},
+\label{eq:util}
+\end{equation}
+with fixed training-derived normalization $a$, $T=1$ and constant-outcome groups omitted from the selection-gradient average. A listwise alternative uses cross-entropy against $\operatorname{softmax}(y/0.02)$. Pairwise training weights logistic errors by $w_{ij}=\min(|y_i-y_j|,0.05)$ and normalizes by the sum of weights within a group. Historical pairwise runs sample at most eight pairs per group; later low-label runs use all within-group pairs. No positive minimum-gap threshold is imposed in these adaptation losses. All methods deploy deterministic argmax scores, not stochastic softmax samples.
+
+\subsection{Budget-accounted anchored adaptation}
+Low-label experiments reserve inner validation within each acquired set of entire locus components. Per-fit target-training score means and standard deviations are computed without inner or outer labels. With frozen representation $h_0$ and source score $q_0$, anchored adaptation uses
+\begin{equation}
+s_\phi(x)=\frac{q_0(x)-\mu_{q,\rm train}}{\sigma_{q,\rm train}}+r_\phi(h_0(x)).
+\end{equation}
+The residual network has layer normalization, a 768-to-256 linear layer, GELU, dropout 0.1 and a scalar projection, totaling 198,657 trainable parameters. Zero-initializing the final projection reproduces the original ordering before training. Fresh frozen controls have the same readout form without the residual source score. Ordinal and shared-regression controls update the same final-block/readout modules as the historical ordinary-adaptation baseline. The fresh selector therefore has fewer trainable parameters, but deployment still requires the approximately 24.88-million-parameter pretrained encoder/readout system; it is not a 198,657-parameter standalone predictor.
+
+The initial low-label study fixes 100 target updates, whole groups, a 256-candidate cap, clipping at one, FP32 with TF32 disabled, base learning rate $3\times10^{-5}$ and selector learning rate $10^{-3}$. The follow-up controls cross multipliers one and three with 100 and 500 updates for five arms: native ordinal, standardized Huber regression, shared Huber-plus-pairwise score, fresh frozen pairwise and anchored frozen pairwise. Different horizons and active modules imply different data passes and compute; update counts are not a claim of equal FLOPs. The selected ordinal recipe uses 100 updates and multiplier three; the selected anchored recipe uses 100 updates and multiplier one. Each configuration is selected by its budget-inner outcome, never by promoting the best outer-audit score.
+
+Step zero and ten equally spaced checkpoints are evaluated. Target-only selection maximizes inner $U_1$, preferring the earliest checkpoint within $10^{-12}$ ties. Source-constrained selection first requires each eligible source-validation study's point loss relative to initialization to be no greater than 0.001, then maximizes inner target utility. Initialization is always eligible, including for procedures with freshly initialized heads, so failure to find a feasible adaptation produces a genuine no-adaptation fallback. This policy is an operational filter, not a statistical noninferiority certificate.
+
+\subsection{Source preservation and replication}
+Replay and retention-validation components exclude source fold zero and connections to target-panel alleles/protospacers under the recorded construction. Both replay and source-validation rows were available during source pretraining. The informative replay pool comprises 486 DeepPrime and 2,461 PRIDICT-family groups; source validation comprises 72 and 613 groups, respectively. Liu-derived singleton groups do not enter the selection-preservation objective. The source audit is distinct from replay and checkpoint selection but has informed research direction.
+
+Soft preservation averages Bernoulli KL between teacher and adapted score-difference probabilities over within-group pairs. Teacher-margin preservation instead identifies the teacher's deterministic winner $b_g$ and uses
+\begin{equation}
+\mathcal L_{\rm margin,g}=\frac{1}{n_g-1}\sum_{j\neq b_g}
+\left[\min\{q_{0,b_g}-q_{0,j},c\}-(s_{b_g}-s_j)\right]_+,
+\label{eq:margin}
+\end{equation}
+where $q_0$ denotes the training-standardized teacher score, and $c$ is the ninetieth percentile of teacher-winner gaps on source training. There is no positive floor for teacher ties. A measured-source utility loss uses Equation~\ref{eq:util}, normalized by the training-pool mean positive outcome range. These constraints preserve our source model or source labels, not comparator behavior.
+
+The twelve-run factorial crosses the three source objectives, source-mixture versus equal-study sampling, and weights 0.1 versus 1. Groups are sampled with replacement across updates but without duplicate groups inside a batch, subject to a 256-candidate cap. Group indivisibility means candidate counts are not exactly matched; realized source exposure and weighted-source/target gradient ratios are recorded. A maximum of one recipe is promoted by constrained inner utility, requiring an improvement of at least 0.0005 over constrained anchoring. This selects balanced teacher-margin weight one. The selection rule was recorded locally before its stage, not publicly registered.
+
+Locked replication uses acquisition seeds 20260910, 20260911 and 20260912 and two optimizer seeds per acquisition, at nominal 200- and 1,000-group budgets. Four methods produce 48 configurations; four exact screen fits are reused, so forty-four additional fits complete replication and the follow-up total is 76, not 80. The union of target labels used across these acquisitions is 2,853 groups, 10,507 candidates and 10,508 measurement records, separate from the 23,120 outer-validation candidates and source labels. Higher-label replication, final-block anchored variants, genuinely separate representation branches, and excluded-domain pretraining were not executed.
+
+\subsection{Uncertainty, multiplicity and evaluation exposure}
+We use paired percentile bootstraps with the same sampled clusters for both methods. The original source headline uses 5,000 protospacer resamples; corrected fixed-edit endpoints and adaptation use 2,000 site/component resamples. The historical quartet decomposition uses 400 locus resamples. Each estimate is tied to its original ledger and resampling unit. The source prediction benchmark has 750 protospacer clusters; clusters are not independent rows. For replicated adaptation, we first average per-group outcomes over paired fitted runs and then resample evaluation components. These intervals condition on those fitted models and acquisitions. Run standard deviations and acquisition-specific results describe additional observed instability but do not convert the intervals into population-level uncertainty over arbitrary acquisitions or future studies.
+
+The manuscript emphasizes effect sizes and intervals rather than zero bootstrap $p$-values. Empirical tail probabilities are limited by the number of resamples, and a self-comparison must be marked degenerate rather than declared significant. Recorded floating-point discrepancies below $10^{-17}$ in repeated fallback means are treated as numerical identity, not biological evidence. Reported exploratory intervals are not multiplicity-adjusted. Extensive search and retrospective contrasts preclude interpreting nominal 95\% intervals as family-wise or post-selection guarantees. The historical approximately 0.005 development threshold was an operational promotion heuristic based on sign instability, not a universal power bound.
+
+The original held-out benchmark was inspected for four successive model generations and subsequently audited. Pairing controls comparison variance but does not cancel model-specific adaptive selection bias. The external panel's original zero-shot analysis was locally declared before first scoring; later corrective training and adaptation reused its outcomes. Repartitioning this library does not reset that exposure. Budget-inner checkpoint selection keeps individual fits within their declared label budget, but outer results have informed the research program and consume additional outcome information. We therefore distinguish original reserved evaluation, exposed audit, within-budget validation and independent confirmation throughout.
+
+\subsection{Replicate diagnostics and implementation verification}
+The source repeatability analysis requires matching all sixteen audited design/context covariates and the target site, yielding 649 strict replicate groups. Broader keys merge distinct constructs and cannot estimate technical repeatability. Empirical nearest-neighbor resampling of 1,298 ordered replicate measurements represents bounded, heteroscedastic outcomes and zero/nonzero discordance. The resulting extrapolated rank-repeatability reference is conditional on representativeness and the resampling model; it is not an identified Bayes-optimal ceiling. The familiar square-root reliability relation additionally requires assumptions about independent measurement error and the correlation scale, and should not be treated as an exact Spearman theorem.
+
+Historical code, model inputs, split manifests, predictions and selected checkpoints have stored fingerprints. The completed follow-up verifies 32 screen fits and 48 replication configurations, including four reused fits: 456 screen fingerprints and 288 endpoints, plus 685 replication fingerprints, 1,056 checkpoint/surface reconstructions and 432 selected/final endpoints. The archived protocol/endpoint suite contains 43 passing tests. These verify the recorded implementation and arithmetic, not independence of the biological evidence. The new manuscript package additionally regenerates aggregate tables and figures without access to private sequence-bearing data. The 76-fit follow-up consumed 2.273 summed process-hours including evaluation and I/O, not pure accelerator kernel-hours or total research-program cost.

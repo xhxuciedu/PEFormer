@@ -1,0 +1,17 @@
+\begin{table}[htbp]
+\centering\small
+\caption{Retention depends on the score that is deployed.}
+\label{tab:heads}
+\begin{tabular}{lrrr}
+\toprule
+Historical adaptation arm & Seeds & Prediction head & Deployed score \\
+\midrule
+Ordinal prediction & 3 & 0.12776 & 0.12776 \\
+Utility selector & 3 & 0.13323 & 0.12607 \\
+Pairwise selector & 3 & 0.13428 & 0.11460 \\
+Frozen encoder & 1 & 0.13350 & 0.12697 \\
+\bottomrule
+\end{tabular}
+\par\smallskip
+\begin{minipage}{\linewidth}\footnotesize Source audit: 1,463 informative groups. Matched initialization is 0.13350 for both scores. An unchanged or accurate unused prediction head does not protect the choices made by a newly trained selector. Pairwise has three source audits but only one historical target-test seed.\end{minipage}
+\end{table}

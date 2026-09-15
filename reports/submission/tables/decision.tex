@@ -1,0 +1,18 @@
+\begin{table}[htbp]
+\centering\small
+\caption{Source and zero-shot external fixed-edit selection.}
+\label{tab:decision}
+\begin{tabular}{lrrrr}
+\toprule
+Population & Groups & OptiPrime & \model{} & Difference \\
+\midrule
+Source, informative & 1,463 & 0.12721 & 0.13636 & +0.00915 \\
+External, all & 30,475 & 0.03690 & 0.03627 & -0.00064 \\
+External, informative & 24,668 & 0.04559 & 0.04481 & -0.00078 \\
+External, depth $\geq8$ & 2,400 & 0.06450 & 0.06201 & -0.00249 \\
+External, high worth & 5,614 & 0.10989 & 0.10660 & -0.00329 \\
+\bottomrule
+\end{tabular}
+\par\smallskip
+\begin{minipage}{\linewidth}\footnotesize Mean measured efficiency of the top-scored distinct candidate. Source uses the heterogeneous ensemble; external uses the five-fold ordinal--S4D ensemble. High worth means oracle minus random utility at least 0.05. Source and informative external subsets exclude constant-outcome groups. External all retains them. These are different populations, not a learning curve.\end{minipage}
+\end{table}

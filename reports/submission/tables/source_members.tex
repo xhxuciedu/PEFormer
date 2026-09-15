@@ -1,0 +1,18 @@
+\begin{table}[htbp]
+\centering\small
+\caption{Post-hoc source-benchmark family scores.}
+\label{tab:sourcemembers}
+\begin{tabular}{lrr}
+\toprule
+Family & Checkpoints & Pooled Spearman \\
+\midrule
+Ordinal + S4D & 5 & 0.9082 \\
+Simplex + S4D & 5 & 0.9017 \\
+Ordinal + layerwise FiLM & 5 & 0.9005 \\
+Ordinal + features & 5 & 0.8947 \\
+Simplex + layerwise FiLM & 5 & 0.8888 \\
+\bottomrule
+\end{tabular}
+\par\smallskip
+\begin{minipage}{\linewidth}\footnotesize Each family is itself a five-fold-checkpoint ensemble on all 20,509 held-out rows. The frozen heterogeneous combination uses twenty-five checkpoints and reaches 0.9079. These post-hoc scores did not replace the frozen ensemble. A five-checkpoint family is not an individual checkpoint or the subsequently adapted single backbone.\end{minipage}
+\end{table}

@@ -1,0 +1,87 @@
+\begin{thebibliography}{10}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Anzalone et~al.(2019)Anzalone, Randolph, Davis, et~al.]{anzalone2019}
+Andrew~V. Anzalone, Peyton~B. Randolph, Jessie~R. Davis, et~al.
+\newblock Search-and-replace genome editing without double-strand breaks or
+  donor dna.
+\newblock \emph{Nature}, 576:\penalty0 149--157, 2019.
+\newblock \doi{10.1038/s41586-019-1711-4}.
+\newblock URL \url{https://doi.org/10.1038/s41586-019-1711-4}.
+
+\bibitem[Cao et~al.(2020)Cao, Mirjalili, and Raschka]{cao2020}
+Wenzhi Cao, Vahid Mirjalili, and Sebastian Raschka.
+\newblock Rank consistent ordinal regression for neural networks with
+  application to age estimation.
+\newblock \emph{Pattern Recognition Letters}, 140:\penalty0 325--331, 2020.
+\newblock \doi{10.1016/j.patrec.2020.11.008}.
+\newblock URL \url{https://arxiv.org/abs/1901.07884}.
+
+\bibitem[Gu et~al.(2022)Gu, Gupta, Goel, and R{\'e}]{gu2022s4d}
+Albert Gu, Ankit Gupta, Karan Goel, and Christopher R{\'e}.
+\newblock On the parameterization and initialization of diagonal state space
+  models.
+\newblock In \emph{Advances in Neural Information Processing Systems}, 2022.
+\newblock URL \url{https://arxiv.org/abs/2206.11893}.
+
+\bibitem[Hsu et~al.(2026)Hsu, Chen, Li, et~al.]{hsu2026}
+Alvin Hsu, Peter~J. Chen, Angus~H. Li, et~al.
+\newblock Mechanistic machine learning for prediction of prime editing
+  outcomes.
+\newblock \emph{Nature Biotechnology}, 2026.
+\newblock \doi{10.1038/s41587-026-03261-7}.
+\newblock URL \url{https://doi.org/10.1038/s41587-026-03261-7}.
+\newblock Published online 12 August 2026.
+
+\bibitem[Liu et~al.(2023)Liu, Huang, Hu, et~al.]{liu2023oped}
+Feng Liu, Shuhong Huang, Jiongsong Hu, et~al.
+\newblock Design of prime-editing guide rnas with deep transfer learning.
+\newblock \emph{Nature Machine Intelligence}, 5:\penalty0 1261--1274, 2023.
+\newblock \doi{10.1038/s42256-023-00739-w}.
+\newblock URL \url{https://doi.org/10.1038/s42256-023-00739-w}.
+
+\bibitem[Mathis et~al.(2023)Mathis, Allam, Kissling, et~al.]{mathis2023}
+Nicolas Mathis, Ahmed Allam, Lucas Kissling, et~al.
+\newblock Predicting prime editing efficiency and product purity by deep
+  learning.
+\newblock \emph{Nature Biotechnology}, 41:\penalty0 1151--1159, 2023.
+\newblock \doi{10.1038/s41587-022-01613-7}.
+\newblock URL \url{https://doi.org/10.1038/s41587-022-01613-7}.
+
+\bibitem[Mathis et~al.(2025)Mathis, Allam, T{\'a}las, et~al.]{mathis2025}
+Nicolas Mathis, Ahmed Allam, Andr{\'a}s T{\'a}las, et~al.
+\newblock Machine learning prediction of prime editing efficiency across
+  diverse chromatin contexts.
+\newblock \emph{Nature Biotechnology}, 43:\penalty0 712--719, 2025.
+\newblock \doi{10.1038/s41587-024-02268-2}.
+\newblock URL \url{https://doi.org/10.1038/s41587-024-02268-2}.
+\newblock Published online 21 June 2024.
+
+\bibitem[Perez et~al.(2018)Perez, Strub, de~Vries, Dumoulin, and
+  Courville]{perez2018}
+Ethan Perez, Florian Strub, Harm de~Vries, Vincent Dumoulin, and Aaron
+  Courville.
+\newblock {FiLM}: Visual reasoning with a general conditioning layer.
+\newblock In \emph{Proceedings of the AAAI Conference on Artificial
+  Intelligence}, 2018.
+\newblock URL \url{https://arxiv.org/abs/1709.07871}.
+
+\bibitem[Vaswani et~al.(2017)Vaswani, Shazeer, Parmar, et~al.]{vaswani2017}
+Ashish Vaswani, Noam Shazeer, Niki Parmar, et~al.
+\newblock Attention is all you need.
+\newblock In \emph{Advances in Neural Information Processing Systems}, 2017.
+\newblock URL \url{https://arxiv.org/abs/1706.03762}.
+
+\bibitem[Yu et~al.(2023)Yu, Kim, Park, et~al.]{yu2023}
+G.~Yu, H.~K. Kim, J.~Park, et~al.
+\newblock Prediction of efficiencies for diverse prime editing systems in
+  multiple cell types.
+\newblock \emph{Cell}, 186:\penalty0 2256--2272.e23, 2023.
+\newblock \doi{10.1016/j.cell.2023.03.034}.
+\newblock URL \url{https://doi.org/10.1016/j.cell.2023.03.034}.
+
+\end{thebibliography}

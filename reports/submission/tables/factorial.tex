@@ -1,0 +1,25 @@
+\begin{table}[htbp]
+\centering\small
+\caption{Complete source-preservation factorial: twelve fits.}
+\label{tab:preservationgrid}
+\begin{tabular}{lrrrrrr}
+\toprule
+Loss & Sampling & Weight & T step & Target $U_1$ & Source $U_1$ & C step \\
+\midrule
+KL & Balanced & 0.1 & 60 & 0.041399 & 0.133425 & 0 \\
+KL & Balanced & 1 & 100 & 0.041080 & 0.133407 & 0 \\
+KL & Mixture & 0.1 & 40 & 0.040854 & 0.132251 & 0 \\
+KL & Mixture & 1 & 10 & 0.040894 & 0.134306 & 0 \\
+Margin & Balanced & 0.1 & 40 & 0.041026 & 0.132797 & 0 \\
+Margin & Balanced & 1 & 10 & 0.040636 & 0.134283 & 10 \\
+Margin & Mixture & 0.1 & 30 & 0.040819 & 0.134002 & 0 \\
+Margin & Mixture & 1 & 30 & 0.040745 & 0.132892 & 0 \\
+Utility & Balanced & 0.1 & 20 & 0.041231 & 0.132029 & 0 \\
+Utility & Balanced & 1 & 40 & 0.040817 & 0.128446 & 0 \\
+Utility & Mixture & 0.1 & 60 & 0.041314 & 0.129608 & 0 \\
+Utility & Mixture & 1 & 40 & 0.040926 & 0.126562 & 0 \\
+\bottomrule
+\end{tabular}
+\par\smallskip
+\begin{minipage}{\linewidth}\footnotesize One acquisition and optimizer seed; nominal 1,000-group budget. Utilities evaluate the target-selected (T) checkpoint. C step reports the source-constrained choice; zero means unchanged initialization. All fits use 100 updates and learning-rate multiplier one. Only balanced margin at weight one selects a nonzero constrained checkpoint.\end{minipage}
+\end{table}

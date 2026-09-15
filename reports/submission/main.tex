@@ -1,0 +1,48 @@
+\documentclass[11pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern,microtype}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,graphicx,booktabs,array,tabularx,longtable}
+\usepackage{natbib}
+\usepackage[dvipsnames]{xcolor}
+\usepackage[colorlinks=true,linkcolor=MidnightBlue,citecolor=MidnightBlue,urlcolor=MidnightBlue]{hyperref}
+\usepackage{caption,placeins}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning}
+\usepackage{lineno}
+\modulolinenumbers[5]
+\linenumbers
+\newcommand{\model}{PE-RankFormer}
+\newcommand{\atone}{\ensuremath{U_1}}
+\newcommand{\rhoS}{\ensuremath{\rho_{\mathrm S}}}
+\newcommand{\artifact}[1]{\nolinkurl{#1}}
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+\newcolumntype{P}[1]{>{\raggedright\arraybackslash}p{#1}}
+\setlength{\emergencystretch}{2em}
+\captionsetup{font=small,labelfont=bf}
+\title{From efficiency prediction to pegRNA selection:\\decision-aligned evaluation and source-preserving adaptation of PE-RankFormer}
+\author{[Author names and affiliations to be supplied]\\{}[Corresponding author and contact to be supplied]}
+\date{Research manuscript --- 12 September 2026}
+\begin{document}
+\maketitle
+\input{sections/abstract}
+\noindent\textbf{Keywords:} prime editing; pegRNA design; state-space models; ordinal regression; domain adaptation; decision evaluation; reproducibility.
+\input{sections/introduction}
+\input{sections/results}
+\input{sections/discussion}
+\input{sections/methods}
+\input{sections/declarations}
+\begingroup\small
+\bibliographystyle{plainnat}
+\bibliography{references}
+\endgroup
+\clearpage
+\appendix
+\renewcommand{\thesection}{S\arabic{section}}
+\setcounter{table}{0}
+\setcounter{figure}{0}
+\renewcommand{\thetable}{S\arabic{table}}
+\renewcommand{\thefigure}{S\arabic{figure}}
+\input{sections/supplement}
+\end{document}

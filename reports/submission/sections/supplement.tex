@@ -1,0 +1,204 @@
+\section{Supplementary results and complete experiment-family accounting}
+This supplement records the major completed experimental families, including unsuccessful and superseded analyses. A proposed experiment is not counted as a result. Historical lab notes sometimes used stronger causal language, different candidate accounting or broader notions of a target; the interpretations below follow the corrected endpoints and subsequent controls. Repository experiment identifiers are provided to locate exact run-level configurations, rather than implying that all results come from a common sample, model or uncertainty protocol.
+
+\subsection{Source development and benchmark generations}
+The earliest independently reconstructed corpus did not reproduce the released comparator's input layout. Running OptiPrime on padded reconstructed Liu targets produced correlation $0.7242$, whereas the author-supplied matched inputs produced $0.8365$. The earlier reported comparative margins of approximately $+0.083$ and $+0.070$ were consequently withdrawn. These are not retained as evidence for model superiority. The official author-supplied data also resolved the apparent training-row-count discrepancy and supplied a previously missing PRIDICT-family partition. All main source comparisons use the corrected corpus.
+
+\begin{table}[htbp]
+\centering\small
+\caption{Successive source-benchmark generations, after official-data correction.}
+\label{tab:generations}
+\begin{tabular}{lrrr}
+\toprule
+Configuration & All 20,509 & Liu 9,175 & Kim 11,334 \\
+\midrule
+Released OptiPrime & 0.8690 & 0.8365 & 0.7320 \\
+Round 1, five-fold Transformer & 0.8865 & 0.8349 & 0.7751 \\
+Round 2, feature-branch family & 0.8831 & 0.8298 & 0.7727 \\
+Round 3, three-family ensemble & 0.8933 & 0.8462 & 0.7836 \\
+Round 4, frozen five-family ensemble & 0.9079 & 0.8585 & 0.8124 \\
+\bottomrule
+\end{tabular}
+\par\smallskip\begin{minipage}{\linewidth}\footnotesize
+All entries are pooled Spearman on the stated source partition. Generations were evaluated sequentially, so this table explicitly exposes adaptive reuse; it is not a set of independent confirmation experiments. Later model-specific audits are additional uses beyond these four generation-level accesses.
+\end{minipage}
+\end{table}
+
+Round 2 screened layerwise conditioning, a context-gated mixture of experts, engineered features, their combinations and an auxiliary correlation objective. The feature branch improved the original validation mixture by $0.0028$ but changed the full benchmark by $-0.0034$ relative to round 1, with interval $[-0.0084,+0.0014]$. Matched Liu/Kim development folds corrected the validation-mixture mismatch, but the feature-versus-baseline difference still changed sign across those folds. This combination of distributional mismatch and sampling instability does not uniquely identify the reason for the held-out reversal.
+
+Round 3 found a modest five-fold average gain from Liu/Kim fine-tuning ($0.0015$), and greater complementarity from combining feature, layerwise-conditioning and fine-tuned families. A three-family equal-rank ensemble reached matched-development Spearman $0.8982$, compared with $0.8845$ for its strongest individual family on that surface. Fitted weights, context gates and additional near-identical models did not give a stable advantage over the frozen equal-rank rule. Round 4 added ordinal and S4D families and selected the final source ensemble described in the main text. Later source investigations did not replace that frozen benchmark system.
+
+Post-hoc family scores show that the five-fold ordinal--S4D family alone reaches source Spearman $0.908155$, slightly above the heterogeneous ensemble's $0.907874$ (Table~\ref{tab:sourcemembers}). It is still a five-checkpoint ensemble, not one checkpoint. Its matched-development average $0.908179$ rounds to the same four-digit value by coincidence on different, disjoint rows. Thus the full ensemble's development advantage does not establish a held-out advantage over its strongest family; we retain the frozen result rather than retrospectively selecting a different headline system.
+
+\input{tables/source_members}
+
+\begin{longtable}{P{.23\linewidth}P{.28\linewidth}P{.40\linewidth}}
+\caption{Completed source-model experiment families and their evidentiary limits.}\label{tab:negative}\\
+\toprule Family & Recorded result & Interpretation and source \\
+\midrule\endfirsthead
+\toprule Family & Recorded result & Interpretation and source \\
+\midrule\endhead
+\bottomrule\endfoot
+Layerwise conditioning, Transformer & Modest development improvement; included in final ensemble & Family A is retained for ensemble value, not a universally better context mechanism (rounds 2--4). \\
+Engineered feature branch & Round-2 validation $+0.0028$; benchmark $-0.0034$ versus round 1 & Source mixture and fold instability limit attribution; ordinal feature family later contributes to the ensemble. \\
+Auxiliary correlation/pairwise objectives & Correlation objective $-0.0034$ in round 2; decorrelated ranking candidate reduces ensemble by $0.0037$ & A ranking-related objective can trade away useful prediction signal under its tested recipe. \\
+Post-hoc combination & Context gate approximately zero; nonlinear stacking $+0.0013$ & Development gains were too small/unstable for promotion; this does not exclude all stacking methods (round 4). \\
+Feature residual correction & Best tested residual-direction scaling gives about $0.0006$ gain & Restricted oracle calculation over that correction family, not a ceiling for all predictors (round 4). \\
+Protospacer bagging, extra seeds, scale & Bagging contributions range from positive to negative; capacity/seed gains below promotion threshold & Diversity alone does not establish improved accuracy or ensemble contribution (round 4). \\
+Auxiliary simplex, context and multiresolution heads & Small effects comparable to an unchanged-model rerun & Fourteen variants were close to their control; no supported improvement beyond the tested resolution (round 5). \\
+Quantile regression & Standalone approximately $0.014$ below control & Strong decorrelation did not compensate for lower accuracy (round 5). \\
+Mixed S4D/attention blocks & Alternating/parallel variants not promoted & Learned gate diagnostics are descriptive; do not prove attention is unnecessary (round 5). \\
+True rank-consistent head; monotonicity penalty & First-fold changes $+0.0005$, $+0.0007$ & Enforcing coherent threshold probabilities did not provide a clear ranking gain in the screen (round 6). \\
+Hurdle/zero-inflation head & First-fold change $-0.0022$ & Failure of this parameterization is not proof that zero outcomes have no predictable structure (round 6). \\
+State size, FFN width, depth, MoE & State 128: $-0.0022$; state 256: $+0.0002$; FFN 2304: $-0.0001$; depth/MoE leads failed replication & No promoted gain from tested settings; do not conclude that the task is generally capacity-unlimited (round 6). \\
+Source reweighting & Mild first-fold $+0.0033$ changed sign on another fold; aggressive $-0.0059$ & Distinct from the later released-OptiPrime-weight intervention, whose adverse effect replicated. \\
+Remove PRIDICT-family training & Approximately $-0.0294$ & A study absent from evaluation can still supply useful training signal; source removal also changes data volume. \\
+Layerwise conditioning, S4D & Three-fold mean $+0.0001$ & Cross-context score similarity increased rather than decreased; this does not establish FiLM's structural inability to reorder designs (round 7). \\
+Context-relative primary target & Pooled $-0.0235$; Kim within-condition $-0.0322$ on recorded first-fold comparison & Removing global outcome scale did not recover the desired within-condition improvement (context investigation). \\
+Cross-context shift loss & Shuffled control $+0.0024$; actual penalties between $+0.0012$ and $-0.0065$ & Matched shuffle did not support the proposed context-learning mechanism. \\
+Selective state-space scan & $0.8827$ versus $0.8796$ frozen-selection control; both below S4D $0.8982$ & Selectivity contrast $+0.0031$ is distinct from replacement deficit; scan recipe changes precision, batch and runtime (rounds 8--9). \\
+Context-conditioned low-rank map & Both context-aware and context-blind controls $0.8969$ & Additional non-diagonal conditioning did not improve the tested development score (round 9). \\
+Censoring-aware ordinal loss & p95 mask $-0.0079$ versus base; $-0.0091$ versus matched shuffled mask & Supports retaining low-threshold supervision under this recipe, not a claim that measured zeros are noiseless (round 9). \\
+\end{longtable}
+
+\subsection{Prediction robustness, calibration and repeatability}\label{sec:suprobust}
+The within-protospacer mean Spearman comparison favors \model{} in 78.4\% of 670 eligible groups; its difference $+0.0884$ has interval $[+0.0761,+0.1007]$. These groups can mix edits and contexts, so this statistic is a robustness decomposition, not a deployed fixed-edit endpoint. The within-condition interval widens from the incorrectly fine target-site clustering $[+0.0451,+0.0564]$ to $[+0.0345,+0.0670]$ under the correct source protospacer resampling. A narrow confidence interval obtained from an insufficient dependence key is not additional evidence.
+
+Tie-robust checks also favor \model{}. The pooled Kendall's tau-b difference is $+0.0547$, with interval $[+0.0426,+0.0674]$. AUROC for any measured editing improves by $+0.0292$ ($[+0.0220,+0.0367]$), and positive-outcome Spearman by $+0.0469$ ($[+0.0340,+0.0613]$). The two frozen source predictors are effectively tie-free, with 20,509 and 20,504 distinct scores. In contrast, deliberately flattening low scores into ties raises Kim Spearman by about $0.013$--$0.016$ across predictors of differing quality. Such flooring was not adopted. These observations show a metric sensitivity, not a biological gain.
+
+Source calibration yields MAE $0.0478$ and RMSE $0.0912$, compared with $0.0590$ and $0.1026$ for OptiPrime. The tested training-median constant baseline has MAE $0.1227$. Upper-tail calibration remains imperfect: the top predicted one percent averages predicted $0.799$ versus observed $0.733$. This is a descriptive average over a tail selected by the model, not a per-design correction or guarantee. It should not be generalized to a new library without validation.
+
+The strict 649-group replicate audit yields a source-held-out Kim repeatability reference of $0.9164$, with interval $[0.8653,0.9327]$, compared with model Spearman $0.8124$ on that partition. The reference-minus-model gap is approximately $0.1040$, with interval $[0.0529,0.1204]$. The matched-development gap is approximately $0.1146$. This contradicts the earlier inference that unsuccessful architecture sweeps proved benchmark saturation, but it does not locate the residual error uniquely in omitted context variables. Construct-aware replicate definitions, representativeness and the empirical noise model all matter. In particular, 21.4\% of measured zeros have a nonzero paired observation; the p95 censoring intervention nevertheless harms performance. Observation noise and the value of learning a decision boundary are distinct questions.
+
+\section{Cross-context structure, reference panels and corrected external endpoints}
+\subsection{Interactions exist, but early predictive evidence was overstated}
+For a fixed pair of designs measured in two contexts, the historical quartet analysis defines a transformed within-context contrast $\Delta(c)$ and an interaction $D=\Delta(c_1)-\Delta(c_2)$. On its recorded canonicalizer-version-one population, the interaction component represented 28.8\% of the variance of $\Delta$ (400-resample locus interval $[27.9,29.8]\%$), compared with 5.3\% assigned to measurement noise. Among contrasts exceeding the stipulated noise support threshold, the observed order-reversal rate was 4.1\% rather than the 12.9\% rate in the unfiltered population. These estimates depend on the transformed-scale additive/noise decomposition and the historical quartet eligibility. They are not transferred to the later external-library population.
+
+The initial claim of strong embedding-based interaction prediction mixed hidden-coordinate systems from independently trained checkpoints, fitted a transform outside the outer split, and compared unmatched feature shuffles. A corrected same-checkpoint, out-of-fold analysis uses 47,470 quartets, fitting all transforms inside locus-grouped folds. Mean development $R^2$ against a zero-interaction predictor was $0.1838$ for embedding-by-context features, $0.0663$ for design-only features, $0.0772$ for a representation-matched context shuffle and $-0.0051$ for a shuffled outcome. The context model varied from $-0.0558$ to $0.2990$ over development folds and performed poorly on historical fold zero ($R^2=-2.8178$). Thus the corrected evidence supports unstable additional structure, not a generally transferable context-interaction predictor.
+
+Predicting a large $|D|$ is not predicting reversal: a margin can change while its sign remains the same. Among the top five percent of predicted interaction magnitudes, supported reversal rates ranged from zero to 5.7\%. Likewise, transferring the observed winner between two contexts gives a specific chooser's regret, not an upper bound on all model improvements. These distinctions supersede the initial recommendation to select panels using large predicted interactions.
+
+\subsection{Small reference-panel corrections did not establish useful transfer}
+Reference-panel experiments tested budgets 12, 24, 48, 96 and 192 measurements, with five support draws and source-context-selected corrections on frozen out-of-fold representations. Context intercepts cannot alter within-group choice. Positive-slope affine maps likewise preserve order; at the smallest budget one negative fitted slope reversed it. Low-rank and residual-ridge methods did not show a general paired improvement over the frozen predictor. Marginal averages of separately selected rank-two and rank-four methods pooled different episodes and cannot be directly compared as competing procedures.
+
+A later explicit context-conditioned residual predictor achieved $R^2=0.1023$ versus $0.0599$ for its matched shuffled-context arm on its recorded development population. On 43,425 decision groups, the corresponding measured-efficiency improvement was only about $0.00036$, versus $0.00025$ for the shuffle. Representation exposure and historical grouping limitations prevent treating the residual prediction score as independent confirmation of a useful context-adaptation method. These reference-panel experiments are also distinct from later neural fine-tuning with thousands of fully measured target decisions.
+
+\begin{table}[htbp]
+\centering\small
+\caption{Corrected zero-shot depth-conditioned nomination endpoints.}
+\label{tab:depth}
+\begin{tabular}{rrrrrr}
+\toprule
+$k$ & Eligible groups & Random $U_k$ & OptiPrime $U_k$ & \model{} $U_k$ & Oracle \\
+\midrule
+1 & 30,475 & 0.02170 & 0.03690 & 0.03627 & 0.04612 \\
+3 & 18,660 & 0.04687 & 0.05577 & 0.05572 & 0.05791 \\
+5 & 8,775 & 0.06736 & 0.07376 & 0.07379 & 0.07464 \\
+\bottomrule
+\end{tabular}
+\par\smallskip\begin{minipage}{\linewidth}\footnotesize
+Each row has its own candidate-depth population. The oracle is the measured maximum, not a noise-free ceiling. Random selection is without replacement over distinct designs and accounts for tied maxima. Values are from the corrected E16 ledger.
+\end{minipage}
+\end{table}
+
+\subsection{Geometry, candidate grouping and checkpoints}
+The external library expands the range of feasible PBS/RTT choices. Relative to source-training feature statistics, external mean PBS length shifts by $-1.35$ training standard deviations and its standard deviation is 2.03 times larger; the corresponding RTT shifts are $+0.62$ and 1.17. Refitting standardization on evaluation inputs had erased part of this distribution shift and changed the function presented to the trained feature branch. E22--E24 use recovered per-checkpoint training statistics.
+
+On the informative external population, the source-trained ordinal--S4D model nominates candidates with mean PBS and RTT lengths respectively $0.766$ and $0.162$ bases longer than the measured-best candidate. OptiPrime's corresponding biases are $+0.519$ and $-0.531$. These selection-conditioned summaries are associations, not a demonstrated explanation of the performance difference. A tested global additive length correction did not improve the development endpoint, but that does not rule out nonlinear per-candidate correction or prove that a set-based model is required.
+
+The E19 source arm matrix tests original batching/ranking (A), canonical batching with original ranking (B), canonical batching/ranking with one pair (C), default canonical batching/ranking (D), canonical batching without ranking (E), canonical plus features (F), sixteen pairs (G), and canonical plus features without ranking (H). The mean source utilities for A/D/E/F/H over three seeds are $0.13360/0.13453/0.13459/0.13523/0.13473$; B/C/G are single-seed controls. Turning off ranking under canonical batching does not remove the improvement. Changing checkpoint selection from pooled correlation to decision utility changes the selected epoch in sixteen of eighteen runs but changes source utility by only about $0.00004$.
+
+Coverage-matched five-fold feature/canonical training reproduces a source prediction improvement without establishing better external selection. The ordinal-versus-simplex external head comparison also fails to rescue the original decision claim: the simplex S4D member has slightly higher pooled correlation but worse top-choice utility than ordinal S4D in that separately reconstructed evaluation. This is a model-specific re-evaluation, not a replacement for the canonical original E16 numbers. Historical comparator-score blends are archived as out-of-scope exploratory analyses; they are not evidence for our standalone architecture or included in the adaptation procedures reported here.
+
+\section{Adaptation budgets, optimization and preservation diagnostics}
+\subsection{Historical versus total-budget label accounting}
+The old 200/1,000/5,000 training-group curves used 5,561 additional validation groups at every point. Their 200- and 1,000-group samples were not nested (only twelve shared groups) and could partially acquire larger locus components. They cannot establish a low-total-label threshold for useful adaptation. The exact historical starting checkpoint's test utility was $0.03919$, not the published ensemble's $0.03952$. The old 200-training-group ordinal run reached $0.03929$: matched gain $+0.000102$, interval $[-0.000041,+0.000255]$. The earlier claim that this run demonstrated harm from small-budget fine-tuning is withdrawn.
+
+\begin{table}[htbp]
+\centering\small
+\caption{Actual label acquisitions used in locked low-label replication.}
+\label{tab:budgets}
+\begin{tabular}{rrrrrrr}
+\toprule
+Nominal & Seed suffix & Train groups & Inner groups & Total groups & Candidates & Records \\
+\midrule
+200 & 910 & 168 & 34 & 202 & 788 & 788 \\
+200 & 911 & 159 & 41 & 200 & 695 & 695 \\
+200 & 912 & 152 & 49 & 201 & 750 & 750 \\
+1,000 & 910 & 839 & 162 & 1,001 & 3,848 & 3,848 \\
+1,000 & 911 & 807 & 193 & 1,000 & 3,555 & 3,555 \\
+1,000 & 912 & 776 & 226 & 1,002 & 3,698 & 3,699 \\
+\bottomrule
+\end{tabular}
+\par\smallskip\begin{minipage}{\linewidth}\footnotesize
+Full acquisition seeds are 20260910/11/12. Two optimizer seeds reuse each acquisition. Whole components are retained, producing small deviations from nominal totals. Counts exclude source labels and the exposed outer-validation outcomes used to evaluate and guide the research program. The 1,000-group acquisitions overlap by 35--74 groups pairwise.
+\end{minipage}
+\end{table}
+
+\subsection{Initial fixed-recipe adaptation and its controls}
+The first low-label study completed fourteen initial fits, sixteen optimizer replications and four matched controls. At budget 1,000, three-seed target/source means were $0.039754/0.129856$ for ordinary ordinal A, $0.041465/0.112274$ for shared regression-plus-pairwise D, $0.041199/0.132948$ for anchoring E and $0.041254/0.129052$ for soft-preservation F. All use the same acquisition subset and 100-update recipe. At budget 200, target means were $0.039409$, $0.038948$, $0.038642$ and $0.040148$, respectively; the ordering depends on budget.
+
+A first-seed fresh frozen-head control reached target/source $0.041515/0.127078$, compared with $0.041304/0.133085$ for anchoring under that seed. This supports testing the anchor but does not match initialization and initial score scale. True source-label replay reached $0.040866/0.128611$ in its matched control. Equal-weight score ensembles were analyzed separately: the anchored ensemble's target utility was $0.041312$, with comparator difference $-0.000097$ and interval $[-0.000696,+0.000489]$. Averaging scores is not averaging achieved outcomes, and the ensemble did not supply the missing comparator win.
+
+Soft preservation reduced replay pairwise KL from $0.0434$ to $0.00578$ in the first-seed diagnostic, while source-audit choices became worse. The teacher's median top-versus-runner-up probability was only $0.522$ at the specified temperature, and 63.2\% of eligible groups were below $0.55$. A useful ordering can therefore have a small soft-probability margin. This observation motivates the teacher-margin experiment but does not by itself isolate its mechanism.
+
+\subsection{Optimization screen and source factorial}
+The stronger twenty-fit screen yielded inner-selected target/source utilities $0.041101/0.128339$ for ordinal A (100 updates, multiplier three), $0.040664/0.119120$ for Huber B (500, three), $0.039265/0.111535$ for shared D (500, one), $0.038883/0.122010$ for fresh frozen pairwise (500, one), and $0.041304/0.133085$ for anchoring E (100, one). The fresh frozen winner on inner validation was weak on the outer audit, illustrating selection instability. A different shared-score configuration scored better on the outer audit but was not promoted after the fact. Every source-constrained control selected initialization.
+
+Of twelve preservation factorial fits, only balanced teacher-margin weight one selected a nonzero feasible checkpoint under the constrained rule (step ten). The source-validation PRIDICT-family drop was $0.000947$, near the $0.001$ point cutoff. Across the twenty control and twelve factorial trajectories, only two of 320 nonzero checkpoint evaluations were source-feasible. This is a property of the tested constraint and validation populations, not proof that safe adaptation is intrinsically rare.
+
+Balanced sampling increased DeepPrime's realized replay-group share from 16.4\% to 49.6\%. At penalty weight one, median weighted-source/target gradient ratios were $0.632$ for balanced margin and $0.270$ for balanced KL. Nominally equal coefficients are not gradient-matched interventions. Resampling the fixed inner predictions selected the exact screened anchored checkpoint in 35.7\% of draws. This assesses selection noise among already fitted checkpoints, not uncertainty under retraining.
+
+\input{tables/factorial}
+\input{tables/secondary}
+
+\subsection{Conditional source retention and fallback behavior}
+At budget 1,000 the target-selected margin model's source change was $-0.000351$, interval $[-0.001626,+0.001106]$, which does not clear the working $-0.001$ margin. Source-constrained margin clears it for the six-fit mean, but its target difference against OptiPrime is negative with a fully negative interval. At budget 200, constrained margin's source change interval is $[-0.001359,+0.000390]$, again unresolved. Nonsignificance, operational feasibility and statistical noninferiority are distinct statements.
+
+The constrained margin procedure adapts in four of six runs at budget 200 and five of six at budget 1,000. Under target-only selection it falls back twice at 200 and never at 1,000. Fresh frozen pairwise falls back four times at 200; unregularized anchoring falls back once. Retaining initialization as an explicit eligible deployment makes these outcomes interpretable: a successful constraint may prevent damage by rejecting adaptation, and a reported adaptive benefit should distinguish genuinely changed models from fallback-only procedures.
+
+\section{Data-feasibility and deployment supplement}
+The ePRIDICT supplementary workbook contains 146 designs. Allele reconstruction from the authors' edited and unedited amplicon manifests resolves 143 unambiguously; nick/PBS/RTT reconstruction succeeds for 142 of those. After the final sequence eligibility and overlap checks, K562 supports 140 designs over 111 alleles and fifteen multidesign decisions, with maximum depth three. HEK293T provides no multidesign decision among its 54 resolved designs. These counts are not a prediction benchmark, and no model outcome was evaluated. Arrayed editor/scaffold context, cropping and tokenizer compatibility remain part of any subsequent scoring protocol.
+
+OPED's accessible thirty sequencing-run records and thirty gene-primer entries do not supply a verified mapping from experimental reads/barcodes to candidate design, condition and replicate. The approximately 49.4 GB read set was not downloaded for speculative reconstruction. Lack of a verified mapping is not evidence that the published data cannot ever support a useful benchmark. It is a limitation of the completed reconstruction.
+
+The source vocabulary audit finds clean RNA strings using A/C/G/U, with U historically assigned the embedding index named N. That index is still distinct from A/C/G, so the historical representation is injective on its observed alphabet. Replacing U with DNA T only at deployment would activate a different token and is not a valid repair for an existing checkpoint. The normalized overlap sensitivity found one shared-core target component, while excluding it did not change the comparative conclusions. No inference-only tokenizer rewrite or source retraining was performed.
+
+FP32 versus the historical BF16 path changed the matched starting target utility from $0.039564$ to $0.039627$, changing selected outcomes in 39 of 5,561 groups. Low-label comparisons therefore use a fresh matched FP32 initialization. End-to-end saved-model checks across batch sizes 31 and 128 preserve all tested choices for the anchored and margin deployments. Timing used 1,024 pretokenized GPU-resident candidates in batches of 128. The results do not include CPU feature construction, host-to-device transfer, checkpoint loading or the historical twenty-five-checkpoint ensemble, and must not be marketed as end-to-end service latency.
+
+An illustrative independent-decision precision calculation shows that, with only fifteen decisions, a paired-$t$ 95\% interval half-width of 0.001 would require paired outcome-difference standard deviation below approximately 0.00181. This is not a power estimate for the acquired K562 panel, whose variance has not been evaluated by the models. It explains why panel eligibility and depth should be established before repeatedly testing small outcome differences.
+
+\section{Corrections of record and scope boundaries}
+\begin{longtable}{P{.29\linewidth}P{.62\linewidth}}
+\caption{Claims or analyses superseded by the reviewed record.}\label{tab:corrections}\\
+\toprule Historical issue & Treatment in this manuscript \\
+\midrule\endfirsthead
+\toprule Historical issue & Treatment in this manuscript \\
+\midrule\endhead
+\bottomrule\endfoot
+Comparator padding artifact & Early reconstructed-corpus superiority margins withdrawn; official author-supplied data used. \\
+297,962 interpreted as total rows & Corrected to development/training count; total is 318,471. \\
+Protospacer utility called fixed-edit selection & Retained only as historical/descriptive analysis; canonical allele/context endpoints lead. \\
+Indel canonicalizer not strand-invariant & Corrected version independently normalizes both orientations; early quartet analyses explicitly retain historical version labels. \\
+Repeated rows and shallow lists spend nomination slots & Distinct candidates aggregated first; $U_k$ only defined at sufficient depth. \\
+Random hit rate ignores measured ties & All measured maximizers credited; all-zero groups have random hit probability one. \\
+Self-comparison declared significant & Degenerate identical-arm contrasts treated as numerical identity, not evidence against equality. \\
+Cross-checkpoint embedding subtraction & Corrected same-checkpoint, fold-held-out representation and within-split transforms; reduced interaction claim. \\
+Large interaction equals choice reversal & Margin change and order reversal reported separately. \\
+Pair exposure explains regrouping gain & Ranking-disabled batching control invalidates that unique causal account. \\
+Evaluation feature restandardization & Recover and freeze training-fold feature statistics; corrected external results used. \\
+Unused prediction head proves retention & Evaluate deployed selector; historical specialization-retention claim withdrawn. \\
+Small training subset equals small label budget & Count inner validation in later acquisitions; historical curves labeled separately. \\
+Compare adaptation against an unmatched ensemble & Use the exact starting checkpoint and matching numerical precision for retention/gain. \\
+One acquisition plus optimizer seeds proves robustness & Later acquisition replication shows anchor instability; uncertainty remains conditional on fitted runs. \\
+Soft KL implies unchanged choices & Deployed-choice audit contradicts this; margin recipe evaluated with its source/target trade-off. \\
+Calibration exactly preserves Spearman & Nondecreasing maps can create ties; actual before/after values reported. \\
+Independent ordinal logits form a coherent cumulative distribution & No monotonicity guarantee; constrained variants treated as separate experiments. \\
+Failed sweeps prove noise saturation or missing-context mechanism & Replicate headroom is model-dependent evidence against simple saturation; residual source is not identified. \\
+Paired comparisons cancel adaptive test exposure & Pairing improves precision but does not remove model-specific selection bias. \\
+Point source constraint proves noninferiority & Operational feasibility separated from conditional interval and independent confirmation. \\
+Unexecuted branches counted as negatives & Higher-label replication, new dual-representation architecture, excluded-domain pretraining and independent-panel scoring remain unexecuted. \\
+\end{longtable}
+
+\section{Artifact-to-claim inventory}
+The accompanying \artifact{evidence_inventory.md} maps every research phase to its reports, code and numerical ledgers. \artifact{source_data.json} supplies exact table values and SHA-256 fingerprints for the aggregate inputs used in generated submission assets. \artifact{verify_submission.py} checks asset provenance, headline values, LaTeX cross-references and the compiled PDF. These checks establish traceability and document consistency; they do not replace evaluation design or domain-independent validation. Author metadata and data/code release permissions remain the explicit pre-submission items listed in \artifact{SUBMISSION_CHECKLIST.md}.
