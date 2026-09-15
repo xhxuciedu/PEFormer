@@ -24,6 +24,7 @@ def main():
     args=parser.parse_args()
     tex='\n'.join(p.read_text() for p in [HERE/'main.tex',*sorted((HERE/'sections').glob('*.tex')),*sorted((HERE/'tables').glob('*.tex'))])
     results=(HERE/'sections/results.tex').read_text()
+    reported_results=results+'\n'+(HERE/'sections/diagnostics.tex').read_text()
     labels=re.findall(r'\\label\{([^}]+)\}',tex)
     refs=re.findall(r'\\(?:ref|eqref)\{([^}]+)\}',tex)
     check(len(labels)==len(set(labels)), 'Unique LaTeX labels')
@@ -37,6 +38,22 @@ def main():
         check((HERE/path).is_file(),'Local figure exists: '+path)
         check('..' not in Path(path).parts,'Portable figure: '+path)
     ledger=json.loads((HERE/'source_data.json').read_text())
+    rank=ledger['figure_data']['source_rank_robustness']
+    for model in ('ours','optiprime'):
+        for metric in ('kendall_tau_b','spearman_editing_only'):
+            check(f'{rank[model][metric]:.4f}' in results,
+                  f'Main-text ranking endpoint {model} {metric}')
+    selection=ledger['figure_data']['ordinal_selection']
+    keys=sorted(k for k in selection['arms'] if k.startswith('P_s'))
+    check(len(keys)==3, 'Selection figure includes all three native-ordinal seeds')
+    check(abs(statistics.mean(selection['arms'][k]['achieved_at_1'] for k in keys)
+              -selection['mean_utility'])<1e-12, 'Selection figure mean is a mean of seed outcomes')
+    for key in keys:
+        contrast=selection['contrasts'][key]
+        check(abs(contrast['observed']-(selection['arms'][key]['achieved_at_1']
+                                     -selection['arms']['op']['achieved_at_1']))<1e-12,
+              'Selection paired contrast arithmetic '+key)
+        check(contrast['ci95'][0]>0, 'Selection plotted interval above zero '+key)
     for name,table in ledger['tables'].items():
         text=(HERE/'tables'/f'{name}.tex').read_text()
         for i,row in enumerate(table['rows']):
@@ -58,7 +75,7 @@ def main():
     for spec in [('M','target','E','target','source_audit'),('M','constrained','A','target','target_outer_val'),('E','target','A','target','source_audit')]:
         c=contrast(*spec)
         for x in [c['observed'],*c['ci95']]:
-            check(f'{abs(x):.6f}' in results, f'Paired contrast {spec}: {x:.6f}')
+            check(f'{abs(x):.6f}' in reported_results, f'Paired contrast {spec}: {x:.6f}')
     mc=next(x for x in rep['aggregates'] if (x['budget'],x['label'],x['policy'])==(1000,'M','constrained'))
     check(mc['contrasts']['source_audit_minus_start']['ci95'][0]>-.001,'Conditional 1k margin source interval clears working threshold')
     check(mc['contrasts']['target_minus_optiprime']['ci95'][1]<0,'Constrained margin below OptiPrime on target')
@@ -82,12 +99,17 @@ def main():
         for stratum in ext['strata']:
             d=stratum['paired']['ours_minus_op_at_1']
             for x in [d['observed'],*d['ci95']]:
-                check(f'{abs(x):.5f}' in results,'External corrected contrast '+stratum['stratum']+' '+f'{x:.5f}')
+                check(f'{abs(x):.5f}' in reported_results,'External corrected contrast '+stratum['stratum']+' '+f'{x:.5f}')
         old=read('explore_v2/e27_adaptation_test.json')
         pkeys=[k for k in old['strata'][0]['arms'] if k.startswith('P_s')]
         mean=statistics.mean(old['strata'][0]['arms'][k]['achieved_at_1'] for k in pkeys)
         check(f'{mean:.5f}' in results and len(pkeys)==3,'Historical ordinal three-seed utility')
         check(all(old['strata'][0]['paired'][k+'_minus_op']['ci95'][0]>0 for k in pkeys),'Each historical ordinal seed CI above comparator')
+        check(all(selection['contrasts'][k]==old['strata'][0]['paired'][k+'_minus_op']
+                  and selection['arms'][k]==old['strata'][0]['arms'][k] for k in pkeys),
+              'Selection figure seed records match original adaptation ledger')
+        check(rank==read('revision/task_1_3_tie_robust.json')['metrics']['all'],
+              'Promoted rank endpoints match original robustness ledger')
         acquisition=read('explore_v3_1/acquisition_audit.json')
         for a in acquisition['acquisitions']:
             total=a['roles']['total']

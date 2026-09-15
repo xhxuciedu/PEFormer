@@ -1,0 +1,22 @@
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[node distance=8mm,box/.style={draw,rounded corners,align=center,text width=4.4cm,minimum height=10mm,font=\small},arr/.style={-{Latex},thick}]
+\node[box] (edit) {Aligned wild-type/edited pairs\\edit encoder (6 blocks)};
+\node[box,right=12mm of edit] (peg) {Spacer, PBS and RTT with segment identity\\pegRNA encoder (4 blocks)};
+\node[box,below=of edit,xshift=2.8cm,text width=6cm] (cross) {Bidirectional cross-attention (2 blocks)\\pooling and experimental-context conditioning};
+\node[box,below=of cross,text width=6cm] (source) {Order-sensitive source training\\ordinal thresholds / complementary proportion heads};
+\node[box,below=of source,xshift=-2.6cm,text width=4.3cm] (rank) {Source-trained scoring\\benchmark and external ranking};
+\node[box,right=8mm of rank,text width=4.3cm] (adapt) {Target-library fine-tuning\\native ordinal head, selected blocks};
+\node[box,below=of rank,text width=4.3cm] (selectsource) {Source-domain selection\\highest-scored pegRNA per edit};
+\node[box,below=of adapt,text width=4.3cm] (selecttarget) {Target-domain selection\\highest-scored pegRNA per edit};
+\draw[arr] (edit.south)--(cross.north west);
+\draw[arr] (peg.south)--(cross.north east);
+\draw[arr] (cross)--(source);
+\draw[arr] (source.south)--(rank.north);
+\draw[arr] (source.south)--(adapt.north);
+\draw[arr] (rank)--(selectsource);
+\draw[arr] (adapt)--(selecttarget);
+\end{tikzpicture}
+\caption{\textbf{\model{} integrates edit-aware representation learning with pegRNA ranking and selection.} Self-attention or bidirectional S4D mixes tokens within each stream; cross-attention connects guide and target. The source ensemble combines ordinal and proportion-based families. External zero-shot ranking uses the five-fold ordinal--S4D ensemble, whereas target fine-tuning starts from a predetermined single ordinal--S4D checkpoint and retains its native score. These are distinct configurations of the framework. No OptiPrime predictions or parameters enter the model. The supplementary adaptation experiments test additional selector and preservation variants, not required components of the main method.}
+\label{fig:architecture}
+\end{figure}

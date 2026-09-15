@@ -27,22 +27,7 @@ The base network has six edit-encoder blocks, four pegRNA-encoder blocks and two
 \end{equation}
 where the context vector $c$ is mapped to channel-wise scale and shift \citep{perez2018}. Some model families apply conditioning at each block rather than only near the readout. Architecture variants have approximately 25 million parameters; a subset includes an explicit engineered-feature branch. We do not characterize the full heterogeneous ensemble as feature-free.
 
-\begin{figure}[htbp]
-\centering
-\begin{tikzpicture}[node distance=8mm,box/.style={draw,rounded corners,align=center,text width=4.4cm,minimum height=10mm,font=\small},arr/.style={-{Latex},thick}]
-\node[box] (edit) {Aligned wild-type/edited pairs\\edit encoder (6 blocks)};
-\node[box,right=12mm of edit] (peg) {Segment-aware pegRNA\\pegRNA encoder (4 blocks)};
-\node[box,below=of edit,xshift=2.8cm,text width=6cm] (cross) {Bidirectional cross-attention (2 blocks)\\pooling and context conditioning};
-\node[box,below=of cross,text width=6cm] (source) {Source head: cumulative thresholds or proportions\\source score $q_0$ and representation $h_0$};
-\node[box,below=of source,text width=6cm] (adapt) {Adaptation: selected encoder/readout updates, or\\frozen $h_0$ with anchored score $q_0+r_\phi(h_0)$};
-\node[box,below=of adapt,text width=6cm] (select) {Select within a fixed allele/context candidate set\\evaluate the same deployed score on source and target};
-\draw[arr] (edit.south)--(cross.north west);
-\draw[arr] (peg.south)--(cross.north east);
-\draw[arr] (cross)--(source);\draw[arr] (source)--(adapt);\draw[arr] (adapt)--(select);
-\end{tikzpicture}
-\caption{\textbf{Sequence prediction and deployed-score adaptation.} Encoder blocks use self-attention or bidirectional S4D according to the model family. The anchored readout uses a training-standardized source score (normalization omitted from the diagram). Historical heterogeneous ensembling and the single-backbone adaptation procedures are distinct deployments. No comparator predictions enter the adaptation path.}
-\label{fig:architecture}
-\end{figure}
+The architecture and principal scoring paths are summarized in Figure~\ref{fig:architecture}.
 
 S4D replaces the within-stream attention mixer with a diagonal state-space convolution \citep{gu2022s4d}; cross-attention remains. For diagonal state matrix $A$, discretization step $\Delta$ and output coefficients $C$, a kernel can be written as
 \begin{equation}

@@ -52,6 +52,7 @@ def main():
     audit = read('explore_v2/e29_head_audit.json')
     rep = read('explore_v3_1/replication_results.json')
     source = read('results/round4/heldout/metrics_round4_final.json')
+    rank_robustness = read('revision/task_1_3_tie_robust.json')['metrics']['all']
     member_names={'ordSSM':'Ordinal + S4D','ssm':'Simplex + S4D','ordA':'Ordinal + layerwise FiLM',
                   'ordC':'Ordinal + features','familyA':'Simplex + layerwise FiLM'}
     table('source_members', 'Post-hoc source-benchmark family scores.', 'tab:sourcemembers',
@@ -98,6 +99,24 @@ def main():
     table('adaptation', 'Historical full-budget target-library adaptation.', 'tab:adaptation',
           ['Method', 'Test seeds', 'Target $U_1$', r'Prediction $\rho_{\mathrm S}$', r'$\Delta$ OptiPrime'], rows,
           'E25 retrospective test: 5,557 groups and 23,044 candidates. Full-budget adaptation uses 19,357 training groups and 5,561 validation groups. OptiPrime receives no target labels: its test utility is 0.04020 and Spearman is 0.6922. Utility evaluates the deployed score; the historical correlation column evaluates the prediction output, which differs from the deployed selector for separate-head arms. Entries average outcomes/metrics across the available seeds, not scores. Single-seed arms cannot establish a replicated advantage over ordinal P.')
+
+    ordinal_keys = sorted(k for k in test['arms'] if k.startswith('P_s'))
+    ordinal_mean = statistics.mean(test['arms'][k]['achieved_at_1'] for k in ordinal_keys)
+    ordinal_contrasts = {k: test['paired'][k + '_minus_op'] for k in ordinal_keys}
+    rows = []
+    for key in ordinal_keys:
+        contrast = ordinal_contrasts[key]
+        lo, hi = contrast['ci95']
+        rows.append([key.removeprefix('P_s'),
+                     f"{test['arms'][key]['achieved_at_1']:.5f}",
+                     f"{contrast['observed']:+.5f}",
+                     f'$[{lo:+.5f}, {hi:+.5f}]$'])
+    table('ordinal_selection',
+          'Native-ordinal fine-tuning improves external selection over released OptiPrime.',
+          'tab:ordinalselection',
+          ['Optimizer seed', r'\model{} $U_1$', r'$\Delta$ OptiPrime', 'Paired 95\\% interval'],
+          rows,
+          'Same retrospective E25 test for every row: 5,557 groups, 23,044 candidates and 4,954 locus components. OptiPrime top-choice efficiency is 0.04020; the mean adapted outcome across seeds is 0.04178. Intervals resample paired locus components conditional on each fitted model, not training seeds or independent studies. All entries are efficiency fractions. Adaptation uses 19,357 training and 5,561 validation groups; OptiPrime receives no target labels.')
 
     names = {'A':'Ordinal', 'C_frozen':'Fresh frozen', 'E':'Anchored', 'M':'Margin'}
     selected = []
@@ -176,6 +195,37 @@ def main():
         for i,v in enumerate(vals): ax.text(i,v*100+max(vals)*4,f'{v*100:.3f}',ha='center',fontsize=9)
     fig.tight_layout();savefig('decision')
 
+    fig, axes = plt.subplots(1, 3, figsize=(11, 3.7))
+    for ax, vals, title in [
+        (axes[0], [utility['op_at_1'], utility['ours_at_1']],
+         'Source selection\n1,463 informative groups'),
+        (axes[1], [test['arms']['op']['achieved_at_1'], ordinal_mean],
+         'External selection after fine-tuning\n5,557 test groups; three-seed mean'),
+    ]:
+        ax.bar(['OptiPrime', 'PE-RankFormer'], [v * 100 for v in vals],
+               color=['#666666', '#247ba0'], width=.55)
+        ax.set_title(title, fontsize=10)
+        ax.set_ylabel('Top-choice efficiency (%)')
+        ax.set_ylim(0, max(vals) * 125)
+        ax.tick_params(axis='x', labelsize=8)
+        for i, value in enumerate(vals):
+            ax.text(i, value * 100 + max(vals) * 4, f'{value * 100:.3f}',
+                    ha='center', fontsize=9)
+    ax = axes[2]
+    for i, key in enumerate(ordinal_keys):
+        contrast = ordinal_contrasts[key]
+        value = contrast['observed'] * 100
+        lo, hi = [x * 100 for x in contrast['ci95']]
+        ax.errorbar(i, value, yerr=[[value-lo], [hi-value]],
+                    fmt='o', color='#247ba0', capsize=4)
+    ax.axhline(0, color='#666666', ls='--', linewidth=1)
+    ax.set_xticks(range(len(ordinal_keys)), [k.removeprefix('P_s') for k in ordinal_keys],
+                  rotation=20, fontsize=8)
+    ax.set_title('Paired external selection gains\nEach seed versus OptiPrime', fontsize=10)
+    ax.set_ylabel('Efficiency gain (percentage points)')
+    ax.set_ylim(-.025, .27)
+    fig.tight_layout(); savefig('selection')
+
     fig, axes = plt.subplots(1,2,figsize=(9,3.6))
     colors = ['#247ba0','#aaaaaa','#ef8354','#57a773','#9163ad']
     for ax, surface, title in zip(axes,['target_outer_val','source_audit'],['Target adaptation','Source retention']):
@@ -201,11 +251,17 @@ def main():
     ax.set_ylim(0,16);ax.legend(ncol=2);fig.tight_layout();savefig('head_audit')
     figure_data={'prediction':cor['surfaces'], 'source_decision':utility,
                  'external_decision':ext['strata'], 'head_audit':means,
+                 'source_rank_robustness':rank_robustness,
+                 'ordinal_selection': {
+                     'arms': {k: test['arms'][k] for k in ['op', *ordinal_keys]},
+                     'contrasts': ordinal_contrasts,
+                     'mean_utility': ordinal_mean,
+                 },
                  'replication_baselines':rep['baselines'],
                  'replication_points':selected[5:]}
     (HERE/'source_data.json').write_text(json.dumps({'inputs_sha256':INPUTS,'tables':VALUES,
                                                    'figure_data':figure_data},indent=2)+'\n')
-    print(f'Generated {len(VALUES)} tables and 4 figures from {len(INPUTS)} aggregate records.')
+    print(f'Generated {len(VALUES)} tables and 5 figures from {len(INPUTS)} aggregate records.')
 
 if __name__ == '__main__':
     main()

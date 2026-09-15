@@ -1,6 +1,6 @@
 # Evidence inventory and review decisions
 
-Review date: 12 September 2026. Research baseline: `b55a14462a4b7e217041ffd763e90edf83f8860e`.
+Research review: 12 September 2026; method-centered writing revision: 14 September 2026. Research baseline: `b55a14462a4b7e217041ffd763e90edf83f8860e`.
 Paths below are relative to the repository root. Local reports are evidence about this research, not published literature. More recent corrected numerical ledgers take precedence over chronological prose. Proposals are not counted as completed results.
 
 ## Claim-to-record map
@@ -39,6 +39,9 @@ The earlier narrative manuscripts (`reports/paper/pe_rankformer_paper.tex`, `rep
 7. Distinguished the source heterogeneous ensemble, external ordinal–S4D ensemble, and adapted single backbone throughout. Recorded population dependence of historical rank averaging.
 8. Preserved algorithmic failure/negative results without turning them into formal power bounds or universal absence-of-effect claims.
 9. Marked author identity, affiliation, competing interests, funding and release permissions as unconfirmed rather than inheriting earlier placeholders as facts.
+10. Reframed the title, abstract, introduction, main results and discussion around the proposed PE-RankFormer method, with rank-based superiority first and selection-efficiency gains second. Promoted existing Kendall's tau-b and positive-outcome Spearman results into the main ranking table; these are not new experiments.
+11. Added a full-budget external selection figure and per-seed table from the unchanged E27 ledger, including all three native-ordinal seeds and their existing paired intervals. No confidence interval was invented for the across-seed mean.
+12. Moved detailed calibration, training, zero-shot stratification, alternative-head and low-label/retention analyses into the supplement. The zero-shot selection shortfall, target-label asymmetry and retrospective exposure remain explicit in the main paper. The research findings and their scope are unchanged.
 
 ## Primary-literature metadata checks
 

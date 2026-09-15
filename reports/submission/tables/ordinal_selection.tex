@@ -1,0 +1,16 @@
+\begin{table}[htbp]
+\centering\small
+\caption{Native-ordinal fine-tuning improves external selection over released OptiPrime.}
+\label{tab:ordinalselection}
+\begin{tabular}{lrrr}
+\toprule
+Optimizer seed & \model{} $U_1$ & $\Delta$ OptiPrime & Paired 95\% interval \\
+\midrule
+20260910 & 0.04182 & +0.00162 & $[+0.00094, +0.00227]$ \\
+20260911 & 0.04174 & +0.00154 & $[+0.00086, +0.00218]$ \\
+20260912 & 0.04178 & +0.00157 & $[+0.00091, +0.00223]$ \\
+\bottomrule
+\end{tabular}
+\par\smallskip
+\begin{minipage}{\linewidth}\footnotesize Same retrospective E25 test for every row: 5,557 groups, 23,044 candidates and 4,954 locus components. OptiPrime top-choice efficiency is 0.04020; the mean adapted outcome across seeds is 0.04178. Intervals resample paired locus components conditional on each fitted model, not training seeds or independent studies. All entries are efficiency fractions. Adaptation uses 19,357 training and 5,561 validation groups; OptiPrime receives no target labels.\end{minipage}
+\end{table}
